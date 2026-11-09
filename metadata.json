@@ -1,0 +1,6 @@
+{
+  "name": "SmartRestaurant",
+  "description": "Plataforma multinacional de gestión inteligente de restaurantes con arquitectura de sistemas distribuidos, reservas, KDS, pedidos QR y analítica para 5 países.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
