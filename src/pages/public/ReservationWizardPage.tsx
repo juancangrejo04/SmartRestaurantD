@@ -20,6 +20,7 @@ import {
   User as UserIcon,
   QrCode,
   ArrowRight,
+  Lock,
 } from 'lucide-react';
 
 export const ReservationWizardPage: React.FC = () => {
@@ -30,13 +31,18 @@ export const ReservationWizardPage: React.FC = () => {
     tables,
     reservations,
     createReservation,
+    currentUser,
+    isAuthenticated,
+    registerCustomer,
+    loginUser,
     showToast,
-    t,
+    language,
   } = useApp();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const preselectedRestId = searchParams.get('restaurantId') || '';
+  const preselectedBranchId = searchParams.get('branchId') || '';
   const preselectedGuests = Number(searchParams.get('guests')) || 2;
   const preselectedDate =
     searchParams.get('date') ||
@@ -47,6 +53,7 @@ export const ReservationWizardPage: React.FC = () => {
 
   // Form State
   const [selectedBranchId, setSelectedBranchId] = useState<string>(() => {
+    if (preselectedBranchId) return preselectedBranchId;
     if (preselectedRestId) {
       const matchBr = branches.find((b) => b.restaurantId === preselectedRestId);
       if (matchBr) return matchBr.id;
@@ -59,10 +66,17 @@ export const ReservationWizardPage: React.FC = () => {
   const [date, setDate] = useState<string>(preselectedDate);
   const [time, setTime] = useState<string>(preselectedTime);
   const [selectedTableId, setSelectedTableId] = useState<string>('');
-  const [customerName, setCustomerName] = useState<string>('Familia Jiménez');
-  const [customerEmail, setCustomerEmail] = useState<string>('reservas@cliente.com');
+  const [customerName, setCustomerName] = useState<string>(currentUser.name || 'Familia Jiménez');
+  const [customerEmail, setCustomerEmail] = useState<string>(currentUser.email || 'reservas@cliente.com');
   const [customerPhone, setCustomerPhone] = useState<string>('+57 310 987 6543');
-  const [notes, setNotes] = useState<string>('Celebración de aniversario. Mesa tranquila si es posible.');
+  const [notes, setNotes] = useState<string>('Celebración especial. Mesa tranquila.');
+
+  // Quick auth tab inside Step 4 if not authenticated
+  const [step4AuthMode, setStep4AuthMode] = useState<'guest' | 'login' | 'register'>('guest');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('');
 
   // Confirmed result
   const [confirmedReservationCode, setConfirmedReservationCode] = useState<string | null>(null);
@@ -107,6 +121,31 @@ export const ReservationWizardPage: React.FC = () => {
     setCurrentStep(4);
   };
 
+  const handleQuickRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!regName || !regEmail) {
+      showToast('Por favor completa tu nombre y correo', 'warning');
+      return;
+    }
+    const user = registerCustomer(regName, regEmail, regPhone);
+    setCustomerName(user.name);
+    setCustomerEmail(user.email);
+    if (user.phone) setCustomerPhone(user.phone);
+    setStep4AuthMode('guest');
+  };
+
+  const handleQuickLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginEmail) {
+      showToast('Por favor introduce tu correo', 'warning');
+      return;
+    }
+    loginUser(loginEmail);
+    setCustomerName(loginEmail.split('@')[0]);
+    setCustomerEmail(loginEmail);
+    setStep4AuthMode('guest');
+  };
+
   const handleConfirmReservation = () => {
     if (!customerName || !customerEmail || !customerPhone) {
       showToast('Por favor completa tus datos de contacto', 'warning');
@@ -124,507 +163,546 @@ export const ReservationWizardPage: React.FC = () => {
       notes,
     });
 
-    if (res.success) {
-      const generatedCode = `RES-${Math.floor(1000 + Math.random() * 9000)}`;
-      setConfirmedReservationCode(generatedCode);
-      showToast(`¡Reserva confirmada con éxito! Código: ${generatedCode}`, 'success');
+    if (res.success && res.reservation) {
+      setConfirmedReservationCode(res.reservation.code || res.reservation.id.slice(0, 8).toUpperCase());
+      setCurrentStep(5);
     } else {
-      showToast(res.error || 'No fue posible confirmar la reserva.', 'error');
+      showToast(res.error || 'No se pudo crear la reserva', 'error');
     }
   };
 
-  // QR path for confirmation
-  const qrSvgPath = confirmedReservationCode
+  const selectedTable = tables.find((t) => t.id === selectedTableId);
+  const branchCountry = selectedBranch?.country || country;
+  const branchConfig = COUNTRIES[branchCountry];
+
+  // Demo QR path for confirmed reservation
+  const reservationQrSvg = confirmedReservationCode
     ? generateQrSvgPath(`SMARTRESTAURANT-RES:${confirmedReservationCode}`, 29)
     : '';
 
   return (
-    <div className="min-h-screen bg-[#FBF6EC] py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-[#FBF6EC] py-12 px-4 sm:px-6 lg:px-8 font-sans text-[#1F1A17]">
       <div className="max-w-3xl mx-auto space-y-8">
-        {/* Wizard Header */}
-        <div className="text-center space-y-2">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#C8452C]">
-            Asistente de Reservaciones en Línea
-          </span>
+        {/* Wizard Steps Header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8A33D]/20 text-[#C8452C] text-xs font-mono font-bold">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>RESERVA EN LÍNEA SIN ESPERAS</span>
+          </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1F1A17]">
-            {confirmedReservationCode ? '¡Tu Mesa Está Reservada!' : 'Reserva Tu Experiencia'}
+            Agenda tu Mesa Culinaria
           </h1>
           <p className="text-xs text-[#7A6E65]">
-            Confirmación inmediata, sin esperas y con garantía de disponibilidad.
+            Asignación directa con confirmación instantánea.
           </p>
         </div>
 
-        {/* Progress Stepper */}
-        {!confirmedReservationCode && (
-          <div className="flex items-center justify-between max-w-lg mx-auto px-4">
+        {/* Progress Bar (4 Steps) */}
+        {currentStep <= 4 && (
+          <div className="grid grid-cols-4 gap-2 text-center text-xs font-semibold">
             {[
               { num: 1, label: 'Sucursal' },
-              { num: 2, label: 'Horario' },
+              { num: 2, label: 'Fecha y Hora' },
               { num: 3, label: 'Mesa' },
               { num: 4, label: 'Confirmación' },
-            ].map((step, idx) => {
-              const isPast = currentStep > step.num;
-              const isCurrent = currentStep === step.num;
-              return (
-                <div key={step.num} className="flex items-center flex-1 last:flex-none">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                        isPast
-                          ? 'bg-[#6B7A3A] text-white'
-                          : isCurrent
-                          ? 'bg-[#C8452C] text-white shadow-md'
-                          : 'bg-[#E9DFCC] text-[#7A6E65]'
-                      }`}
-                    >
-                      {isPast ? <CheckCircle2 className="w-4 h-4" /> : step.num}
-                    </div>
-                    <span
-                      className={`text-[10px] mt-1 font-medium ${
-                        isCurrent ? 'text-[#C8452C] font-bold' : 'text-[#7A6E65]'
-                      }`}
-                    >
-                      {step.label}
-                    </span>
-                  </div>
-                  {idx < 3 && (
-                    <div
-                      className={`flex-1 h-0.5 mx-2 ${
-                        currentStep > step.num ? 'bg-[#6B7A3A]' : 'bg-[#E9DFCC]'
-                      }`}
-                    />
-                  )}
-                </div>
-              );
-            })}
+            ].map((st) => (
+              <div
+                key={st.num}
+                className={`p-2.5 rounded-2xl border transition-all ${
+                  currentStep === st.num
+                    ? 'bg-[#1F1A17] text-white border-[#1F1A17] shadow-md'
+                    : currentStep > st.num
+                    ? 'bg-[#6B7A3A]/10 text-[#6B7A3A] border-[#6B7A3A]/30'
+                    : 'bg-[#FFFDF8] text-[#7A6E65] border-[#E9DFCC]'
+                }`}
+              >
+                <span className="font-mono text-[10px] block opacity-75">PASO {st.num}</span>
+                <span className="font-serif text-xs">{st.label}</span>
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Wizard Card Body */}
-        <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-lg">
-          {/* STEP 1: RESTAURANT & BRANCH */}
-          {currentStep === 1 && !confirmedReservationCode && (
-            <div className="space-y-6 animate-in fade-in">
+        {/* STEP 1: Select Brand & Branch */}
+        {currentStep === 1 && (
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E9DFCC]">
               <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
-                1. Selecciona la Sede y el Número de Personas
+                Paso 1: Elige el Restaurante y la Sucursal
               </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-[#7A6E65] uppercase tracking-wider block mb-2">
-                    Restaurante y Sucursal
-                  </label>
-                  <select
-                    value={selectedBranchId}
-                    onChange={(e) => setSelectedBranchId(e.target.value)}
-                    className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
-                  >
-                    {branches.map((b) => {
-                      const rest = restaurants.find((r) => r.id === b.restaurantId);
-                      const c = COUNTRIES[b.country];
-                      return (
-                        <option key={b.id} value={b.id}>
-                          {c.flagEmoji} {rest?.name} — {b.name} ({b.city})
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-
-                {selectedRestaurant && selectedBranch && (
-                  <div className="p-4 rounded-2xl bg-[#FBF6EC] border border-[#E9DFCC] flex items-center gap-4">
-                    <img
-                      src={selectedRestaurant.heroImage}
-                      alt={selectedRestaurant.name}
-                      className="w-16 h-16 rounded-xl object-cover shrink-0"
-                    />
-                    <div>
-                      <h4 className="font-serif font-bold text-base text-[#1F1A17]">
-                        {selectedRestaurant.name}
-                      </h4>
-                      <p className="text-xs text-[#7A6E65]">
-                        {selectedBranch.address}, {selectedBranch.city}
-                      </p>
-                      <p className="text-[11px] text-[#C8452C] font-mono mt-1">
-                        Horario: {selectedBranch.openingHours}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <label className="text-xs font-bold text-[#7A6E65] uppercase tracking-wider block mb-2">
-                    Número de Comensales
-                  </label>
-                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-                    {[1, 2, 3, 4, 5, 6, 8, 10].map((num) => (
-                      <button
-                        key={num}
-                        type="button"
-                        onClick={() => setGuestsCount(num)}
-                        className={`py-2.5 rounded-xl text-xs font-bold transition-all ${
-                          guestsCount === num
-                            ? 'bg-[#C8452C] text-white shadow-md'
-                            : 'bg-[#FBF6EC] text-[#1F1A17] hover:bg-[#E9DFCC] border border-[#E9DFCC]'
-                        }`}
-                      >
-                        {num} {num === 1 ? 'p' : 'p'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-[#E9DFCC] flex justify-end">
-                <button
-                  onClick={handleStep1Next}
-                  className="py-2.5 px-6 rounded-xl bg-[#C8452C] hover:bg-[#A83720] text-white text-xs font-bold shadow-md transition-all flex items-center gap-2"
-                >
-                  <span>Continuar a Fecha y Hora</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
+              <span className="text-xs font-mono text-[#7A6E65]">
+                {branches.length} sedes disponibles
+              </span>
             </div>
-          )}
 
-          {/* STEP 2: DATE & TIME WITH COLLISION SENSING */}
-          {currentStep === 2 && !confirmedReservationCode && (
-            <div className="space-y-6 animate-in fade-in">
-              <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
-                2. Elige la Fecha y Turno de Servicio
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-[#7A6E65] uppercase tracking-wider block mb-2">
-                    Fecha de Reservación
-                  </label>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-[#7A6E65] uppercase tracking-wider block mb-2">
-                    Horario de Reserva
-                  </label>
-                  <select
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
-                  >
-                    {['12:30', '13:00', '13:30', '14:00', '19:30', '20:00', '20:30', '21:00', '21:30'].map(
-                      (tVal) => (
-                        <option key={tVal} value={tVal}>
-                          {tVal} hrs
-                        </option>
-                      )
-                    )}
-                  </select>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#E8A33D]/10 border border-[#E8A33D]/30 flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-[#C8452C] shrink-0 mt-0.5" />
-                <div className="text-xs text-[#1F1A17] leading-relaxed">
-                  <strong>Control de colisión ±90 minutos activo:</strong> El sistema distribuido de reservas asegura una ventana de 1h30 para tu sobremesa sin que se asignen comensales sobrepuestos a tu mesa.
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-[#E9DFCC] flex items-center justify-between">
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  className="py-2.5 px-4 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC] text-[#1F1A17] text-xs font-semibold transition-colors flex items-center gap-1.5"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Atrás</span>
-                </button>
-                <button
-                  onClick={handleStep2Next}
-                  className="py-2.5 px-6 rounded-xl bg-[#C8452C] hover:bg-[#A83720] text-white text-xs font-bold shadow-md transition-all flex items-center gap-2"
-                >
-                  <span>Continuar a Selección de Mesa</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: TABLE SELECTION */}
-          {currentStep === 3 && !confirmedReservationCode && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
-                    3. Selecciona tu Mesa
-                  </h2>
-                  <p className="text-xs text-[#7A6E65]">
-                    Mesas disponibles para {guestsCount} persona(s) el {date} a las {time}
-                  </p>
-                </div>
-                <span className="text-xs font-mono font-bold text-[#6B7A3A]">
-                  {eligibleTables.length} mesas encontradas
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {eligibleTables.map((tbl) => {
-                  const collision = checkTableCollision(tbl);
-                  const isBlocked = collision.hasCollision;
-                  const isSelected = selectedTableId === tbl.id;
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {branches.map((b) => {
+                  const rest = restaurants.find((r) => r.id === b.restaurantId);
+                  const isSelected = selectedBranchId === b.id;
+                  const cConfig = COUNTRIES[b.country];
 
                   return (
                     <button
-                      key={tbl.id}
+                      key={b.id}
                       type="button"
-                      disabled={isBlocked}
-                      onClick={() => setSelectedTableId(tbl.id)}
-                      className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
-                        isBlocked
-                          ? 'opacity-40 bg-slate-100 border-slate-200 cursor-not-allowed'
-                          : isSelected
-                          ? 'bg-[#C8452C] text-white border-[#C8452C] shadow-md'
-                          : 'bg-[#FBF6EC] hover:border-[#E8A33D] text-[#1F1A17] border-[#E9DFCC]'
+                      onClick={() => setSelectedBranchId(b.id)}
+                      className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                        isSelected
+                          ? 'border-[#C8452C] bg-[#FBF6EC] ring-2 ring-[#C8452C]/20 shadow-md'
+                          : 'border-[#E9DFCC] bg-white hover:border-[#E8A33D]'
                       }`}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="font-serif font-bold text-lg">
-                          Mesa #{tbl.number}
-                        </span>
-                        <span
-                          className={`text-[10px] font-mono px-2 py-0.5 rounded-full uppercase font-bold ${
-                            isSelected ? 'bg-white/20 text-white' : 'bg-[#E9DFCC] text-[#7A6E65]'
-                          }`}
-                        >
-                          {tbl.zone}
-                        </span>
-                      </div>
-                      <div className="text-xs flex items-center gap-1 opacity-90">
-                        <Users className="w-3.5 h-3.5" />
-                        <span>Capacidad: {tbl.capacity} comensales</span>
-                      </div>
-                      {isBlocked && (
-                        <div className="text-[10px] font-bold text-rose-600 mt-2">
-                          Horario ocupado
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-serif font-bold text-sm text-[#1F1A17]">
+                            {rest?.name}
+                          </span>
+                          <span className="text-sm">{cConfig.flagEmoji}</span>
                         </div>
-                      )}
+                        <p className="text-xs font-semibold text-[#C8452C]">{b.name}</p>
+                        <p className="text-[11px] text-[#7A6E65] flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-[#C8452C]" />
+                          <span>{b.address}, {b.city}</span>
+                        </p>
+                      </div>
+
+                      <div className="mt-3 pt-2 border-t border-[#E9DFCC]/60 flex items-center justify-between text-[10px] font-mono text-[#7A6E65]">
+                        <span>{b.totalTables} mesas</span>
+                        <span>{cConfig.currency}</span>
+                      </div>
                     </button>
                   );
                 })}
               </div>
-
-              <div className="pt-6 border-t border-[#E9DFCC] flex items-center justify-between">
-                <button
-                  onClick={() => setCurrentStep(2)}
-                  className="py-2.5 px-4 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC] text-[#1F1A17] text-xs font-semibold transition-colors flex items-center gap-1.5"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Atrás</span>
-                </button>
-                <button
-                  onClick={handleStep3Next}
-                  className="py-2.5 px-6 rounded-xl bg-[#C8452C] hover:bg-[#A83720] text-white text-xs font-bold shadow-md transition-all flex items-center gap-2"
-                >
-                  <span>Continuar a Datos de Contacto</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
             </div>
-          )}
 
-          {/* STEP 4: CONTACT & CONFIRMATION */}
-          {currentStep === 4 && !confirmedReservationCode && (
-            <div className="space-y-6 animate-in fade-in">
-              <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
-                4. Datos de Contacto y Confirmación
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-[#7A6E65] uppercase tracking-wider block mb-1">
-                    Nombre Completo
-                  </label>
-                  <div className="relative">
-                    <UserIcon className="w-4 h-4 text-[#7A6E65] absolute left-3 top-3 pointer-events-none" />
-                    <input
-                      type="text"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl pl-9 pr-3 py-2 text-xs font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-[#7A6E65] uppercase tracking-wider block mb-1">
-                    Correo Electrónico
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-[#7A6E65] absolute left-3 top-3 pointer-events-none" />
-                    <input
-                      type="email"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl pl-9 pr-3 py-2 text-xs font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-[#7A6E65] uppercase tracking-wider block mb-1">
-                    Teléfono Móvil
-                  </label>
-                  <div className="relative">
-                    <Phone className="w-4 h-4 text-[#7A6E65] absolute left-3 top-3 pointer-events-none" />
-                    <input
-                      type="tel"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl pl-9 pr-3 py-2 text-xs font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-[#7A6E65] uppercase tracking-wider block mb-1">
-                    Notas o Requerimientos Especiales
-                  </label>
-                  <input
-                    type="text"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Alergias, silla para niños, ocasión especial..."
-                    className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
-                  />
-                </div>
-              </div>
-
-              {/* Booking Summary Box */}
-              <div className="p-4 rounded-2xl bg-[#FBF6EC] border border-[#E9DFCC] space-y-2 text-xs text-[#1F1A17]">
-                <h4 className="font-bold text-[#C8452C] uppercase tracking-wider text-[10px]">
-                  Resumen de la Reservación
-                </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
-                  <div>
-                    <span className="text-[#7A6E65] block text-[10px]">Restaurante</span>
-                    <span className="font-bold">{selectedRestaurant?.name}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#7A6E65] block text-[10px]">Fecha & Hora</span>
-                    <span className="font-bold">{date} • {time}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#7A6E65] block text-[10px]">Personas</span>
-                    <span className="font-bold">{guestsCount} comensales</span>
-                  </div>
-                  <div>
-                    <span className="text-[#7A6E65] block text-[10px]">Mesa</span>
-                    <span className="font-bold">
-                      Mesa #{branchTables.find((t) => t.id === selectedTableId)?.number || '-'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-[#E9DFCC] flex items-center justify-between">
-                <button
-                  onClick={() => setCurrentStep(3)}
-                  className="py-2.5 px-4 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC] text-[#1F1A17] text-xs font-semibold transition-colors flex items-center gap-1.5"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Atrás</span>
-                </button>
-                <button
-                  onClick={handleConfirmReservation}
-                  className="py-3 px-8 rounded-xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-lg shadow-[#C8452C]/30 transition-all flex items-center gap-2"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Confirmar Reservación Ahora</span>
-                </button>
-              </div>
+            <div className="pt-4 flex justify-end border-t border-[#E9DFCC]">
+              <button
+                type="button"
+                onClick={handleStep1Next}
+                className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-md shadow-[#C8452C]/20 transition-all flex items-center gap-2"
+              >
+                <span>Siguiente: Fecha y Comensales</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* CONFIRMATION SUCCESS SCREEN */}
-          {confirmedReservationCode && (
-            <div className="text-center space-y-6 animate-in zoom-in-95">
-              <div className="w-16 h-16 rounded-full bg-[#6B7A3A]/20 text-[#6B7A3A] flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-10 h-10" />
-              </div>
-
-              <div className="space-y-1">
-                <span className="text-xs font-mono font-bold text-[#6B7A3A] uppercase tracking-wider">
-                  Reservación Confirmada
-                </span>
-                <h2 className="font-serif text-3xl font-bold text-[#1F1A17]">
-                  ¡Te esperamos con entusiasmo!
+        {/* STEP 2: Guests, Date, and Time */}
+        {currentStep === 2 && (
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E9DFCC]">
+              <div>
+                <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
+                  Paso 2: Comensales y Horario
                 </h2>
                 <p className="text-xs text-[#7A6E65]">
-                  Hemos enviado los detalles a {customerEmail}
+                  {selectedRestaurant?.name} — {selectedBranch?.name}
                 </p>
               </div>
+            </div>
 
-              {/* Booking Pass Card with QR */}
-              <div className="max-w-md mx-auto bg-[#FBF6EC] rounded-2xl p-6 border-2 border-dashed border-[#E8A33D] space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#E9DFCC]">
-                  <span className="font-serif font-bold text-base text-[#1F1A17]">
-                    Pase de Comensal
-                  </span>
-                  <span className="font-mono text-sm font-bold text-[#C8452C]">
-                    {confirmedReservationCode}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-left text-xs font-mono">
-                  <div>
-                    <span className="text-[#7A6E65] block text-[10px]">Titular:</span>
-                    <span className="font-bold">{customerName}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#7A6E65] block text-[10px]">Restaurante:</span>
-                    <span className="font-bold truncate">{selectedRestaurant?.name}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#7A6E65] block text-[10px]">Cita:</span>
-                    <span className="font-bold">{date} • {time}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#7A6E65] block text-[10px]">Mesa Asignada:</span>
-                    <span className="font-bold text-[#C8452C]">
-                      Mesa #{branchTables.find((t) => t.id === selectedTableId)?.number}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-[#E9DFCC] flex items-center justify-center">
-                  <div className="p-2 bg-white rounded-xl border border-[#E9DFCC] shadow-inner">
-                    <svg viewBox="0 0 29 29" className="w-32 h-32">
-                      <path d={qrSvgPath} fill="#1F1A17" />
-                    </svg>
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
+                  Número de Personas
+                </label>
+                <select
+                  value={guestsCount}
+                  onChange={(e) => setGuestsCount(Number(e.target.value))}
+                  className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12].map((n) => (
+                    <option key={n} value={n}>
+                      {n} {n === 1 ? 'persona' : 'personas'}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
-                <Link
-                  to="/mis-reservas"
-                  className="py-2.5 px-5 rounded-xl bg-[#1F1A17] hover:bg-[#332B25] text-white text-xs font-bold transition-colors"
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
+                  Fecha de la Reserva
+                </label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
+                  Hora de Llegada
+                </label>
+                <select
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
                 >
-                  Ver Mis Reservas
-                </Link>
-                <Link
-                  to="/"
-                  className="py-2.5 px-5 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC] text-[#1F1A17] text-xs font-semibold transition-colors"
-                >
-                  Volver al Inicio
-                </Link>
+                  {['12:30', '13:00', '13:30', '14:00', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'].map((h) => (
+                    <option key={h} value={h}>
+                      {h} hrs
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-          )}
-        </div>
+
+            <div className="pt-4 flex items-center justify-between border-t border-[#E9DFCC]">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(1)}
+                className="py-2.5 px-4 rounded-xl text-xs font-semibold text-[#7A6E65] hover:bg-[#FBF6EC] flex items-center gap-1"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Volver</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleStep2Next}
+                className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-md shadow-[#C8452C]/20 transition-all flex items-center gap-2"
+              >
+                <span>Siguiente: Seleccionar Mesa</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: Table Selection & Collision Detection */}
+        {currentStep === 3 && (
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E9DFCC]">
+              <div>
+                <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
+                  Paso 3: Selecciona tu Mesa en Plano
+                </h2>
+                <p className="text-xs text-[#7A6E65]">
+                  Mostrando mesas con capacidad para {guestsCount}+ comensales en {selectedBranch?.name}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {eligibleTables.map((tbl) => {
+                const collision = checkTableCollision(tbl);
+                const isSelected = selectedTableId === tbl.id;
+                const isOccupiedByDate = collision.hasCollision;
+
+                return (
+                  <button
+                    key={tbl.id}
+                    type="button"
+                    disabled={isOccupiedByDate}
+                    onClick={() => setSelectedTableId(tbl.id)}
+                    className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
+                      isSelected
+                        ? 'border-[#C8452C] bg-[#FBF6EC] ring-2 ring-[#C8452C]/20 shadow-md'
+                        : isOccupiedByDate
+                        ? 'bg-slate-100/60 border-slate-200 text-slate-400 opacity-60 cursor-not-allowed'
+                        : 'bg-white border-[#E9DFCC] hover:border-[#E8A33D]'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-mono font-bold text-sm text-[#1F1A17]">
+                          Mesa #{tbl.number}
+                        </span>
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+                          {tbl.capacity}p
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-[#7A6E65] capitalize">
+                        Zona {tbl.zone}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-current/10">
+                      {isOccupiedByDate ? (
+                        <span className="text-[10px] text-rose-600 font-bold block truncate">
+                          Ocupada ({collision.conflictingReservation?.time})
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Disponible</span>
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="pt-4 flex items-center justify-between border-t border-[#E9DFCC]">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(2)}
+                className="py-2.5 px-4 rounded-xl text-xs font-semibold text-[#7A6E65] hover:bg-[#FBF6EC] flex items-center gap-1"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Volver</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={!selectedTableId}
+                onClick={handleStep3Next}
+                className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-md shadow-[#C8452C]/20 transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                <span>Siguiente: Datos de Contacto</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: Contact details & Quick customer registration */}
+        {currentStep === 4 && (
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E9DFCC]">
+              <div>
+                <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
+                  Paso 4: Confirmación y Datos de Contacto
+                </h2>
+                <p className="text-xs text-[#7A6E65]">
+                  Revisa los detalles y completa tu información para la reserva.
+                </p>
+              </div>
+            </div>
+
+            {/* Reservation Summary Pill */}
+            <div className="bg-[#FBF6EC] rounded-2xl p-4 border border-[#E9DFCC] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">Restaurante</span>
+                <span className="font-semibold text-[#1F1A17]">{selectedRestaurant?.name}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">Sucursal</span>
+                <span className="font-semibold text-[#1F1A17]">{selectedBranch?.name}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">Fecha & Hora</span>
+                <span className="font-semibold text-[#1F1A17]">{date} · {time} hrs</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">Mesa & Personas</span>
+                <span className="font-semibold text-[#C8452C]">Mesa #{selectedTable?.number} ({guestsCount}p)</span>
+              </div>
+            </div>
+
+            {/* Quick account switch / registration for seamless session */}
+            {!isAuthenticated && (
+              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-amber-600" />
+                    <span>¿Deseas guardar esta reserva en tu perfil de comensal?</span>
+                  </span>
+                  <div className="flex items-center gap-1 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setStep4AuthMode('register')}
+                      className={`px-2.5 py-1 rounded-lg font-semibold transition-colors ${
+                        step4AuthMode === 'register' ? 'bg-[#1F1A17] text-white' : 'text-amber-900 hover:underline'
+                      }`}
+                    >
+                      Crear Cuenta
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStep4AuthMode('login')}
+                      className={`px-2.5 py-1 rounded-lg font-semibold transition-colors ${
+                        step4AuthMode === 'login' ? 'bg-[#1F1A17] text-white' : 'text-amber-900 hover:underline'
+                      }`}
+                    >
+                      Iniciar Sesión
+                    </button>
+                  </div>
+                </div>
+
+                {step4AuthMode === 'register' && (
+                  <form onSubmit={handleQuickRegister} className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+                    <input
+                      type="text"
+                      placeholder="Tu nombre completo"
+                      value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                      className="bg-white border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-medium"
+                      required
+                    />
+                    <input
+                      type="email"
+                      placeholder="correo@ejemplo.com"
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                      className="bg-white border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-medium"
+                      required
+                    />
+                    <button
+                      type="submit"
+                      className="py-1.5 px-3 bg-[#1F1A17] text-white text-xs font-bold rounded-xl"
+                    >
+                      Registrarme y Continuar
+                    </button>
+                  </form>
+                )}
+
+                {step4AuthMode === 'login' && (
+                  <form onSubmit={handleQuickLogin} className="flex gap-2 pt-2">
+                    <input
+                      type="email"
+                      placeholder="Tu correo registrado"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="flex-1 bg-white border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-medium"
+                      required
+                    />
+                    <button
+                      type="submit"
+                      className="py-1.5 px-4 bg-[#1F1A17] text-white text-xs font-bold rounded-xl"
+                    >
+                      Acceder
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {/* Direct Contact Fields */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
+                  Nombre Completo
+                </label>
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
+                  Correo Electrónico
+                </label>
+                <input
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
+                  Teléfono de Contacto
+                </label>
+                <input
+                  type="tel"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17]"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
+                Peticiones Especiales (opcional)
+              </label>
+              <textarea
+                rows={2}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Alergias, silla para bebé, motivo de celebración..."
+                className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl p-3 text-xs font-medium text-[#1F1A17]"
+              />
+            </div>
+
+            <div className="pt-4 flex items-center justify-between border-t border-[#E9DFCC]">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(3)}
+                className="py-2.5 px-4 rounded-xl text-xs font-semibold text-[#7A6E65] hover:bg-[#FBF6EC] flex items-center gap-1"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Volver</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmReservation}
+                className="py-3.5 px-8 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-lg shadow-[#C8452C]/30 transition-all flex items-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Confirmar Reservación</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 5: Success Confirmation Card */}
+        {currentStep === 5 && (
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-xl text-center space-y-6 animate-in zoom-in-95">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-1">
+              <h2 className="font-serif font-bold text-2xl text-[#1F1A17]">
+                ¡Reservación Confirmada con Éxito!
+              </h2>
+              <p className="text-xs text-[#7A6E65]">
+                Hemos reservado tu mesa. Presenta este código al llegar a la sucursal.
+              </p>
+            </div>
+
+            <div className="max-w-sm mx-auto bg-[#FBF6EC] rounded-2xl p-6 border border-[#E9DFCC] space-y-4">
+              <div className="font-mono text-2xl font-bold text-[#C8452C] tracking-wider">
+                {confirmedReservationCode}
+              </div>
+
+              <div className="w-36 h-36 mx-auto bg-white p-2 rounded-xl border border-[#E9DFCC]">
+                <svg viewBox="0 0 29 29" className="w-full h-full">
+                  <path d={reservationQrSvg} fill="#1F1A17" />
+                </svg>
+              </div>
+
+              <div className="text-xs text-[#7A6E65] space-y-1">
+                <p><strong className="text-[#1F1A17]">{selectedRestaurant?.name}</strong> — {selectedBranch?.name}</p>
+                <p>{date} a las {time} hrs</p>
+                <p>Mesa #{selectedTable?.number} · {guestsCount} comensales</p>
+                <p className="font-medium text-[#1F1A17]">Titular: {customerName}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <Link
+                to="/mis-reservas"
+                className="py-2.5 px-6 rounded-xl bg-[#1F1A17] text-white text-xs font-bold hover:bg-[#332B25] transition-colors"
+              >
+                Ver Mis Reservaciones
+              </Link>
+
+              <Link
+                to="/"
+                className="py-2.5 px-6 rounded-xl bg-[#FBF6EC] text-[#1F1A17] text-xs font-semibold border border-[#E9DFCC] hover:bg-[#E9DFCC] transition-colors"
+              >
+                Volver al Inicio
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

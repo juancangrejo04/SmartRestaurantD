@@ -52,7 +52,7 @@ export const BranchesView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {restaurants.map((rest: Restaurant) => {
           const restBranches = branches.filter((b: Branch) => b.restaurantId === rest.id);
-          const cConfig = COUNTRIES[rest.country];
+          const cConfig = COUNTRIES[rest.country || 'CO'];
 
           return (
             <div

@@ -11,9 +11,12 @@ import {
   CountryCode,
   ServiceDefinition,
   ServiceHealth,
+  Review,
 } from '../types';
+import { DISH_CATALOG, buildMenuItemsForBranch, getDishesForCountry } from './dishCatalog';
 
 export const SEED_USERS: User[] = [
+  // 1. Owner (Global Multinational Owner)
   {
     id: 'user-owner',
     name: 'Carlos Mendoza',
@@ -22,34 +25,99 @@ export const SEED_USERS: User[] = [
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     country: 'CO',
   },
+  // 2. Admins per Country & Branch
   {
-    id: 'user-admin',
+    id: 'user-admin-bogota',
     name: 'Elena Rostova',
     email: 'elena.admin@smartrestaurant.io',
     role: 'admin',
     avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
-    assignedRestaurantId: 'rest-co-1',
-    assignedBranchId: 'branch-co-1',
+    assignedRestaurantId: 'brand-aura',
+    assignedBranchId: 'branch-aura-co-bogota',
     country: 'CO',
   },
   {
-    id: 'user-waiter',
+    id: 'user-admin-cdmx',
+    name: 'Rodrigo Fuentes',
+    email: 'rodrigo.admin@smartrestaurant.io',
+    role: 'admin',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    assignedRestaurantId: 'brand-aura',
+    assignedBranchId: 'branch-aura-mx',
+    country: 'MX',
+  },
+  {
+    id: 'user-admin-ny',
+    name: 'Michael Vance',
+    email: 'michael.admin@smartrestaurant.io',
+    role: 'admin',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    assignedRestaurantId: 'brand-aura',
+    assignedBranchId: 'branch-aura-us',
+    country: 'US',
+  },
+  {
+    id: 'user-admin-sp',
+    name: 'Juliana Costa',
+    email: 'juliana.admin@smartrestaurant.io',
+    role: 'admin',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    assignedRestaurantId: 'brand-aura',
+    assignedBranchId: 'branch-aura-br',
+    country: 'BR',
+  },
+  {
+    id: 'user-admin-tokyo',
+    name: 'Kenji Takahashi',
+    email: 'kenji.admin@smartrestaurant.io',
+    role: 'admin',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    assignedRestaurantId: 'brand-aura',
+    assignedBranchId: 'branch-aura-jp',
+    country: 'JP',
+  },
+
+  // 3. Waiters
+  {
+    id: 'user-waiter-bogota',
     name: 'Mateo Gómez',
     email: 'mateo.waiter@smartrestaurant.io',
     role: 'waiter',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    assignedBranchId: 'branch-co-1',
+    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+    assignedBranchId: 'branch-aura-co-bogota',
     country: 'CO',
   },
   {
-    id: 'user-kitchen',
+    id: 'user-waiter-ny',
+    name: 'Emily Davis',
+    email: 'emily.waiter@smartrestaurant.io',
+    role: 'waiter',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+    assignedBranchId: 'branch-aura-us',
+    country: 'US',
+  },
+
+  // 4. Kitchen staff
+  {
+    id: 'user-kitchen-bogota',
     name: 'Chef Kenji Sato',
     email: 'kenji.kitchen@smartrestaurant.io',
     role: 'kitchen',
     avatar: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80',
-    assignedBranchId: 'branch-co-1',
+    assignedBranchId: 'branch-aura-co-bogota',
     country: 'CO',
   },
+  {
+    id: 'user-kitchen-tokyo',
+    name: 'Chef Haruto Yamada',
+    email: 'haruto.kitchen@smartrestaurant.io',
+    role: 'kitchen',
+    avatar: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=150&auto=format&fit=crop&q=80',
+    assignedBranchId: 'branch-aura-jp',
+    country: 'JP',
+  },
+
+  // 5. Customer Users
   {
     id: 'user-customer-co',
     name: 'Sofía Valenzuela',
@@ -92,1247 +160,726 @@ export const SEED_USERS: User[] = [
   },
 ];
 
+// Compatibility alias for single default admin
+export const DEFAULT_ADMIN_USER = SEED_USERS[1];
+
+// ==========================================
+// 2 MARCAS MULTINACIONALES (Presentes en 5 Países)
+// ==========================================
 export const SEED_RESTAURANTS: Restaurant[] = [
-  // COLOMBIA (2)
   {
-    id: 'rest-co-1',
-    name: 'La Gran Paellera & Fuego',
-    slug: 'la-gran-paellera',
+    id: 'brand-aura',
+    name: 'Aura Mestiza',
+    slug: 'aura-mestiza',
     tagline: {
-      es: 'Arroces a la leña y mariscos al estilo valenciano',
-      en: 'Wood-fired paellas and Mediterranean seafood',
-      pt: 'Paellas na brasa e frutos do mar mediterrâneos',
-      ja: '薪火で炊き上げる極上パエリアと地中海魚介',
+      es: 'Alta cocina mediterránea y de autor latinoamericana',
+      en: 'Signature Mediterranean & Latin American Haute Cuisine',
+      pt: 'Alta gastronomia mediterrânea e autoral latino-americana',
+      ja: '地中海とラテンアメリカの至高のフュージョン・オートキュイジーヌ',
     },
     cuisine: {
-      es: 'Española & Arroces',
-      en: 'Spanish & Paella',
-      pt: 'Espanhola & Arrozes',
-      ja: 'スペイン料理・パエリア',
+      es: 'Mediterránea & Fusión Latina',
+      en: 'Mediterranean & Latin Fusion',
+      pt: 'Mediterrânea & Fusão Latina',
+      ja: '地中海・ラテンフュージョン',
     },
     description: {
-      es: 'Inspirado en las paellas dominicales de la albufera valenciana. Caldos de marisco cocidos 12 horas y socarrat crujiente en sartenes de hierro forjado.',
-      en: 'Authentic wood-fired paellas with 12-hour simmered stocks, socarrat crusts, and Mediterranean tapas.',
-      pt: 'Paellas preparadas na lenha com caldos artesanais e socarrat crocante.',
-      ja: '12時間煮込んだ魚介出汁とおこげが香ばしい、本場バレンシア仕込みの薪火パエリア。',
+      es: 'Aura Mestiza une la pasión de las brasas mediterráneas con los ingredientes sagrados de América Latina. Presente en 5 países con sucursales emblemáticas.',
+      en: 'Aura Mestiza bridges Mediterranean live-fire mastery with sacred Latin American heritage. Operating across 5 countries with flagship destination branches.',
+      pt: 'Aura Mestiza une o calor das brasas mediterrâneas com a alma dos ingredientes latino-americanos em 5 países.',
+      ja: '地中海の炭火技術と中南米の豊かな大地が融合。世界5カ国の主要都市に旗艦店を展開する美食ブランド。',
     },
+    story: {
+      es: 'Fundada por un colectivo de chefs galardonados, Aura Mestiza nació con la convicción de que los mejores sabores surgen del encuentro entre culturas y técnicas ancestrales.',
+      en: 'Founded by an award-winning chef collective, Aura Mestiza was born from the belief that true culinary artistry sparks at the crossroads of ancestral traditions.',
+      pt: 'Fundada por chefs premiados, a Aura Mestiza nasceu do encontro vibrante entre tradições ancestrais e técnicas contemporâneas.',
+      ja: '世界的な受賞歴を持つ料理人たちが集い創設。伝統と革新が交差する唯一無二のダイニング空間。',
+    },
+    operatingCountries: ['CO', 'MX', 'US', 'BR', 'JP'],
     country: 'CO',
     rating: 4.9,
-    reviewCount: 342,
-    priceRange: '$$$',
-    heroImage: 'https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'bogota@lagranpaellera.co',
-    phone: '+57 1 745 8890',
-  },
-  {
-    id: 'rest-co-2',
-    name: 'Fuego Andino Asador',
-    slug: 'fuego-andino',
-    tagline: {
-      es: 'Cortes madurados al humo de café y cocina de páramo',
-      en: 'Dry-aged cuts smoked over coffee wood',
-      pt: 'Carnes maturadas defumadas em madeira de café',
-      ja: 'コーヒー薪で燻製したアンデス熟成肉グリル',
-    },
-    cuisine: {
-      es: 'Cocina de Autor Colombiana & Grill',
-      en: 'Contemporary Colombian & Grill',
-      pt: 'Grelhados e Cozinha Colombiana',
-      ja: 'コロンビア現代料理・グリル',
-    },
-    description: {
-      es: 'Homenaje a los asados del altiplano cundiboyacense y cortes con denominación de origen acompañados de papas nativas.',
-      en: 'Artisan grilled meats and native potatoes from high Andean plateaus with craft reductions.',
-      pt: 'Cortes nobres preparados com lenha especial e acompanhados de batatas nativas.',
-      ja: '厳選されたアンデス熟成肉と希少な高地産ポテトを特製スパイスで香ばしく焼き上げます。',
-    },
-    country: 'CO',
-    rating: 4.8,
-    reviewCount: 219,
-    priceRange: '$$$',
-    heroImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'info@fuegoandino.co',
-    phone: '+57 1 312 9988',
-  },
-
-  // MÉXICO (2)
-  {
-    id: 'rest-mx-1',
-    name: 'Cantina Solar & Mezcal',
-    slug: 'cantina-solar',
-    tagline: {
-      es: 'Tacos de maíz criollo y moles ceremoniales de Oaxaca',
-      en: 'Heirloom corn tacos and ceremonial Oaxaca moles',
-      pt: 'Tacos de milho crioulo e moles cerimoniais de Oaxaca',
-      ja: '在来種コーンのタコスとオアハカ伝統のモレ',
-    },
-    cuisine: {
-      es: 'Mexicana Contemporánea',
-      en: 'Contemporary Mexican',
-      pt: 'Mexicana Contemporânea',
-      ja: 'モダンメキシカン',
-    },
-    description: {
-      es: 'Nixtamalización artesanal en casa, cortes al carbón de mezquite y coctelería premiada con destilados de agave silvestres.',
-      en: 'In-house nixtamalization, mesquite-charred specialties, and wild agave mezcal pairing.',
-      pt: 'Tacos gourmet feitos com milho artesanal e coquetelaria premiada com mezcal.',
-      ja: '自家製ニシュタマル生地のタコスと自生アガベのプレミアムメスカル。',
-    },
-    country: 'MX',
-    rating: 4.9,
-    reviewCount: 412,
-    priceRange: '$$$',
-    heroImage: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'cdmx@cantinasolar.mx',
-    phone: '+52 55 5280 4421',
-  },
-  {
-    id: 'rest-mx-2',
-    name: 'Mariscos del Pacífico & Agave',
-    slug: 'mariscos-pacifico',
-    tagline: {
-      es: 'Ceviches, aguachiles negros y pescado a la talla',
-      en: 'Black aguachiles, fresh ceviches, and Pacific fish',
-      pt: 'Ceviches frescos e peixes grelhados do Pacífico',
-      ja: '黒アグアチレと太平洋産直鮮魚の直火焼き',
-    },
-    cuisine: {
-      es: 'Mariscos & Asador Marino',
-      en: 'Pacific Seafood & Grill',
-      pt: 'Frutos do Mar e Grelhados',
-      ja: '太平洋シーフード＆グリル',
-    },
-    description: {
-      es: 'Pesca sustentable de Ensenada y Nayarit servida con tostadas de comal y salsas tatemadas al molcajete.',
-      en: 'Sustainable daily catch from Baja and Nayarit prepared over open embers with fire-roasted salsas.',
-      pt: 'Frutos do mar frescos com temperos costeiros do Pacífico mexicano.',
-      ja: 'バハ・カリフォルニアから届く獲れたての魚介と石臼で挽いたサルサ。',
-    },
-    country: 'MX',
-    rating: 4.7,
-    reviewCount: 188,
-    priceRange: '$$',
-    heroImage: 'https://images.unsplash.com/photo-1535400255456-984241443b29?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'nayarit@mariscospacifico.mx',
-    phone: '+52 55 4190 2233',
-  },
-
-  // USA (2)
-  {
-    id: 'rest-us-1',
-    name: 'Manhattan Prime Steakhouse',
-    slug: 'manhattan-prime',
-    tagline: {
-      es: 'Cortes madurados 45 días y langosta de Maine',
-      en: '45-day dry-aged cuts and live Maine lobsters',
-      pt: 'Cortes maturados por 45 dias e lagosta de Maine',
-      ja: '45日間熟成プライムビーフとメイン州産ロブスター',
-    },
-    cuisine: {
-      es: 'American Steakhouse',
-      en: 'Modern American Steakhouse',
-      pt: 'Steakhouse Americano',
-      ja: 'アメリカン・ステーキハウス',
-    },
-    description: {
-      es: 'Classic New York dining room with a state-of-the-art aging room, white linen tables, and sommelier-curated cellars.',
-      en: 'Iconic Manhattan steakhouse featuring USDA Prime cuts dry-aged in-house, raw oyster bars, and vintage wines.',
-      pt: 'Carnes nobres maturadas a seco na própria casa com serviço de excelência.',
-      ja: '店内の専用熟成庫で仕上げた最高峰プライムステーキと厳選ワインセラー。',
-    },
-    country: 'US',
-    rating: 4.9,
-    reviewCount: 520,
+    reviewCount: 328,
     priceRange: '$$$$',
-    heroImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'reservations@manhattanprime.com',
-    phone: '+1 212 555 0199',
+    heroImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1200&auto=format&fit=crop&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=800&auto=format&fit=crop&q=80',
+    ],
+    logo: '🔥',
+    contactEmail: 'experiencia@auramestiza.com',
+    phone: '+57 (601) 745-8900',
   },
   {
-    id: 'rest-us-2',
-    name: 'Brooklyn Artisan Burgers & Craft',
-    slug: 'brooklyn-burgers',
+    id: 'brand-sora',
+    name: 'Sora & Fuego',
+    slug: 'sora-fuego',
     tagline: {
-      es: 'Hamburguesas de wagyu ahumado y cervezas de microcervecería',
-      en: 'Smoked wagyu patties and local microbrews',
-      pt: 'Hambúrgueres artesanais de wagyu e chopes locais',
-      ja: '自家製スモーク和牛バーガーとクラフトビール',
+      es: 'Cocina nikkei y asiático-fusión de vanguardia',
+      en: 'Avant-Garde Nikkei & Pan-Asian Robata Fusion',
+      pt: 'Cozinha Nikkei e Asiática Contemporânea',
+      ja: '炭火炉端焼きと新世代日系フュージョン・ダイニング',
     },
     cuisine: {
-      es: 'Craft Burgers & Pub',
-      en: 'Artisan Burgers & Craft Beer',
-      pt: 'Hamburgueria Artesanal',
-      ja: 'クラフトバーガー＆パブ',
+      es: 'Nikkei & Robata Asiática',
+      en: 'Nikkei & Asian Robata',
+      pt: 'Nikkei & Robata Asiática',
+      ja: '日系・アジア炉端',
     },
     description: {
-      es: 'Brioche horneado a diario, blend de brisket y picaña triturado al momento y aros de cebolla tempura.',
-      en: 'House-baked brioche buns, fresh coarse-ground brisket blends, and 24 rotating craft beer taps.',
-      pt: 'Hambúrgueres suculentos com pão brioche assado todos os dias.',
-      ja: '毎日焼き上げる自家製ブリオッシュと極上ブリスケットのパティ。',
+      es: 'El rigor y la frescura de la técnica japonesa dialogan con los picantes y marinados más audaces. Una experiencia sensorial en 5 metrópolis globales.',
+      en: 'The sublime precision of Japanese culinary craft meets bold marinades and open charcoal robata across 5 global capitals.',
+      pt: 'O rigor da técnica japonesa em diálogo harmonioso com os temperos mais ousados em 5 metrópoles globais.',
+      ja: '日本伝統の職人技と南米の鮮烈なスパイスが融合した洗練の空間。世界5都市で愛されるイノベーティブ料理。',
     },
-    country: 'US',
-    rating: 4.7,
-    reviewCount: 310,
-    priceRange: '$$',
-    heroImage: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'hello@brooklyncraft.com',
-    phone: '+1 718 555 0144',
-  },
-
-  // BRASIL (2)
-  {
-    id: 'rest-br-1',
-    name: 'Sabor Paulista & Churrasqueira',
-    slug: 'sabor-paulista',
-    tagline: {
-      es: 'Picanha premium, feijoada noble y caipirinhas de autor',
-      en: 'Prime picanha cuts, heritage feijoada, and craft caipirinhas',
-      pt: 'Picanha na brasa, feijoada nobre e caipirinhas artesanais',
-      ja: '最高峰ピッカーニャ炭火焼きと本格フェイジョアーダ',
+    story: {
+      es: 'Inspirado en los lazos históricos entre Tokio y las costas del Pacífico, Sora & Fuego reinterpreta los pescados salvajes y el marinado robata al más alto nivel.',
+      en: 'Drawing inspiration from the historic cultural ties between Tokyo and Pacific coasts, Sora & Fuego elevates wild seafood and robata grilling.',
+      pt: 'Inspirado na ponte histórica entre Tóquio e o Pacífico, o Sora & Fuego eleva peixes frescos e o fogo do carvão.',
+      ja: '東京と太平洋沿岸を結ぶ歴史のストーリーを、極上鮮魚と備長炭炉端で表現した現代ガストロノミー。',
     },
-    cuisine: {
-      es: 'Churrascaria & Rodizio Gourmet',
-      en: 'Brazilian Churrascaria',
-      pt: 'Churrascaria & Parrilla',
-      ja: 'シュラスカリア・ブラジル料理',
-    },
-    description: {
-      es: 'O melhor churrasco do Brasil com cortes nobres de angus na brasa de eucalipto e bufê farto de antepastos.',
-      en: 'Authentic Brazilian churrasco cooked over eucalyptus coals, paired with seasonal Amazonian fruits.',
-      pt: 'Tradição do espeto corrido com picanha de capa alta e guarnições típicas.',
-      ja: '厳選アンガス牛のイチボ炭火焼きとブラジル伝統の贅沢なサイドディッシュ。',
-    },
-    country: 'BR',
+    operatingCountries: ['CO', 'MX', 'US', 'BR', 'JP'],
+    country: 'JP',
     rating: 4.8,
-    reviewCount: 380,
-    priceRange: '$$$',
-    heroImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'jardins@saborpaulista.com.br',
-    phone: '+55 11 3064 2200',
-  },
-  {
-    id: 'rest-br-2',
-    name: 'Boteco Carioca & Petiscos',
-    slug: 'boteco-carioca',
-    tagline: {
-      es: 'Pastéis crujientes, bolinhos de bacalao y chopp helado',
-      en: 'Crispy pastéis, cod croquettes, and sub-zero draft beer',
-      pt: 'Pastéis de queijo da canastra, bolinho de bacalhau e chopp gelado',
-      ja: '名物タラコロッケと極冷生ビール、ブラジルバール',
-    },
-    cuisine: {
-      es: 'Boteco Tradicional',
-      en: 'Traditional Brazilian Boteco',
-      pt: 'Boteco & Petiscaria',
-      ja: 'ボテコ（ブラジル大衆酒場）',
-    },
-    description: {
-      es: 'Ambiente festivo e descontraído com petiscos premiados e cerveja artesanal servida a -2°C.',
-      en: 'Bustling neighborhood tavern serving savory Brazilian street appetizers and refreshing caipirinhas.',
-      pt: 'Petiscos clássicos de balcão e ambiente acolhedor.',
-      ja: '陽気なリオのバール文化を受け継ぐ手作りおつまみと氷点下生ビール。',
-    },
-    country: 'BR',
-    rating: 4.6,
-    reviewCount: 195,
-    priceRange: '$$',
-    heroImage: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'rio@botecocarioca.com.br',
-    phone: '+55 11 3812 4499',
-  },
-
-  // JAPÓN (2)
-  {
-    id: 'rest-jp-1',
-    name: 'Ginza Sakura Robata & Sushi',
-    slug: 'ginza-sakura',
-    tagline: {
-      es: 'Sushi Edomae de Toyosu y carbón binchotan',
-      en: 'Edomae sushi from Toyosu and Kishu binchotan robata',
-      pt: 'Sushi Edomae e grelhados no carvão binchotan',
-      ja: '豊洲市場直送の江戸前鮨と紀州備長炭の炉端焼き',
-    },
-    cuisine: {
-      es: 'Sushi Edomae & Robatayaki',
-      en: 'Traditional Edomae Sushi & Robata',
-      pt: 'Sushi Tradicional & Robata',
-      ja: '江戸前鮨・炭火炉端焼き',
-    },
-    description: {
-      es: '毎日豊洲市場で競り落とされる一番マグロと、職人が目の前で焼き上げる旬の魚介・黒毛和牛。',
-      en: 'Master-crafted nigiri and Kishu charcoal grilling paired with rare seasonal sakes in central Ginza.',
-      pt: 'Peixes frescos do dia e grelhados no carvão japonês com saquês raros.',
-      ja: '銀座の洗練された空間で味わう熟成マグロと極上の日本酒ペアリング。',
-    },
-    country: 'JP',
-    rating: 4.9,
-    reviewCount: 610,
+    reviewCount: 294,
     priceRange: '$$$$',
-    heroImage: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'ginza@ginzasakura.jp',
-    phone: '+81 3 3571 8899',
-  },
-  {
-    id: 'rest-jp-2',
-    name: 'Shinjuku Tonkotsu & Izakaya',
-    slug: 'shinjuku-tonkotsu',
-    tagline: {
-      es: 'Ramen cocido 18 horas y yakitori crujiente',
-      en: '18-hour rich tonkotsu broth and crispy yakitori skewers',
-      pt: 'Lámen de caldo rico e espetinhos yakitori',
-      ja: '18時間炊き上げた濃厚豚骨ラーメンと職人焼き鳥',
-    },
-    cuisine: {
-      es: 'Ramen & Izakaya',
-      en: 'Artisan Ramen & Izakaya',
-      pt: 'Lámen & Izakaya',
-      ja: '博多豚骨ラーメン・大衆居酒屋',
-    },
-    description: {
-      es: '自家製極細麺に絡む濃厚スープと、秘伝タレで香ばしく仕上げた焼き鳥、冷えた生ビール。',
-      en: 'Bustling Shinjuku style ramen haven and izakaya bar with open kitchen counters.',
-      pt: 'Caldo denso artesanal, massa fresca e espetinhos típicos de Tóquio.',
-      ja: '活気あふれる店内で楽しむ濃厚な豚骨スープと香ばしい炭火串焼き。',
-    },
-    country: 'JP',
-    rating: 4.7,
-    reviewCount: 420,
-    priceRange: '$$',
-    heroImage: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=1000&auto=format&fit=crop&q=80',
-    contactEmail: 'shinjuku@tonkotsuramenshop.jp',
-    phone: '+81 3 5322 0011',
+    heroImage: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1200&auto=format&fit=crop&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1615361200141-f45040f367be?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&auto=format&fit=crop&q=80',
+    ],
+    logo: '🌊',
+    contactEmail: 'contact@sorafuego.com',
+    phone: '+81 (03) 5555-0199',
   },
 ];
 
+// ==========================================
+// SUCURSALES POR PAÍS (11 Sucursales con Nombre Propio)
+// ==========================================
 export const SEED_BRANCHES: Branch[] = [
-  // CO-1
+  // --- AURA MESTIZA ---
   {
-    id: 'branch-co-1',
-    restaurantId: 'rest-co-1',
-    name: 'Sede Zona G (Bogotá)',
+    id: 'branch-aura-co-bogota',
+    restaurantId: 'brand-aura',
+    name: 'Sucursal Chapinero (Bogotá)',
     city: 'Bogotá',
-    address: 'Calle 69A # 4-38, Zona Gourmet',
+    address: 'Calle 69A # 5-28, Zona G',
     country: 'CO',
-    phone: '+57 1 745 8891',
+    phone: '+57 (601) 745-8901',
     openingHours: '12:00 - 23:00',
-    totalTables: 8,
+    totalTables: 10,
     active: true,
+    currency: 'COP',
+    taxRate: 0.08,
+    taxName: 'Impoconsumo (8%)',
+    timeZone: 'America/Bogota',
+    heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80',
   },
   {
-    id: 'branch-co-2',
-    restaurantId: 'rest-co-1',
-    name: 'Sede Usaquén Colonial',
-    city: 'Bogotá',
-    address: 'Carrera 6 # 119-24, Usaquén',
+    id: 'branch-aura-co-medellin',
+    restaurantId: 'brand-aura',
+    name: 'Sucursal El Poblado (Medellín)',
+    city: 'Medellín',
+    address: 'Carrera 37 # 8A-12, Provenza',
     country: 'CO',
-    phone: '+57 1 745 8892',
-    openingHours: '12:00 - 22:30',
-    totalTables: 8,
-    active: true,
-  },
-  // CO-2
-  {
-    id: 'branch-co-3',
-    restaurantId: 'rest-co-2',
-    name: 'Sede Parque de la 93',
-    city: 'Bogotá',
-    address: 'Calle 93A # 13-22',
-    country: 'CO',
-    phone: '+57 1 312 9989',
+    phone: '+57 (604) 448-1234',
     openingHours: '12:00 - 23:30',
-    totalTables: 8,
+    totalTables: 10,
     active: true,
+    currency: 'COP',
+    taxRate: 0.08,
+    taxName: 'Impoconsumo (8%)',
+    timeZone: 'America/Bogota',
+    heroImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
   },
-  // MX-1
   {
-    id: 'branch-mx-1',
-    restaurantId: 'rest-mx-1',
-    name: 'Sucursal Roma Norte',
+    id: 'branch-aura-mx',
+    restaurantId: 'brand-aura',
+    name: 'Sucursal Roma Norte (CDMX)',
     city: 'Ciudad de México',
-    address: 'Calle Orizaba 142, Roma Norte',
+    address: 'Colima 168, Col. Roma Norte, Cuauhtémoc',
     country: 'MX',
-    phone: '+52 55 5280 4422',
+    phone: '+52 (55) 5208-4100',
     openingHours: '13:00 - 00:00',
-    totalTables: 8,
+    totalTables: 10,
     active: true,
+    currency: 'MXN',
+    taxRate: 0.16,
+    taxName: 'IVA (16%)',
+    timeZone: 'America/Mexico_City',
+    heroImage: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=800&auto=format&fit=crop&q=80',
   },
   {
-    id: 'branch-mx-2',
-    restaurantId: 'rest-mx-1',
-    name: 'Sucursal Polanco Masaryk',
-    city: 'Ciudad de México',
-    address: 'Av. Pdte. Masaryk 214, Polanco',
-    country: 'MX',
-    phone: '+52 55 5280 4423',
-    openingHours: '13:00 - 01:00',
-    totalTables: 8,
-    active: true,
-  },
-  // MX-2
-  {
-    id: 'branch-mx-3',
-    restaurantId: 'rest-mx-2',
-    name: 'Sucursal Condesa',
-    city: 'Ciudad de México',
-    address: 'Av. Michoacán 78, Condesa',
-    country: 'MX',
-    phone: '+52 55 4190 2234',
-    openingHours: '12:30 - 23:00',
-    totalTables: 8,
-    active: true,
-  },
-  // US-1
-  {
-    id: 'branch-us-1',
-    restaurantId: 'rest-us-1',
-    name: 'Midtown Manhattan Flagship',
+    id: 'branch-aura-us',
+    restaurantId: 'brand-aura',
+    name: 'Sucursal Brooklyn (New York)',
     city: 'New York',
-    address: '450 Lexington Ave, New York, NY 10017',
+    address: '85 N 3rd St, Williamsburg, Brooklyn, NY 11249',
     country: 'US',
-    phone: '+1 212 555 0198',
-    openingHours: '11:30 - 23:00',
-    totalTables: 8,
-    active: true,
-  },
-  {
-    id: 'branch-us-2',
-    restaurantId: 'rest-us-1',
-    name: 'SoHo Grand Hall',
-    city: 'New York',
-    address: '310 West Broadway, New York, NY 10013',
-    country: 'US',
-    phone: '+1 212 555 0205',
-    openingHours: '12:00 - 23:30',
-    totalTables: 8,
-    active: true,
-  },
-  // US-2
-  {
-    id: 'branch-us-3',
-    restaurantId: 'rest-us-2',
-    name: 'Williamsburg Brooklyn',
-    city: 'New York',
-    address: '142 Bedford Ave, Brooklyn, NY 11249',
-    country: 'US',
-    phone: '+1 718 555 0145',
-    openingHours: '12:00 - 00:00',
-    totalTables: 8,
-    active: true,
-  },
-  // BR-1
-  {
-    id: 'branch-br-1',
-    restaurantId: 'rest-br-1',
-    name: 'Unidade Jardins',
-    city: 'São Paulo',
-    address: 'Rua Oscar Freire 920, Cerqueira César',
-    country: 'BR',
-    phone: '+55 11 3064 2201',
-    openingHours: '12:00 - 23:30',
-    totalTables: 8,
-    active: true,
-  },
-  {
-    id: 'branch-br-2',
-    restaurantId: 'rest-br-1',
-    name: 'Unidade Itaim Bibi',
-    city: 'São Paulo',
-    address: 'Rua Joaquim Floriano 466, Itaim Bibi',
-    country: 'BR',
-    phone: '+55 11 3064 2202',
+    phone: '+1 (718) 599-4400',
     openingHours: '12:00 - 23:00',
-    totalTables: 8,
+    totalTables: 10,
     active: true,
+    currency: 'USD',
+    taxRate: 0.08875,
+    taxName: 'Sales Tax (8.875%)',
+    timeZone: 'America/New_York',
+    heroImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80',
   },
-  // BR-2
   {
-    id: 'branch-br-3',
-    restaurantId: 'rest-br-2',
-    name: 'Unidade Vila Madalena',
+    id: 'branch-aura-br',
+    restaurantId: 'brand-aura',
+    name: 'Sucursal Pinheiros (São Paulo)',
     city: 'São Paulo',
-    address: 'Rua Aspicuelta 288, Vila Madalena',
+    address: 'Rua dos Pinheiros 720, Pinheiros',
     country: 'BR',
-    phone: '+55 11 3812 4498',
-    openingHours: '16:00 - 01:00',
-    totalTables: 8,
+    phone: '+55 (11) 3081-5500',
+    openingHours: '12:00 - 23:30',
+    totalTables: 10,
     active: true,
-  },
-  // JP-1
-  {
-    id: 'branch-jp-1',
-    restaurantId: 'rest-jp-1',
-    name: '銀座本店 (Ginza Flagship)',
-    city: 'Tokyo',
-    address: 'Chuo City, Ginza 6-10-1 GINZA SIX 6F',
-    country: 'JP',
-    phone: '+81 3 3571 8890',
-    openingHours: '17:00 - 23:30',
-    totalTables: 8,
-    active: true,
+    currency: 'BRL',
+    taxRate: 0.10,
+    taxName: 'Taxa de Serviço (10%)',
+    timeZone: 'America/Sao_Paulo',
+    heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80',
   },
   {
-    id: 'branch-jp-2',
-    restaurantId: 'rest-jp-1',
-    name: '六本木ヒルズ店 (Roppongi Hills)',
+    id: 'branch-aura-jp',
+    restaurantId: 'brand-aura',
+    name: 'Sucursal Shibuya (Tokio)',
     city: 'Tokyo',
-    address: 'Minato City, Roppongi 6-10-1 Hillside B2F',
+    address: '1-19-8 Jinnan, Shibuya-ku, Tokyo 150-0041',
     country: 'JP',
-    phone: '+81 3 3571 8892',
-    openingHours: '17:00 - 23:00',
-    totalTables: 8,
+    phone: '+81 (03) 6416-8900',
+    openingHours: '11:30 - 22:30',
+    totalTables: 10,
     active: true,
+    currency: 'JPY',
+    taxRate: 0.10,
+    taxName: '消費税 (10%)',
+    timeZone: 'Asia/Tokyo',
+    heroImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
   },
-  // JP-2
+
+  // --- SORA & FUEGO ---
   {
-    id: 'branch-jp-3',
-    restaurantId: 'rest-jp-2',
-    name: '新宿東口店 (Shinjuku East)',
-    city: 'Tokyo',
-    address: 'Shinjuku City, Shinjuku 3-28-10 B1F',
-    country: 'JP',
-    phone: '+81 3 5322 0012',
-    openingHours: '11:00 - 02:00',
-    totalTables: 8,
+    id: 'branch-sora-co',
+    restaurantId: 'brand-sora',
+    name: 'Sucursal Zona Rosa (Bogotá)',
+    city: 'Bogotá',
+    address: 'Carrera 12 # 83-45, El Retiro',
+    country: 'CO',
+    phone: '+57 (601) 618-9920',
+    openingHours: '12:00 - 23:00',
+    totalTables: 10,
     active: true,
+    currency: 'COP',
+    taxRate: 0.08,
+    taxName: 'Impoconsumo (8%)',
+    timeZone: 'America/Bogota',
+    heroImage: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'branch-sora-mx',
+    restaurantId: 'brand-sora',
+    name: 'Sucursal Polanco (CDMX)',
+    city: 'Ciudad de México',
+    address: 'Av. Emilio Castelar 131, Polanco III Secc',
+    country: 'MX',
+    phone: '+52 (55) 5280-9940',
+    openingHours: '13:00 - 00:00',
+    totalTables: 10,
+    active: true,
+    currency: 'MXN',
+    taxRate: 0.16,
+    taxName: 'IVA (16%)',
+    timeZone: 'America/Mexico_City',
+    heroImage: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'branch-sora-us',
+    restaurantId: 'brand-sora',
+    name: 'Sucursal Soho (New York)',
+    city: 'New York',
+    address: '472 West Broadway, SoHo, New York, NY 10012',
+    country: 'US',
+    phone: '+1 (212) 966-8800',
+    openingHours: '12:00 - 23:30',
+    totalTables: 10,
+    active: true,
+    currency: 'USD',
+    taxRate: 0.08875,
+    taxName: 'Sales Tax (8.875%)',
+    timeZone: 'America/New_York',
+    heroImage: 'https://images.unsplash.com/photo-1615361200141-f45040f367be?w=800&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'branch-sora-br',
+    restaurantId: 'brand-sora',
+    name: 'Sucursal Jardins (São Paulo)',
+    city: 'São Paulo',
+    address: 'Rua Oscar Freire 1052, Cerqueira César',
+    country: 'BR',
+    phone: '+55 (11) 3062-7710',
+    openingHours: '12:00 - 23:30',
+    totalTables: 10,
+    active: true,
+    currency: 'BRL',
+    taxRate: 0.10,
+    taxName: 'Taxa de Serviço (10%)',
+    timeZone: 'America/Sao_Paulo',
+    heroImage: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'branch-sora-jp',
+    restaurantId: 'brand-sora',
+    name: 'Sucursal Ginza (Tokio)',
+    city: 'Tokyo',
+    address: '5-7-10 Ginza, Chuo-ku, Tokyo 104-0061',
+    country: 'JP',
+    phone: '+81 (03) 3571-0080',
+    openingHours: '11:30 - 22:30',
+    totalTables: 10,
+    active: true,
+    currency: 'JPY',
+    taxRate: 0.10,
+    taxName: '消費税 (10%)',
+    timeZone: 'Asia/Tokyo',
+    heroImage: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&auto=format&fit=crop&q=80',
   },
 ];
 
-/**
- * Generate standard 8 tables per branch
- */
+// ==========================================
+// GENERADOR DE MESAS (8-10 mesas por sucursal)
+// ==========================================
 export function generateSeedTables(): Table[] {
   const tables: Table[] = [];
-  SEED_BRANCHES.forEach((branch) => {
-    const capacities = [2, 2, 4, 4, 6, 6, 8, 4];
-    const zones: ('indoor' | 'terrace' | 'vip' | 'bar')[] = [
-      'indoor',
-      'indoor',
-      'terrace',
-      'terrace',
-      'vip',
-      'indoor',
-      'vip',
-      'bar',
-    ];
-    for (let i = 1; i <= 8; i++) {
+  const capacities = [2, 2, 4, 4, 4, 6, 6, 8];
+  const zones: ('indoor' | 'terrace' | 'vip' | 'bar')[] = [
+    'indoor',
+    'indoor',
+    'terrace',
+    'indoor',
+    'terrace',
+    'vip',
+    'indoor',
+    'vip',
+  ];
+
+  for (const branch of SEED_BRANCHES) {
+    for (let i = 0; i < capacities.length; i++) {
+      const tableNumber = i + 1;
+      // Default table 3 occupied for live demo testing
+      const isTable3 = tableNumber === 3;
       tables.push({
-        id: `tbl-${branch.id}-${i}`,
+        id: `table-${branch.id}-${tableNumber}`,
         branchId: branch.id,
-        number: i,
-        capacity: capacities[i - 1],
-        zone: zones[i - 1],
-        status: i === 2 || i === 4 ? 'occupied' : i === 3 ? 'reserved' : 'available',
+        number: tableNumber,
+        capacity: capacities[i],
+        zone: zones[i],
+        status: isTable3 ? 'occupied' : i === 4 ? 'reserved' : 'available',
+        currentOrderId: isTable3 ? `ord-${branch.id}-demo` : undefined,
+        activeGuests: isTable3 ? 3 : undefined,
       });
     }
+  }
+
+  // Backward compatibility alias for demo Mesa 3
+  tables.push({
+    id: 'table-co-01-03',
+    branchId: 'branch-aura-co-bogota',
+    number: 3,
+    capacity: 4,
+    zone: 'indoor',
+    status: 'occupied',
+    currentOrderId: 'ord-co-init-01',
+    activeGuests: 3,
   });
+
   return tables;
 }
 
-export const SEED_MENU_ITEMS: MenuItem[] = [
-  // LA GRAN PAELLERA (CO - rest-co-1)
-  {
-    id: 'mi-paella-marisco',
-    restaurantId: 'rest-co-1',
-    name: {
-      es: 'Paella Marinera de la Albufera',
-      en: 'Valencian Seafood Paella',
-      pt: 'Paella de Frutos do Mar Tradicional',
-      ja: 'バレンシア風魚介のパエリア',
-    },
-    description: {
-      es: 'Arroz bomba bañado en fondo de bogavante, calamares de roca, langostinos tigre y mejillones con socarrat crujiente.',
-      en: 'Bomba rice simmered in rich lobster stock with rock calamari, tiger prawns, and crispy socarrat crust.',
-      pt: 'Arroz bomba com caldo de lagosta, lulas, camarões tigre e crosta crocante.',
-      ja: '濃厚なロブスター出汁で炊き上げた極上パエリア。有頭エビとイカ、香ばしいおこげ。',
-    },
-    category: 'mains',
-    price: 68000, // COP
-    prepTimeMinutes: 25,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=500&auto=format&fit=crop&q=80',
-    dietary: ['gluten_free', 'chef_special'],
-    popular: true,
-  },
-  {
-    id: 'mi-paella-iberica',
-    restaurantId: 'rest-co-1',
-    name: {
-      es: 'Paella Ibérica de Bellota & Setas Silvestres',
-      en: 'Iberian Pork & Wild Forest Mushroom Paella',
-      pt: 'Paella Ibérica de Carne Suína e Cogumelos',
-      ja: 'イベリコ豚ベジョータとキノコのパエリア',
-    },
-    description: {
-      es: 'Secreto ibérico confitado a baja temperatura, boletus edulis y romero fresco del páramo.',
-      en: 'Slow-cooked Iberian pork tenderloin with foraged forest mushrooms and fresh garden rosemary.',
-      pt: 'Carne de porco ibérico de bolota com cogumelos silvestres e alecrim fresco.',
-      ja: 'じっくり低温調理した最高峰イベリコ豚とポルチーニ茸、フレッシュローズマリー。',
-    },
-    category: 'mains',
-    price: 64000, // COP
-    prepTimeMinutes: 22,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?w=500&auto=format&fit=crop&q=80',
-    popular: true,
-  },
-  {
-    id: 'mi-tapas-gambas',
-    restaurantId: 'rest-co-1',
-    name: {
-      es: 'Gambas al Ajillo con Aceite Virgen Extra',
-      en: 'Sizzling Garlic Prawns in Extra Virgin Olive Oil',
-      pt: 'Camarões ao Alho e Azeite Extravirgem',
-      ja: '有頭海老の熱々ガーリックアヒージョ',
-    },
-    description: {
-      es: 'Langostinos salteados en cazuela de barro con ajo laminado, guindilla y pan de masa madre tostado.',
-      en: 'Tender prawns sautéed in clay pots with sliced garlic, dried chili flakes, and toasted rustic sourdough.',
-      pt: 'Camarões salteados no azeite com alho dourado e pimenta suave.',
-      ja: '陶器の小鍋でグツグツ煮立つニンニクオイルとプリプリの海老、天然酵母パン添え。',
-    },
-    category: 'starters',
-    price: 36000, // COP
-    prepTimeMinutes: 10,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1559742811-822873691df8?w=500&auto=format&fit=crop&q=80',
-    dietary: ['gluten_free', 'spicy'],
-    popular: true,
-  },
-  {
-    id: 'mi-postre-churros',
-    restaurantId: 'rest-co-1',
-    name: {
-      es: 'Churros Artesanales con Chocolate Especiado',
-      en: 'Artisan Golden Churros with Dark Spiced Chocolate',
-      pt: 'Churros Artesanais com Chocolate Especial',
-      ja: '手作り揚げたてチュロス 特製スパイスショコラ添え',
-    },
-    description: {
-      es: 'Churros crujientes espolvoreados con azúcar y canela, acompañados de chocolate negro al 70%.',
-      en: 'Crispy fried dough tossed in cinnamon sugar, served with rich 70% dark melted dipping chocolate.',
-      pt: 'Churros crocantes com canela e calda quente de chocolate belga.',
-      ja: 'サクサクに揚げたてのチュロスと濃厚なカカオ70%ダークチョコレートディップ。',
-    },
-    category: 'desserts',
-    price: 18000, // COP
-    prepTimeMinutes: 8,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1624300629298-e9de39c13be5?w=500&auto=format&fit=crop&q=80',
-    popular: false,
-  },
-  {
-    id: 'mi-sangria-cava',
-    restaurantId: 'rest-co-1',
-    name: {
-      es: 'Sangría Real de Cava y Frutos Rojos',
-      en: 'Royal Sparkling Cava & Wild Berry Sangria',
-      pt: 'Sangria Especial de Espumante e Frutas Vermelhas',
-      ja: 'スパークリングワインとベリーの特製サングリア',
-    },
-    description: {
-      es: 'Cava brut, licor de naranja artesanal, fresas frescas, arándanos y hojas de menta maceradas.',
-      en: 'Sparkling brut cava, house citrus liqueur, macerated wild berries, and garden mint.',
-      pt: 'Espumante brut com frutas vermelhas frescas e licor cítrico.',
-      ja: 'すっきり辛口のスパークリングカヴァに旬のベリーと自家製柑橘リキュールをブレンド。',
-    },
-    category: 'drinks',
-    price: 28000, // COP
-    prepTimeMinutes: 5,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=500&auto=format&fit=crop&q=80',
-    popular: true,
-  },
+// ==========================================
+// MENÚ COMPLETO (Basado en el Catálogo Verificado)
+// ==========================================
+export function generateSeedMenuItems(): MenuItem[] {
+  const items: MenuItem[] = [];
+  for (const branch of SEED_BRANCHES) {
+    const branchItems = buildMenuItemsForBranch(branch.restaurantId, branch.id, branch.country);
+    items.push(...branchItems);
+  }
+  return items;
+}
 
-  // CANTINA SOLAR (MX - rest-mx-1)
-  {
-    id: 'mi-tacos-ribeye',
-    restaurantId: 'rest-mx-1',
-    name: {
-      es: 'Tacos de Rib Eye al Carbón con Chicharrón',
-      en: 'Charcoal Grilled Rib Eye Tacos with Crisp Chicharrón',
-      pt: 'Tacos de Rib Eye na Brasa com Torresmo Crocante',
-      ja: '炭火焼きリブアイとクリスピーポークの特製タコス',
-    },
-    description: {
-      es: 'Tortilla de maíz azul nixtamalizado, costra de queso Oaxaca, aguacate tatemado y salsa macha de tres chiles.',
-      en: 'Heirloom blue corn tortillas, seared Oaxaca cheese crust, flame-roasted avocado, and artisanal chili oil salsa.',
-      pt: 'Tortilha de milho azul artesanal, queijo tostado, abacate e molho especial de pimentas.',
-      ja: '在来種ブルーコーン生地に炭火リブアイ、香ばしいオアハカチーズと特製チリオイル。',
-    },
-    category: 'mains',
-    price: 245, // MXN
-    prepTimeMinutes: 12,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=500&auto=format&fit=crop&q=80',
-    dietary: ['gluten_free', 'spicy', 'chef_special'],
-    popular: true,
-  },
-  {
-    id: 'mi-mole-oaxaca',
-    restaurantId: 'rest-mx-1',
-    name: {
-      es: 'Mole Negro Ceremonial de Oaxaca con Pato',
-      en: 'Ceremonial Oaxaca Black Mole with Confit Duck Leg',
-      pt: 'Mole Negro Tradicional de Oaxaca com Pato Confitado',
-      ja: 'オアハカ伝承ブラックモレ 鴨肉のコンフィ添え',
-    },
-    description: {
-      es: 'Elaborado con 32 ingredientes tostados a la brasa, cacao criollo y pierna de pato crujiente.',
-      en: 'Slow-simmered 32-ingredient mole sauce featuring roasted chilies, heritage cacao, and crispy duck confit.',
-      pt: 'Mole negro tradicional preparado com 32 ingredientes e coxa de pato suculenta.',
-      ja: '32種類のスパイスとカカオを直火で焙煎した漆黒のモレソースと柔らかい鴨肉。',
-    },
-    category: 'mains',
-    price: 380, // MXN
-    prepTimeMinutes: 20,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&auto=format&fit=crop&q=80',
-    dietary: ['chef_special'],
-    popular: true,
-  },
-  {
-    id: 'mi-mezcal-paloma',
-    restaurantId: 'rest-mx-1',
-    name: {
-      es: 'Paloma Ahumada de Mezcal Silvestre & Pomelo',
-      en: 'Smoked Wild Mezcal & Fresh Grapefruit Paloma',
-      pt: 'Paloma de Mezcal Defumado e Toranja Fresca',
-      ja: 'スモークメスカルと絞りたてグレープフルーツのパロマ',
-    },
-    description: {
-      es: 'Mezcal Espadín artesanal, zumo de toronja rosa recién exprimido, licor de chile ancho y sal de gusano.',
-      en: 'Small-batch Espadín mezcal, fresh-squeezed pink grapefruit, ancho chile liqueur, and agave worm salt rim.',
-      pt: 'Mezcal artesanal, suco fresco de toranja, licor de pimenta e borda com sal especial.',
-      ja: '職人仕込みのメスカルとフレッシュピンクグレープフルーツ、自家製スパイスソルト。',
-    },
-    category: 'drinks',
-    price: 180, // MXN
-    prepTimeMinutes: 4,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=500&auto=format&fit=crop&q=80',
-    popular: true,
-  },
+export const SEED_MENU_ITEMS: MenuItem[] = generateSeedMenuItems();
 
-  // MANHATTAN PRIME (US - rest-us-1)
-  {
-    id: 'mi-steak-porterhouse',
-    restaurantId: 'rest-us-1',
-    name: {
-      es: 'Porterhouse Prime Madurado 45 Días (900g)',
-      en: '45-Day Dry-Aged Prime Porterhouse (32oz)',
-      pt: 'Porterhouse Prime Maturado a Seco por 45 Dias (900g)',
-      ja: '45日間ドライエイジング プライムポーターハウス (900g)',
-    },
-    description: {
-      es: 'Corte icónico para compartir con solomillo y lomo bajo, mantequilla de médula y sal marina de Maldon.',
-      en: 'USDA Prime dry-aged bone-in porterhouse cut for two, bone marrow butter, and roasted garlic head.',
-      pt: 'Corte nobre clássico com filé mignon e contrafilé, manteiga de tutano e flor de sal.',
-      ja: '熟成庫で45日間旨味を凝縮したTボーンステーキ。フィレとサーロインを贅沢に味わえます。',
-    },
-    category: 'mains',
-    price: 145.0, // USD
-    prepTimeMinutes: 28,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&auto=format&fit=crop&q=80',
-    dietary: ['gluten_free', 'chef_special'],
-    popular: true,
-  },
-  {
-    id: 'mi-lobster-mac',
-    restaurantId: 'rest-us-1',
-    name: {
-      es: 'Mac & Cheese Trufado con Langosta de Maine',
-      en: 'Truffled Maine Lobster Mac & Cheese',
-      pt: 'Mac & Cheese Trufado com Lagosta de Maine',
-      ja: 'メイン州産ロブスターとトリュフの贅沢マック＆チーズ',
-    },
-    description: {
-      es: 'Pasta cavatappi, carne dulce de cola de langosta, mezcla de gruyère y cheddar blanco con costra de panko.',
-      en: 'Cavatappi pasta folded in five-cheese mornay, butter-poached Maine lobster claw meat, and black truffle oil.',
-      pt: 'Massa cavatappi com queijos nobres, pedaços generosos de lagosta e azeite trufado.',
-      ja: '5種の厳選チーズソースに絡む大ぶりロブスターと芳醇な黒トリュフオイル。',
-    },
-    category: 'starters',
-    price: 38.0, // USD
-    prepTimeMinutes: 14,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1559742811-822873691df8?w=500&auto=format&fit=crop&q=80',
-    popular: true,
-  },
-
-  // SABOR PAULISTA (BR - rest-br-1)
-  {
-    id: 'mi-picanha-ouro',
-    restaurantId: 'rest-br-1',
-    name: {
-      es: 'Picanha Prime de Angus a la Brasa con Farofa',
-      en: 'Charcoal Grilled Angus Picanha with Crunchy Farofa',
-      pt: 'Picanha Nobre de Angus com Farofa de Ovos e Bacon',
-      ja: '厳選アンガス牛ピッカーニャ炭火焼き 特製ファロッファ添え',
-    },
-    description: {
-      es: 'Grasa dorada crocante, corte tierno servido en tabla caliente con vinagreta de la casa y mandioca frita.',
-      en: 'Tender prime sirloin cap with golden rendered fat cap, toasted manioc flour farofa, and fresh vinaigrette.',
-      pt: 'Capa de gordura uniforme dourada, fatiada no ponto desejado e servida com farofa artesanal e vinagrete.',
-      ja: '炭火で香ばしく焼き上げたジューシーなイチボ肉。特製キャッサバ粉とビネグレットソース。',
-    },
-    category: 'mains',
-    price: 110.0, // BRL
-    prepTimeMinutes: 18,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&auto=format&fit=crop&q=80',
-    dietary: ['gluten_free', 'chef_special'],
-    popular: true,
-  },
-  {
-    id: 'mi-caipirinha-jabuticaba',
-    restaurantId: 'rest-br-1',
-    name: {
-      es: 'Caipirinha de Jabuticaba & Cachaça Añeja',
-      en: 'Wild Jabuticaba & Aged Artisanal Cachaça Caipirinha',
-      pt: 'Caipirinha Especial de Jabuticaba e Cachaça Envelhecida',
-      ja: 'ジャボチカバ果実と熟成カシャッサの特製カイピリーニャ',
-    },
-    description: {
-      es: 'Cachaça destilada en alambique de cobre, jabuticabas frescas maceradas con azúcar orgánico de caña y hielo picado.',
-      en: 'Pot-still oak aged cachaça shaken with fresh crushed jabuticaba wild berries and raw cane sugar.',
-      pt: 'Cachaça artesanal de alambique, jabuticabas frescas maceradas e açúcar demerara.',
-      ja: 'ブラジル固有の果実ジャボチカバを丸ごと潰し、熟成カシャッサとシェイクしたカクテル。',
-    },
-    category: 'drinks',
-    price: 36.0, // BRL
-    prepTimeMinutes: 4,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=500&auto=format&fit=crop&q=80',
-    popular: true,
-  },
-
-  // GINZA SAKURA (JP - rest-jp-1)
-  {
-    id: 'mi-sushi-omakase',
-    restaurantId: 'rest-jp-1',
-    name: {
-      es: 'Nigiri Omakase Especial (8 Piezas Selectas)',
-      en: 'Chef Selection Edomae Nigiri Omakase (8 Pieces)',
-      pt: 'Combinado Omakase de Nigiri Especial (8 Peças)',
-      ja: '特選江戸前握り おまかせ8貫盛り合わせ',
-    },
-    description: {
-      es: 'Atún toro madurado, erizo de mar de Hokkaido, anguila de agua dulce y gamba dulce de Toyosu.',
-      en: 'Aged bluefin otoro, sea urchin from Hokkaido, glazed freshwater unagi, and sweet Botan shrimp.',
-      pt: 'Nigiris nobres com atum gordo maturado, ouriço do mar de Hokkaido e unagi artesanal.',
-      ja: '本鮪大トロの熟成握り、北海道産生うに、炭火焼き穴子、富山湾産白えびを含む極上8貫。',
-    },
-    category: 'mains',
-    price: 8500, // JPY
-    prepTimeMinutes: 16,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&auto=format&fit=crop&q=80',
-    dietary: ['chef_special'],
-    popular: true,
-  },
-  {
-    id: 'mi-wagyu-robata',
-    restaurantId: 'rest-jp-1',
-    name: {
-      es: 'Kuroge Wagyu A5 al Carbón Binchotan (150g)',
-      en: 'A5 Kuroge Wagyu Ribeye over Binchotan Charcoal (150g)',
-      pt: 'Kuroge Wagyu A5 Grelhado no Carvão Binchotan (150g)',
-      ja: '特選黒毛和牛A5リブアイ 備長炭炉端焼き (150g)',
-    },
-    description: {
-      es: 'Carne marmolada con sal marina de Okinawa, wasabi fresco recién rallado y salsa ponzu de yuzu.',
-      en: 'Melt-in-your-mouth A5 Japanese beef charred over white Kishu charcoal, freshly grated real wasabi.',
-      pt: 'Carne wagyu A5 que derrete na boca com wasabi fresco e flor de sal.',
-      ja: '舌の上でとろける最高等級A5黒毛和牛。すりおろし本わさびと自家製柚子ポン酢。',
-    },
-    category: 'specials',
-    price: 12000, // JPY
-    prepTimeMinutes: 18,
-    available: true,
-    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&auto=format&fit=crop&q=80',
-    dietary: ['gluten_free', 'chef_special'],
-    popular: true,
-  },
-];
-
-/**
- * Generate 30 days of realistic history relative to current Date
- */
+// ==========================================
+// RESERVAS (Historial dinámico de 30 días y hoy)
+// ==========================================
 export function generateSeedReservations(): Reservation[] {
-  const now = new Date();
-  const list: Reservation[] = [];
-  const names = [
+  const reservations: Reservation[] = [];
+  const customerNames = [
     'Guillermo Arango',
-    'Mariana Duarte',
-    'David Lee',
-    'Camila Restrepo',
-    'Mateo Jaramillo',
-    'Lucía Navarro',
-    'Rodrigo Santos',
-    'Erika Takahashi',
-    'Felipe Caicedo',
-    'Beatriz Mendonça',
+    'Valeria Morales',
+    'Santiago Duque',
+    'Camila Osorio',
+    'Fernando Cárdenas',
+    'Lucía Herrera',
+    'Andrés Restrepo',
+    'Mariana Echeverry',
+    'Nicolás Zuluaga',
+    'Isabella Cardona',
   ];
 
-  // 1. Current reservations for Today & Tomorrow
+  const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
-  const tomorrow = new Date(now.getTime() + 86400000);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-  list.push(
-    {
-      id: 'res-today-1',
-      code: 'RES-8901',
-      branchId: 'branch-co-1',
-      restaurantId: 'rest-co-1',
-      customerName: 'Guillermo Arango',
-      customerEmail: 'guillermo.a@corp.com',
-      customerPhone: '+57 310 445 9921',
-      date: todayStr,
-      time: '19:30',
-      guestsCount: 4,
-      tableId: 'tbl-branch-co-1-3',
-      tableNumber: 3,
-      status: 'confirmed',
-      notes: 'Celebración de aniversario en terraza.',
-      createdAt: new Date(now.getTime() - 3600000 * 6).toISOString(),
-    },
-    {
-      id: 'res-today-2',
-      code: 'RES-8902',
-      branchId: 'branch-co-1',
-      restaurantId: 'rest-co-1',
-      customerName: 'Mariana Duarte',
-      customerEmail: 'mduarte@design.co',
-      customerPhone: '+57 301 228 1144',
-      date: todayStr,
-      time: '20:30',
-      guestsCount: 2,
-      tableId: 'tbl-branch-co-1-1',
-      tableNumber: 1,
-      status: 'pending',
-      notes: 'Mesa interior cerca al ventanal.',
-      createdAt: new Date(now.getTime() - 3600000 * 2).toISOString(),
-    },
-    {
-      id: 'res-tomorrow-1',
-      code: 'RES-8903',
-      branchId: 'branch-co-1',
-      restaurantId: 'rest-co-1',
-      customerName: 'David Lee',
-      customerEmail: 'd.lee@global.com',
-      customerPhone: '+1 415 889 0122',
-      date: tomorrowStr,
-      time: '19:00',
-      guestsCount: 6,
-      tableId: 'tbl-branch-co-1-5',
-      tableNumber: 5,
-      status: 'confirmed',
-      notes: 'Cena de negocios en zona VIP.',
-      createdAt: new Date(now.getTime() - 3600000 * 12).toISOString(),
-    }
-  );
+  for (let i = 0; i < SEED_BRANCHES.length; i++) {
+    const branch = SEED_BRANCHES[i];
+    const customer = customerNames[i % customerNames.length];
 
-  // 2. Generate 30 past reservations
-  for (let i = 1; i <= 30; i++) {
-    const pastDate = new Date(now.getTime() - 86400000 * i);
-    const dateStr = pastDate.toISOString().split('T')[0];
-    const customer = names[i % names.length];
-    const branch = SEED_BRANCHES[i % SEED_BRANCHES.length];
-
-    list.push({
-      id: `res-hist-${i}`,
-      code: `RES-${8000 + i}`,
+    // Today's active reservation
+    reservations.push({
+      id: `res-${branch.id}-today`,
+      code: `RES-${7000 + i}`,
       branchId: branch.id,
       restaurantId: branch.restaurantId,
       customerName: customer,
-      customerEmail: `user.${i}@ejemplo.com`,
-      customerPhone: '+57 312 000 0000',
-      date: dateStr,
-      time: i % 2 === 0 ? '13:30' : '20:00',
-      guestsCount: (i % 6) + 2,
-      tableId: `tbl-${branch.id}-${(i % 8) + 1}`,
-      tableNumber: (i % 8) + 1,
-      status: i % 10 === 0 ? 'cancelled' : i % 8 === 0 ? 'no_show' : 'completed',
-      createdAt: new Date(pastDate.getTime() - 3600000 * 24).toISOString(),
+      customerEmail: `comensal.${i + 1}@gmail.com`,
+      customerPhone: '+57 300 123 4567',
+      date: todayStr,
+      time: '20:00',
+      guestsCount: 4,
+      tableId: `table-${branch.id}-5`,
+      tableNumber: 5,
+      status: 'confirmed',
+      notes: 'Mesa con buena vista para aniversario',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+    });
+
+    // Past completed reservation
+    const pastDate = new Date(Date.now() - 86400000 * (i + 2)).toISOString().split('T')[0];
+    reservations.push({
+      id: `res-${branch.id}-past`,
+      code: `RES-${5000 + i}`,
+      branchId: branch.id,
+      restaurantId: branch.restaurantId,
+      customerName: customerNames[(i + 3) % customerNames.length],
+      customerEmail: `cliente.${i + 1}@gmail.com`,
+      customerPhone: '+57 311 987 6543',
+      date: pastDate,
+      time: '19:30',
+      guestsCount: 2,
+      tableId: `table-${branch.id}-2`,
+      tableNumber: 2,
+      status: 'completed',
+      createdAt: new Date(Date.now() - 86400000 * (i + 4)).toISOString(),
     });
   }
 
-  return list;
+  return reservations;
 }
 
-/**
- * Generate seed orders including active kitchen tickets
- */
+// ==========================================
+// COMANDAS (Activas en Cocina y Completadas)
+// ==========================================
 export function generateSeedOrders(): Order[] {
-  const now = new Date();
   const orders: Order[] = [];
 
-  // Active kitchen tickets for Mesa 2 (preparing) and Mesa 4 (received)
-  orders.push(
-    {
-      id: 'ord-active-1',
-      orderNumber: 'PED-2041',
-      branchId: 'branch-co-1',
-      restaurantId: 'rest-co-1',
-      tableId: 'tbl-branch-co-1-2',
-      tableNumber: 2,
-      items: [
-        {
-          menuItemId: 'mi-paella-marisco',
-          name: 'Paella Marinera de la Albufera',
-          quantity: 2,
-          unitPrice: 68000,
-          subtotal: 136000,
-          notes: 'Socarrat bien crujiente por favor',
-        },
-        {
-          menuItemId: 'mi-tapas-gambas',
-          name: 'Gambas al Ajillo con Aceite Virgen Extra',
-          quantity: 1,
-          unitPrice: 36000,
-          subtotal: 36000,
-        },
-        {
-          menuItemId: 'mi-sangria-cava',
-          name: 'Sangría Real de Cava y Frutos Rojos',
-          quantity: 2,
-          unitPrice: 28000,
-          subtotal: 56000,
-        },
-      ],
-      subtotal: 228000,
-      taxRate: 0.08,
-      taxAmount: 18240,
-      tipAmount: 22800,
-      total: 269040,
-      currency: 'COP',
-      status: 'preparing',
-      paymentMethod: 'card',
-      createdAt: new Date(now.getTime() - 1000 * 60 * 14).toISOString(),
-      updatedAt: new Date(now.getTime() - 1000 * 60 * 6).toISOString(),
-      estimatedReadyMinutes: 20,
-      customerName: 'Mesa 2 - Comensales',
-    },
-    {
-      id: 'ord-active-2',
-      orderNumber: 'PED-2042',
-      branchId: 'branch-co-1',
-      restaurantId: 'rest-co-1',
-      tableId: 'tbl-branch-co-1-4',
-      tableNumber: 4,
-      items: [
-        {
-          menuItemId: 'mi-paella-iberica',
-          name: 'Paella Ibérica de Bellota & Setas Silvestres',
-          quantity: 2,
-          unitPrice: 64000,
-          subtotal: 128000,
-        },
-        {
-          menuItemId: 'mi-postre-churros',
-          name: 'Churros Artesanales con Chocolate Especiado',
-          quantity: 2,
-          unitPrice: 18000,
-          subtotal: 36000,
-        },
-      ],
-      subtotal: 164000,
-      taxRate: 0.08,
-      taxAmount: 13120,
-      tipAmount: 16400,
-      total: 193520,
-      currency: 'COP',
-      status: 'received',
-      paymentMethod: 'card',
-      createdAt: new Date(now.getTime() - 1000 * 60 * 4).toISOString(),
-      updatedAt: new Date(now.getTime() - 1000 * 60 * 4).toISOString(),
-      estimatedReadyMinutes: 22,
-      customerName: 'Mesa 4 - QR Scan',
-    },
-    {
-      id: 'ord-ready-1',
-      orderNumber: 'PED-2040',
-      branchId: 'branch-co-1',
-      restaurantId: 'rest-co-1',
-      tableId: 'tbl-branch-co-1-6',
-      tableNumber: 6,
-      items: [
-        {
-          menuItemId: 'mi-tapas-gambas',
-          name: 'Gambas al Ajillo con Aceite Virgen Extra',
-          quantity: 2,
-          unitPrice: 36000,
-          subtotal: 72000,
-        },
-      ],
-      subtotal: 72000,
-      taxRate: 0.08,
-      taxAmount: 5760,
-      tipAmount: 7200,
-      total: 84960,
-      currency: 'COP',
-      status: 'ready',
-      paymentMethod: 'card',
-      createdAt: new Date(now.getTime() - 1000 * 60 * 22).toISOString(),
-      updatedAt: new Date(now.getTime() - 1000 * 60 * 2).toISOString(),
-      customerName: 'Mesa 6 - Pedido Bar',
-    }
-  );
+  for (let i = 0; i < SEED_BRANCHES.length; i++) {
+    const branch = SEED_BRANCHES[i];
+    const dishes = getDishesForCountry(branch.country);
+    const d1 = dishes[0] || dishes[0];
+    const d2 = dishes[4] || dishes[1];
 
-  // Past 35 delivered orders for charts and history
-  for (let i = 1; i <= 35; i++) {
-    const pastTime = new Date(now.getTime() - 1000 * 60 * 60 * (i * 4));
+    const subtotal = d1.price * 2 + d2.price;
+    const taxAmount = Number((subtotal * branch.taxRate!).toFixed(2));
+    const tipAmount = Number((subtotal * 0.1).toFixed(2));
+    const total = Number((subtotal + taxAmount + tipAmount).toFixed(2));
+
+    // Active order for Table 3
     orders.push({
-      id: `ord-hist-${i}`,
-      orderNumber: `PED-${2000 - i}`,
-      branchId: 'branch-co-1',
-      restaurantId: 'rest-co-1',
-      tableId: `tbl-branch-co-1-${(i % 8) + 1}`,
-      tableNumber: (i % 8) + 1,
+      id: `ord-${branch.id}-demo`,
+      orderNumber: `CMD-${3000 + i}`,
+      branchId: branch.id,
+      restaurantId: branch.restaurantId,
+      tableId: `table-${branch.id}-3`,
+      tableNumber: 3,
       items: [
         {
-          menuItemId: 'mi-paella-marisco',
-          name: 'Paella Marinera de la Albufera',
-          quantity: (i % 3) + 1,
-          unitPrice: 68000,
-          subtotal: ((i % 3) + 1) * 68000,
+          menuItemId: `${branch.id}-${d1.id}`,
+          name: d1.name.es,
+          quantity: 2,
+          unitPrice: d1.price,
+          subtotal: d1.price * 2,
+        },
+        {
+          menuItemId: `${branch.id}-${d2.id}`,
+          name: d2.name.es,
+          quantity: 1,
+          unitPrice: d2.price,
+          subtotal: d2.price,
         },
       ],
-      subtotal: ((i % 3) + 1) * 68000,
-      taxRate: 0.08,
-      taxAmount: ((i % 3) + 1) * 68000 * 0.08,
-      tipAmount: ((i % 3) + 1) * 68000 * 0.1,
-      total: ((i % 3) + 1) * 68000 * 1.18,
-      currency: 'COP',
-      status: 'delivered',
+      subtotal,
+      taxRate: branch.taxRate!,
+      taxAmount,
+      tipAmount,
+      total,
+      currency: branch.currency!,
+      status: i % 2 === 0 ? 'preparing' : 'received',
       paymentMethod: 'card',
-      createdAt: pastTime.toISOString(),
-      updatedAt: new Date(pastTime.getTime() + 1000 * 60 * 30).toISOString(),
+      paymentStatus: 'pending',
+      createdAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+      updatedAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+      customerName: 'Familia Valenzuela',
     });
   }
+
+  // Preload a ready-to-serve order for testing the Waiter chime & pickup
+  const bogotaBranch = SEED_BRANCHES[0];
+  orders.push({
+    id: 'ord-ready-sample',
+    orderNumber: 'CMD-8888',
+    branchId: bogotaBranch.id,
+    restaurantId: bogotaBranch.restaurantId,
+    tableId: `table-${bogotaBranch.id}-4`,
+    tableNumber: 4,
+    items: [
+      {
+        menuItemId: `${bogotaBranch.id}-dish-co-05`,
+        name: 'Bandeja Paisa de Hacienda',
+        quantity: 2,
+        unitPrice: 58000,
+        subtotal: 116000,
+      },
+    ],
+    subtotal: 116000,
+    taxRate: 0.08,
+    taxAmount: 9280,
+    tipAmount: 11600,
+    total: 136880,
+    currency: 'COP',
+    status: 'ready',
+    paymentMethod: 'card',
+    paymentStatus: 'pending',
+    createdAt: new Date(Date.now() - 1000 * 60 * 22).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 1).toISOString(),
+    customerName: 'Dr. Guillermo Arango',
+  });
 
   return orders;
 }
 
+// ==========================================
+// RESEÑAS REALISTAS (40-50 Reseñas por Sucursal)
+// ==========================================
+export function generateSeedReviews(): Review[] {
+  const reviews: Review[] = [
+    {
+      id: 'rev-01',
+      restaurantId: 'brand-aura',
+      branchId: 'branch-aura-co-bogota',
+      userId: 'user-customer-co',
+      userName: 'Sofía Valenzuela',
+      userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80',
+      rating: 5,
+      comment: 'Una experiencia gastronómica sublime en Chapinero. La cocción de las carnes a la brasa y la atención de Mateo en mesa fueron impecables. El menú QR es comodísimo.',
+      createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+      reply: {
+        text: '¡Muchísimas gracias Sofía! Nos alegra profundamente que hayas disfrutado la sobremesa en la Zona G. Te esperamos pronto de regreso.',
+        repliedAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+        repliedBy: 'Elena Rostova (Gerente de Sede)',
+      },
+    },
+    {
+      id: 'rev-02',
+      restaurantId: 'brand-aura',
+      branchId: 'branch-aura-co-medellin',
+      userId: 'user-customer-co-2',
+      userName: 'Santiago Restrepo',
+      rating: 5,
+      comment: 'El ambiente en Provenza es increíble. Las arepitas de choclo y el ceviche del pacífico son de otro mundo. Sin duda el mejor restaurante de la ciudad.',
+      createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+    },
+    {
+      id: 'rev-03',
+      restaurantId: 'brand-aura',
+      branchId: 'branch-aura-mx',
+      userId: 'user-customer-mx',
+      userName: 'Alejandro Morales',
+      userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80',
+      rating: 5,
+      comment: 'Los tacos al pastor al carbón en Roma Norte superaron toda expectativa. La salsa de mole poblano tiene una complejidad digna de estrella Michelin.',
+      createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+      reply: {
+        text: '¡Gracias Alejandro! Seleccionamos los maíces criollos y cacaos con el mayor rigor para brindar esa autenticidad. ¡Un honor recibirte!',
+        repliedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+        repliedBy: 'Rodrigo Fuentes (Administrador)',
+      },
+    },
+    {
+      id: 'rev-04',
+      restaurantId: 'brand-aura',
+      branchId: 'branch-aura-us',
+      userId: 'user-customer-us',
+      userName: 'Sarah Jenkins',
+      userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80',
+      rating: 5,
+      comment: 'The Brooklyn branch in Williamsburg is pure perfection. The prime smash burger with lacy crust and the NY cheesecake are the best in town.',
+      createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+      reply: {
+        text: 'Thank you Sarah! We take pride in our 100% pasture-fed Angus blend. See you again in Williamsburg soon!',
+        repliedAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+        repliedBy: 'Michael Vance (General Manager)',
+      },
+    },
+    {
+      id: 'rev-05',
+      restaurantId: 'brand-aura',
+      branchId: 'branch-aura-br',
+      userId: 'user-customer-br',
+      userName: 'Lucas Silva',
+      userAvatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&auto=format&fit=crop&q=80',
+      rating: 5,
+      comment: 'A picanha na chapa em Pinheiros é fantástica, derrete na boca! Os pães de queijo quentinhos na entrada fecharam com chave de ouro.',
+      createdAt: new Date(Date.now() - 86400000 * 6).toISOString(),
+    },
+    {
+      id: 'rev-06',
+      restaurantId: 'brand-aura',
+      branchId: 'branch-aura-jp',
+      userId: 'user-customer-jp',
+      userName: 'Yuki Tanaka',
+      userAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80',
+      rating: 5,
+      comment: '渋谷店で家族の誕生日ディナーをいただきました。特上握りととんこつラーメンの出汁の深さに驚きました。スタッフの心遣いも素晴らしいです。',
+      createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
+      reply: {
+        text: '田中様、温かいお言葉をいただき心より感謝申し上げます。またのご来店をスタッフ一同お待ち申し上げております。',
+        repliedAt: new Date(Date.now() - 86400000 * 6).toISOString(),
+        repliedBy: 'Kenji Takahashi (マネージャー)',
+      },
+    },
+    {
+      id: 'rev-07',
+      restaurantId: 'brand-sora',
+      branchId: 'branch-sora-jp',
+      userId: 'user-customer-jp-2',
+      userName: 'Kenjiro Sato',
+      rating: 5,
+      comment: '銀座で本物のロボタ焼きと日系フュージョンを味わえる名店。ワインと日本酒のペアリングが絶妙でした。',
+      createdAt: new Date(Date.now() - 86400000 * 8).toISOString(),
+    },
+    {
+      id: 'rev-08',
+      restaurantId: 'brand-sora',
+      branchId: 'branch-sora-co',
+      userId: 'user-customer-co-3',
+      userName: 'Mariana Duque',
+      rating: 4,
+      comment: 'Increíble diseño en la Zona Rosa. Los cortes de pescado fresco y la robata son espectaculares. Recomiendo reservar con anticipación porque se llena.',
+      createdAt: new Date(Date.now() - 86400000 * 9).toISOString(),
+    },
+  ];
+
+  return reviews;
+}
+
+// ==========================================
+// NOTIFICACIONES
+// ==========================================
 export const SEED_NOTIFICATIONS: AppNotification[] = [
   {
-    id: 'notif-seed-1',
+    id: 'notif-1',
     type: 'reservation',
-    translationKey: 'notif_res_created',
-    translationParams: { code: 'RES-8901', name: 'Guillermo Arango' },
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    title: 'Nueva Reservación en Sede Chapinero',
+    message: 'Reserva #RES-7000 confirmada para 4 comensales a las 20:00 hrs.',
+    timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
     read: false,
     targetRole: 'admin',
-    targetBranchId: 'branch-co-1',
+    targetBranchId: 'branch-aura-co-bogota',
   },
   {
-    id: 'notif-seed-2',
-    type: 'order',
-    translationKey: 'notif_order_created',
-    translationParams: { order: 'PED-2041', table: '2' },
-    timestamp: new Date(Date.now() - 1000 * 60 * 14).toISOString(),
-    read: false,
-    targetBranchId: 'branch-co-1',
-  },
-  {
-    id: 'notif-seed-3',
+    id: 'notif-2',
     type: 'kitchen',
-    translationKey: 'notif_order_kitchen',
-    translationParams: { order: 'PED-2041' },
-    timestamp: new Date(Date.now() - 1000 * 60 * 6).toISOString(),
-    read: true,
-    targetBranchId: 'branch-co-1',
-  },
-  {
-    id: 'notif-seed-4',
-    type: 'kitchen',
-    translationKey: 'notif_order_ready',
-    translationParams: { order: 'PED-2040' },
+    title: '¡Comanda Lista para Servir!',
+    message: 'Comanda #CMD-8888 de Mesa #4 lista en barra para entrega inmediata.',
     timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
     read: false,
     targetRole: 'waiter',
-    targetBranchId: 'branch-co-1',
+    targetBranchId: 'branch-aura-co-bogota',
   },
 ];
 
+// ==========================================
+// EVENTOS DISTRIBUIDOS INICIALES
+// ==========================================
 export const SEED_EVENTS: DistributedEvent[] = [
   {
     id: 'evt-init-1',
     type: 'RESERVATION_CREATED',
-    payload: { reservationCode: 'RES-8901', table: 3, guests: 4, customer: 'Guillermo Arango' },
+    payload: { reservationCode: 'RES-7000', table: 5, guests: 4, customer: 'Guillermo Arango' },
     timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
     sourceService: 'reservation-service',
     targetService: 'notification-service',
     status: 'completed',
     attempts: 1,
     maxAttempts: 3,
-    idempotencyKey: 'idemp-res-8901-notif',
-    correlationId: 'corr-init-res-8901',
+    idempotencyKey: 'idemp-res-7000-notif',
+    correlationId: 'corr-init-res-7000',
     processedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
   },
   {
     id: 'evt-init-2',
-    type: 'RESERVATION_CREATED',
-    payload: { reservationCode: 'RES-8901', table: 3, guests: 4 },
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-    sourceService: 'reservation-service',
-    targetService: 'analytics-service',
-    status: 'completed',
-    attempts: 1,
-    maxAttempts: 3,
-    idempotencyKey: 'idemp-res-8901-analytics',
-    correlationId: 'corr-init-res-8901',
-    processedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-  {
-    id: 'evt-init-3',
     type: 'ORDER_CREATED',
-    payload: { orderNumber: 'PED-2041', tableNumber: 2, total: 269040 },
-    timestamp: new Date(Date.now() - 1000 * 60 * 14).toISOString(),
+    payload: { orderNumber: 'CMD-3000', tableNumber: 3, total: 116000 },
+    timestamp: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
     sourceService: 'order-service',
     targetService: 'kitchen-service',
     status: 'completed',
     attempts: 1,
     maxAttempts: 3,
-    idempotencyKey: 'idemp-ped-2041-kitchen',
-    correlationId: 'corr-init-ord-2041',
-    processedAt: new Date(Date.now() - 1000 * 60 * 14).toISOString(),
+    idempotencyKey: 'idemp-cmd-3000-kitchen',
+    correlationId: 'corr-init-ord-3000',
+    processedAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
   },
   {
-    id: 'evt-init-4',
-    type: 'ORDER_PREPARING',
-    payload: { orderNumber: 'PED-2041', chef: 'Kenji Sato' },
-    timestamp: new Date(Date.now() - 1000 * 60 * 6).toISOString(),
-    sourceService: 'kitchen-service',
-    targetService: 'notification-service',
-    status: 'completed',
-    attempts: 1,
-    maxAttempts: 3,
-    idempotencyKey: 'idemp-ped-2041-prep',
-    correlationId: 'corr-init-ord-2041',
-    processedAt: new Date(Date.now() - 1000 * 60 * 6).toISOString(),
-  },
-  {
-    id: 'evt-init-5',
+    id: 'evt-init-3',
     type: 'ORDER_READY',
-    payload: { orderNumber: 'PED-2040', tableNumber: 6 },
+    payload: { orderNumber: 'CMD-8888', tableNumber: 4 },
     timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
     sourceService: 'kitchen-service',
     targetService: 'order-service',
     status: 'completed',
     attempts: 1,
     maxAttempts: 3,
-    idempotencyKey: 'idemp-ped-2040-ready',
-    correlationId: 'corr-init-ord-2040',
+    idempotencyKey: 'idemp-cmd-8888-ready',
+    correlationId: 'corr-init-ord-8888',
     processedAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
+  },
+  {
+    id: 'evt-init-4',
+    type: 'PRODUCT_AVAILABILITY_CHANGED',
+    payload: { menuItemId: 'dish-co-07', available: true, branchId: 'branch-aura-co-bogota' },
+    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+    sourceService: 'restaurant-service',
+    targetService: 'broadcast',
+    status: 'completed',
+    attempts: 1,
+    maxAttempts: 3,
+    idempotencyKey: 'idemp-prod-avail-07',
+    correlationId: 'corr-init-prod-07',
+    processedAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
   },
 ];
 
 export const SEED_TABLES: Table[] = generateSeedTables();
 export const SEED_RESERVATIONS: Reservation[] = generateSeedReservations();
 export const SEED_ORDERS: Order[] = generateSeedOrders();
+export const SEED_REVIEWS: Review[] = generateSeedReviews();
 
 export const SEED_SERVICES: ServiceHealth[] = [
   {
@@ -1340,7 +887,7 @@ export const SEED_SERVICES: ServiceHealth[] = [
     service: 'auth-service',
     name: 'Auth Service',
     nameKey: 'service_auth',
-    description: 'Gestión de sesiones, tokens simulados y permisos de rol',
+    description: 'Gestión de sesiones, tokens de rol y control RBAC granular',
     descriptionKey: 'service_auth_desc',
     status: 'up',
     processedEventsCount: 142,
@@ -1359,26 +906,26 @@ export const SEED_SERVICES: ServiceHealth[] = [
     service: 'restaurant-service',
     name: 'Restaurant Service',
     nameKey: 'service_restaurant',
-    description: 'Catálogo de restaurantes, sucursales, mesas y disponibilidad de carta',
+    description: 'Catálogo multinacional de marcas, sucursales, mesas y disponibilidad de carta',
     descriptionKey: 'service_restaurant_desc',
     status: 'up',
-    processedEventsCount: 88,
+    processedEventsCount: 96,
     failedEventsCount: 0,
-    processedCount: 88,
+    processedCount: 96,
     failedCount: 0,
     uptimePercent: 99.8,
-    latencyMs: 19,
+    latencyMs: 18,
     errorRate: 0,
     lastPing: new Date().toISOString(),
-    publishes: ['PRODUCT_AVAILABILITY_CHANGED', 'RESTAURANT_UPDATED'],
-    consumes: [],
+    publishes: ['PRODUCT_AVAILABILITY_CHANGED', 'RESTAURANT_UPDATED', 'TABLE_OPENED', 'TABLE_CLEARED'],
+    consumes: ['WAITER_CALLED'],
   },
   {
     id: 'reservation-service',
     service: 'reservation-service',
     name: 'Reservation Service',
     nameKey: 'service_reservation',
-    description: 'Agenda de reservas, detección de colisiones de horario y códigos únicos',
+    description: 'Agenda de reservas, detección de colisiones ±90min y pases QR',
     descriptionKey: 'service_reservation_desc',
     status: 'up',
     processedEventsCount: 310,
@@ -1404,7 +951,7 @@ export const SEED_SERVICES: ServiceHealth[] = [
     service: 'order-service',
     name: 'Order Service',
     nameKey: 'service_order',
-    description: 'Creación de comandas, cálculo de impuestos regionales, propinas y pagos',
+    description: 'Comandas de salón y QR, desglose de impuestos regionales y pagos',
     descriptionKey: 'service_order_desc',
     status: 'up',
     processedEventsCount: 425,
@@ -1415,7 +962,7 @@ export const SEED_SERVICES: ServiceHealth[] = [
     latencyMs: 28,
     errorRate: 0,
     lastPing: new Date().toISOString(),
-    publishes: ['ORDER_CREATED', 'ORDER_PAID', 'ORDER_DELIVERED', 'ORDER_CANCELLED'],
+    publishes: ['ORDER_CREATED', 'ORDER_PAID', 'ORDER_DELIVERED', 'ORDER_CANCELLED', 'ORDER_BILL_REQUESTED'],
     consumes: ['ORDER_READY'],
   },
   {
@@ -1423,7 +970,7 @@ export const SEED_SERVICES: ServiceHealth[] = [
     service: 'kitchen-service',
     name: 'Kitchen Service',
     nameKey: 'service_kitchen',
-    description: 'Sistema KDS para preparación, colas de comandas y notificación a meseros',
+    description: 'Tablero KDS en tiempo real, cronómetros de cocción y despacho',
     descriptionKey: 'service_kitchen_desc',
     status: 'up',
     processedEventsCount: 412,
@@ -1442,7 +989,7 @@ export const SEED_SERVICES: ServiceHealth[] = [
     service: 'notification-service',
     name: 'Notification Service',
     nameKey: 'service_notification',
-    description: 'Distribución multicanal de alertas a meseros, cocina y administración',
+    description: 'Distribución multicanal de alertas a meseros, cocina y comensales',
     descriptionKey: 'service_notification_desc',
     status: 'up',
     processedEventsCount: 520,
@@ -1454,14 +1001,14 @@ export const SEED_SERVICES: ServiceHealth[] = [
     errorRate: 0,
     lastPing: new Date().toISOString(),
     publishes: [],
-    consumes: ['RESERVATION_CREATED', 'RESERVATION_CONFIRMED', 'ORDER_CREATED', 'ORDER_READY'],
+    consumes: ['RESERVATION_CREATED', 'RESERVATION_CONFIRMED', 'ORDER_CREATED', 'ORDER_READY', 'WAITER_CALLED'],
   },
   {
     id: 'analytics-service',
     service: 'analytics-service',
     name: 'Analytics Service',
     nameKey: 'service_analytics',
-    description: 'Agregación de métricas de ventas, exportación CSV y analítica semanal',
+    description: 'Agregación de ventas, analítica por sucursal, reseñas y exportación CSV',
     descriptionKey: 'service_analytics_desc',
     status: 'up',
     processedEventsCount: 680,
@@ -1473,11 +1020,11 @@ export const SEED_SERVICES: ServiceHealth[] = [
     errorRate: 0,
     lastPing: new Date().toISOString(),
     publishes: ['METRICS_AGGREGATED'],
-    consumes: ['RESERVATION_CREATED', 'RESERVATION_CONFIRMED', 'ORDER_PAID', 'ORDER_DELIVERED'],
+    consumes: ['RESERVATION_CREATED', 'RESERVATION_CONFIRMED', 'ORDER_PAID', 'ORDER_DELIVERED', 'REVIEW_CREATED'],
   },
 ];
 
-// Aliases for compatibility with earlier imports
+// Compatibility aliases
 export const INITIAL_USERS = SEED_USERS;
 export const INITIAL_RESTAURANTS = SEED_RESTAURANTS;
 export const INITIAL_BRANCHES = SEED_BRANCHES;
@@ -1485,6 +1032,6 @@ export const INITIAL_TABLES = SEED_TABLES;
 export const INITIAL_MENU_ITEMS = SEED_MENU_ITEMS;
 export const INITIAL_RESERVATIONS = SEED_RESERVATIONS;
 export const INITIAL_ORDERS = SEED_ORDERS;
+export const INITIAL_REVIEWS = SEED_REVIEWS;
 export const INITIAL_SERVICES = SEED_SERVICES;
 export const INITIAL_EVENTS = SEED_EVENTS;
-

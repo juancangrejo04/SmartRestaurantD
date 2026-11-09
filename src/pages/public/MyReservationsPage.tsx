@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { Reservation } from '../../types';
 import {
@@ -12,14 +12,59 @@ import {
   Plus,
   ArrowRight,
   ShieldAlert,
+  LogIn,
 } from 'lucide-react';
 
 export const MyReservationsPage: React.FC = () => {
-  const { reservations, branches, restaurants, updateReservationStatus, showToast, t } = useApp();
+  const {
+    reservations,
+    branches,
+    restaurants,
+    currentUser,
+    isAuthenticated,
+    updateReservationStatus,
+    showToast,
+  } = useApp();
+
+  // If not logged in, prompt to log in
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#FBF6EC] py-16 px-4 font-sans text-center">
+        <div className="max-w-md mx-auto bg-[#FFFDF8] rounded-3xl p-8 border border-[#E9DFCC] shadow-lg space-y-4">
+          <Calendar className="w-12 h-12 text-[#E8A33D] mx-auto" />
+          <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
+            Consulta de Reservaciones
+          </h2>
+          <p className="text-xs text-[#7A6E65]">
+            Inicia sesión con tu cuenta de comensal para acceder a tus reservas y códigos de confirmación.
+          </p>
+          <Link
+            to="/login?redirect=/mis-reservas"
+            className="inline-flex items-center gap-2 py-2.5 px-6 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] text-white text-xs font-bold shadow-md shadow-[#C8452C]/20"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Iniciar Sesión</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Filter reservations: customer sees only their email/name matching reservations
+  const isStaff = ['owner', 'admin'].includes(currentUser.role);
+  const myReservations = isStaff
+    ? reservations
+    : reservations.filter(
+        (r) =>
+          r.customerEmail.toLowerCase() === currentUser.email.toLowerCase() ||
+          r.customerName.toLowerCase() === currentUser.name.toLowerCase()
+      );
 
   const handleCancel = (resId: string) => {
-    updateReservationStatus(resId, 'cancelled');
-    showToast('Reservación cancelada.', 'info');
+    if (window.confirm('¿Deseas cancelar esta reservación?')) {
+      updateReservationStatus(resId, 'cancelled');
+      showToast('Reservación cancelada.', 'info');
+    }
   };
 
   return (
@@ -34,40 +79,40 @@ export const MyReservationsPage: React.FC = () => {
               Mis Reservaciones
             </h1>
             <p className="text-xs text-[#7A6E65]">
-              Consulta y gestiona las reservas activas en cualquiera de nuestras sucursales.
+              Consulta el estado de tus mesas reservadas en nuestras sedes.
             </p>
           </div>
 
           <Link
             to="/reservar"
-            className="py-2.5 px-5 rounded-xl bg-[#C8452C] hover:bg-[#A83720] text-white text-xs font-bold shadow-md transition-all flex items-center gap-2 self-start sm:self-auto"
+            className="py-2.5 px-5 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-md shadow-[#C8452C]/20 transition-all flex items-center gap-2 self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Nueva Reservación</span>
           </Link>
         </div>
 
-        {reservations.length === 0 ? (
+        {myReservations.length === 0 ? (
           <div className="text-center py-16 bg-[#FFFDF8] rounded-3xl border border-[#E9DFCC] p-8 space-y-3">
             <Calendar className="w-12 h-12 text-[#E8A33D] mx-auto" />
             <h3 className="font-serif font-bold text-lg text-[#1F1A17]">
-              No tienes reservaciones registradas
+              No tienes reservaciones activas registradas
             </h3>
             <p className="text-xs text-[#7A6E65] max-w-sm mx-auto">
-              Elige uno de nuestros restaurantes de alta gastronomía y agenda tu mesa ahora mismo.
+              Elige cualquiera de nuestras marcas de alta cocina y reserva tu mesa ahora mismo.
             </p>
             <Link
               to="/reservar"
-              className="inline-block mt-2 py-2 px-4 rounded-xl bg-[#C8452C] text-white text-xs font-bold"
+              className="inline-block mt-2 py-2.5 px-6 rounded-2xl bg-[#C8452C] text-white text-xs font-bold shadow-md shadow-[#C8452C]/20"
             >
               Reservar Mesa
             </Link>
           </div>
         ) : (
           <div className="space-y-4">
-            {reservations.slice(0, 8).map((res: Reservation) => {
+            {myReservations.map((res: Reservation) => {
               const br = branches.find((b) => b.id === res.branchId);
-              const rest = br ? restaurants.find((r) => r.id === br.restaurantId) : null;
+              const rest = restaurants.find((r) => r.id === res.restaurantId || r.id === br?.restaurantId);
 
               return (
                 <div
@@ -76,11 +121,11 @@ export const MyReservationsPage: React.FC = () => {
                 >
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-xs text-[#C8452C] bg-[#C8452C]/10 px-2 py-0.5 rounded">
+                      <span className="font-mono font-bold text-xs text-[#C8452C] bg-[#C8452C]/10 px-2.5 py-0.5 rounded-full">
                         {res.code || res.id.slice(0, 8).toUpperCase()}
                       </span>
                       <span
-                        className={`text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded ${
+                        className={`text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full ${
                           res.status === 'confirmed'
                             ? 'bg-emerald-100 text-emerald-800'
                             : res.status === 'cancelled'
@@ -88,12 +133,12 @@ export const MyReservationsPage: React.FC = () => {
                             : 'bg-amber-100 text-amber-800'
                         }`}
                       >
-                        {res.status}
+                        {res.status === 'confirmed' ? 'Confirmada' : res.status === 'cancelled' ? 'Cancelada' : 'Pendiente'}
                       </span>
                     </div>
 
                     <h3 className="font-serif font-bold text-base text-[#1F1A17]">
-                      {rest?.name || 'SmartRestaurant'} — {br?.name || 'Sede Principal'}
+                      {rest?.name || 'SmartRestaurant'} — {br?.name || 'Sede'}
                     </h3>
 
                     <div className="flex flex-wrap items-center gap-4 text-xs text-[#7A6E65]">

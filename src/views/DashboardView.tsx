@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { analyticsService } from '../services/analyticsService';
 import { COUNTRIES } from '../i18n/countries';
-import { Table, DistributedEvent, Branch } from '../types';
+import { Table, DistributedEvent, Branch, Order } from '../types';
+import { useCan } from '../core/permissions';
 import {
   DollarSign,
   ShoppingBag,
@@ -15,6 +16,10 @@ import {
   Sparkles,
   Store,
   CheckCircle,
+  BellRing,
+  Utensils,
+  Star,
+  Users,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -42,9 +47,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
     branches,
     menuItems,
     events,
+    reviews,
     formatPrice,
     activeBranchId,
     setActiveBranchId,
+    currentUser,
+    advanceKitchenOrder,
+    resolveWaiterCall,
   } = useApp();
 
   const [dateFilter, setDateFilter] = useState<'today' | 'week' | 'month'>('today');
@@ -57,69 +66,179 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   const countryConfig = COUNTRIES[country];
   const activeBranch = branches.find((b: Branch) => b.id === activeBranchId);
 
+  // Role-specific widgets data
+  const callingTables = tables.filter((t) => t.activeCallWaiter);
+  const readyOrders = orders.filter((o) => o.status === 'ready');
+  const preparingOrders = orders.filter((o) => o.status === 'preparing' || o.status === 'received');
+
+  // WAITER ROLE SPECIFIC DASHBOARD
+  if (currentUser.role === 'waiter') {
+    return (
+      <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto font-sans">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+          <div>
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-600">
+              Panel Operativo de Salón
+            </span>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Bienvenido(a), {currentUser.name}
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Supervisión de sala, atención inmediata de llamados y despacho de comandas listas.
+            </p>
+          </div>
+
+          <button
+            onClick={() => onNavigate('floor')}
+            className="py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs"
+          >
+            <Utensils className="w-3.5 h-3.5 text-amber-400" />
+            <span>Ir al Plano de Mesas</span>
+          </button>
+        </div>
+
+        {/* Urgent Actions: Waiter Calls & Ready Orders */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Active Calls */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <BellRing className="w-4 h-4" />
+                </div>
+                <h3 className="font-bold text-base text-slate-900">Llamadas de Comensales ({callingTables.length})</h3>
+              </div>
+            </div>
+
+            {callingTables.length === 0 ? (
+              <div className="text-center py-8 text-xs text-slate-400">
+                No hay mesas llamando en este momento. Salón despejado.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {callingTables.map((t) => (
+                  <div key={t.id} className="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between">
+                    <div>
+                      <span className="font-mono font-bold text-sm text-amber-950">Mesa #{t.number}</span>
+                      <p className="text-xs text-amber-800">{t.waiterCallReason || 'Atención en mesa'}</p>
+                    </div>
+                    <button
+                      onClick={() => resolveWaiterCall(t.id)}
+                      className="py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold"
+                    >
+                      Atender
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Ready Orders */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <ChefHat className="w-4 h-4" />
+                </div>
+                <h3 className="font-bold text-base text-slate-900">Listas para Servir ({readyOrders.length})</h3>
+              </div>
+            </div>
+
+            {readyOrders.length === 0 ? (
+              <div className="text-center py-8 text-xs text-slate-400">
+                No hay comandas pendientes de entrega en barra.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {readyOrders.map((o) => (
+                  <div key={o.id} className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                    <div>
+                      <span className="font-mono font-bold text-sm text-emerald-950">Mesa #{o.tableNumber}</span>
+                      <p className="text-xs text-emerald-800">{o.items.length} platos emplatados</p>
+                    </div>
+                    <button
+                      onClick={() => advanceKitchenOrder(o.id)}
+                      className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold"
+                    >
+                      Marcar Entregado
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // STANDARD / OWNER / ADMIN DASHBOARD
   return (
-    <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto font-sans">
       {/* Top Header & Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <span>{countryConfig.name}</span>
             <span>·</span>
-            <span>{activeBranch?.name || 'Todas las sucursales'}</span>
+            <span className="font-semibold text-slate-700">{activeBranch?.name || 'Todas las sucursales'}</span>
             <span>·</span>
             <span className="font-mono text-amber-600 font-medium">{countryConfig.currency}</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            {t('nav_dashboard')}
+            Panel de Control General
           </h1>
         </div>
 
         <div className="flex items-center gap-2">
           {/* Date Segmented Control */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-lg text-xs font-medium text-slate-600">
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-medium text-slate-600">
             <button
               onClick={() => setDateFilter('today')}
-              className={`px-3 py-1.5 rounded-md transition-colors ${
-                dateFilter === 'today' ? 'bg-white text-slate-900 shadow-sm font-semibold' : 'hover:text-slate-900'
+              className={`px-3 py-1.5 rounded-lg transition-colors ${
+                dateFilter === 'today' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'hover:text-slate-900'
               }`}
             >
               Hoy
             </button>
             <button
               onClick={() => setDateFilter('week')}
-              className={`px-3 py-1.5 rounded-md transition-colors ${
-                dateFilter === 'week' ? 'bg-white text-slate-900 shadow-sm font-semibold' : 'hover:text-slate-900'
+              className={`px-3 py-1.5 rounded-lg transition-colors ${
+                dateFilter === 'week' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'hover:text-slate-900'
               }`}
             >
-              Esta Semana
+              Semana
             </button>
             <button
               onClick={() => setDateFilter('month')}
-              className={`px-3 py-1.5 rounded-md transition-colors ${
-                dateFilter === 'month' ? 'bg-white text-slate-900 shadow-sm font-semibold' : 'hover:text-slate-900'
+              className={`px-3 py-1.5 rounded-lg transition-colors ${
+                dateFilter === 'month' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'hover:text-slate-900'
               }`}
             >
-              Este Mes
+              Mes
             </button>
           </div>
 
-          <button
-            onClick={() => onNavigate('monitor')}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-900 bg-amber-400 hover:bg-amber-300 rounded-lg shadow-sm transition-colors shrink-0"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Monitor Distribuido</span>
-          </button>
+          {currentUser.role === 'owner' && (
+            <button
+              onClick={() => onNavigate('monitor')}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-900 bg-amber-400 hover:bg-amber-300 rounded-xl shadow-xs transition-colors shrink-0"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Monitor Distribuido</span>
+            </button>
+          )}
         </div>
       </div>
 
       {/* KPI Cards Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Revenue */}
-        <div className="p-4 bg-white rounded-xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">{t('kpi_revenue')}</span>
-            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
+            <span className="text-xs font-medium">Facturación Estimada</span>
+            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
@@ -129,268 +248,122 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
             </div>
             <div className="flex items-center gap-1 text-[11px] text-emerald-600 mt-1 font-medium">
               <TrendingUp className="w-3 h-3" />
-              <span>+18.4% vs periodo anterior</span>
+              <span>+18.4% vs semana previa</span>
             </div>
           </div>
         </div>
 
         {/* Daily Orders */}
-        <div className="p-4 bg-white rounded-xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">{t('kpi_orders')}</span>
-            <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+            <span className="text-xs font-medium">Comandas Procesadas</span>
+            <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
               <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
           <div>
             <div className="text-2xl font-bold font-mono tracking-tight text-slate-900">
-              {summary.ordersCount} <span className="text-sm font-normal text-slate-400">órdenes</span>
+              {orders.length}
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-1">
-              <span>{summary.activeOrdersCount} activas en preparación</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Reservations */}
-        <div className="p-4 bg-white rounded-xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">{t('kpi_reservations')}</span>
-            <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
-              <CalendarCheck className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold font-mono tracking-tight text-slate-900">
-              {summary.totalReservations} <span className="text-sm font-normal text-slate-400">mesas</span>
-            </div>
-            <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-1">
-              <span>Prevención anti-colisión activa</span>
+            <div className="text-[11px] text-slate-500 mt-1">
+              {orders.filter((o) => o.status === 'delivered').length} servidas con éxito
             </div>
           </div>
         </div>
 
-        {/* Occupancy Rate */}
-        <div className="p-4 bg-white rounded-xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        {/* Table Occupancy */}
+        <div className="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">{t('kpi_occupancy')}</span>
-            <div className="p-2 rounded-lg bg-purple-50 text-purple-600">
+            <span className="text-xs font-medium">Ocupación de Mesas</span>
+            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
               <Percent className="w-4 h-4" />
             </div>
           </div>
           <div>
             <div className="text-2xl font-bold font-mono tracking-tight text-slate-900">
-              {summary.occupancyRate}%
+              {summary.occupancyRate.toFixed(1)}%
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-1">
-              <span>{summary.occupiedTables} ocupadas de {summary.totalTables} totales</span>
+            <div className="text-[11px] text-slate-500 mt-1">
+              {tables.filter((t) => t.status === 'occupied').length} de {tables.length} mesas en sala
+            </div>
+          </div>
+        </div>
+
+        {/* Global Rating */}
+        <div className="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-medium">Satisfacción Promedio</span>
+            <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
+              <Star className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold font-mono tracking-tight text-slate-900 flex items-center gap-1">
+              <span>{reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '4.9'}</span>
+              <span className="text-sm font-normal text-amber-500">★</span>
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              {reviews.length} opiniones registradas
             </div>
           </div>
         </div>
       </div>
 
-      {/* Charts Section: Sales Trend & Branch Performance */}
+      {/* Sales Trend Chart & Quick Orders */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Weekly Trend (2 cols) */}
-        <div className="lg:col-span-2 p-5 bg-white rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
+        <div className="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-slate-900">{t('sales_trend')}</h2>
-              <p className="text-xs text-slate-500">
-                Evolución de ventas calculadas en {countryConfig.currency}
-              </p>
+              <h3 className="font-bold text-slate-900 text-sm">Tendencia de Ingresos Semanales</h3>
+              <p className="text-xs text-slate-500">Comportamiento en {countryConfig.name} ({countryConfig.currency})</p>
             </div>
-            <span className="text-xs font-mono font-semibold px-2 py-1 rounded bg-slate-100 text-slate-700">
-              {countryConfig.currency}
+            <span className="text-xs font-mono text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-full">
+              Consistencia Estable
             </span>
           </div>
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={weeklyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <AreaChart data={weeklyData}>
                 <defs>
                   <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#E8A33D" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#E8A33D" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="day" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(val) => `${val}`} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                <XAxis dataKey="day" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
                 <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      return (
-                        <div className="bg-slate-900 text-white p-2.5 rounded-lg text-xs shadow-lg font-mono">
-                          <p className="font-bold">{data.day}</p>
-                          <p className="text-amber-400 mt-0.5">{formatPrice(data.salesUSD)}</p>
-                          <p className="text-slate-400 text-[10px]">{data.orders} comandas</p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
+                  formatter={(val: any) => [formatPrice(Number(val)), 'Ventas']}
+                  contentStyle={{ backgroundColor: '#1E293B', color: '#fff', borderRadius: '8px', fontSize: '12px' }}
                 />
-                <Area
-                  type="monotone"
-                  dataKey="localSales"
-                  stroke="#f59e0b"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#salesGrad)"
-                />
+                <Area type="monotone" dataKey="salesUSD" stroke="#E8A33D" strokeWidth={3} fillOpacity={1} fill="url(#salesGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Top Selling Dishes (1 col) */}
-        <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-bold text-slate-900">{t('popular_dishes')}</h2>
-              <button
-                onClick={() => onNavigate('menu')}
-                className="text-xs text-amber-600 hover:underline font-medium flex items-center gap-0.5"
-              >
-                <span>Ver Menú</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+        {/* Popular Dishes Widget */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 className="font-bold text-slate-900 text-sm">Platos Estrella</h3>
+            <span className="text-[10px] font-mono text-slate-400">Por volumen</span>
+          </div>
 
-            <div className="space-y-3">
-              {popularDishes.map((dish: { name: string; count: number; revenueUSD: number }, i: number) => (
-                <div key={i} className="flex items-center justify-between text-xs pb-2 border-b border-slate-100 last:border-0">
-                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                    <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-[10px] shrink-0 font-mono">
-                      {i + 1}
-                    </span>
-                    <span className="font-medium text-slate-800 truncate">{dish.name}</span>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="font-bold text-slate-900 font-mono block">
-                      {formatPrice(dish.revenueUSD)}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">{dish.count} ventas</span>
-                  </div>
+          <div className="space-y-3">
+            {popularDishes.slice(0, 5).map((dish, idx) => (
+              <div key={idx} className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 truncate mr-2">
+                  <span className="font-mono font-bold text-amber-600 w-4">{idx + 1}</span>
+                  <span className="truncate font-medium text-slate-800">{dish.name}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-slate-100 mt-2">
-            <button
-              onClick={() => onNavigate('orders_qr')}
-              className="w-full py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors"
-            >
-              Simular Pedido de Mesa (QR)
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Grid: Floor Summary & Recent Distributed Events Feed */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Floor Quick View */}
-        <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold text-slate-900">{t('floor_title')}</h2>
-            <button
-              onClick={() => onNavigate('floor')}
-              className="text-xs text-amber-600 hover:underline font-medium flex items-center gap-0.5"
-            >
-              <span>{t('view_details')}</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <p className="text-xs text-slate-500 mb-4">
-            Estado de mesas en la sucursal actual:
-          </p>
-
-          <div className="grid grid-cols-4 gap-2">
-            {tables
-              .filter((t: Table) => t.branchId === activeBranchId)
-              .slice(0, 8)
-              .map((table: Table) => {
-                let badgeClass = 'bg-emerald-50 border-emerald-300 text-emerald-800';
-                if (table.status === 'occupied') badgeClass = 'bg-rose-50 border-rose-300 text-rose-800';
-                if (table.status === 'reserved') badgeClass = 'bg-blue-50 border-blue-300 text-blue-800';
-                if (table.status === 'cleaning') badgeClass = 'bg-amber-50 border-amber-300 text-amber-800';
-
-                return (
-                  <div
-                    key={table.id}
-                    onClick={() => onNavigate('floor')}
-                    className={`p-2 rounded-lg border text-center cursor-pointer transition-transform hover:scale-105 ${badgeClass}`}
-                  >
-                    <span className="text-[10px] uppercase font-mono block text-slate-500">Mesa</span>
-                    <span className="text-sm font-bold font-mono">#{table.number}</span>
-                    <span className="text-[9px] block text-slate-600 capitalize mt-0.5 truncate">{table.status}</span>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-
-        {/* Recent Distributed Events Log */}
-        <div className="lg:col-span-2 p-5 bg-white rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">{t('recent_activity')}</h2>
-              <p className="text-xs text-slate-500">Eventos encolados y enrutados por el bus distribuido</p>
-            </div>
-            <button
-              onClick={() => onNavigate('monitor')}
-              className="text-xs text-emerald-600 hover:underline font-medium flex items-center gap-0.5 font-mono"
-            >
-              <span>Ver Monitor Completo</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead>
-                <tr className="border-b border-slate-200 text-slate-500 font-semibold">
-                  <th className="py-2 pr-3">Tipo de Evento</th>
-                  <th className="py-2 px-3">Origen → Destino</th>
-                  <th className="py-2 px-3">Estado</th>
-                  <th className="py-2 pl-3 text-right">Hora</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-mono">
-                {events.slice(0, 5).map((ev: DistributedEvent) => (
-                  <tr key={ev.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-2.5 pr-3 font-semibold text-slate-900">
-                      {ev.eventType || ev.type}
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-600">
-                      <span className="text-slate-800">{ev.sourceService.split('-')[0]}</span>
-                      <span className="text-slate-400 mx-1">→</span>
-                      <span className="text-slate-800">{ev.targetService.split('-')[0]}</span>
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
-                          ev.status === 'completed'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : ev.status === 'failed'
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                            : 'bg-amber-50 text-amber-700 border border-amber-200'
-                        }`}
-                      >
-                        {ev.status}
-                      </span>
-                    </td>
-                    <td className="py-2.5 pl-3 text-right text-slate-400 text-[11px]">
-                      {new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                <div className="text-right shrink-0 font-mono">
+                  <span className="font-bold text-slate-900">{dish.quantity}</span>
+                  <span className="text-[10px] text-slate-400 ml-1">pedidos</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

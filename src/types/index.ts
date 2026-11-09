@@ -38,11 +38,14 @@ export interface Restaurant {
   tagline: Record<Language, string>;
   cuisine: Record<Language, string>;
   description: Record<Language, string>;
-  country: CountryCode;
+  story?: Record<Language, string>;
+  country?: CountryCode;
+  operatingCountries?: CountryCode[];
   rating: number;
   reviewCount: number;
   priceRange: '$$' | '$$$' | '$$$$';
   heroImage: string;
+  gallery?: string[];
   logo?: string;
   contactEmail: string;
   phone: string;
@@ -59,6 +62,11 @@ export interface Branch {
   openingHours: string;
   totalTables: number;
   active: boolean;
+  heroImage?: string;
+  currency?: string;
+  taxRate?: number;
+  taxName?: string;
+  timeZone?: string;
 }
 
 export type TableZone = 'indoor' | 'terrace' | 'vip' | 'bar';
@@ -72,6 +80,9 @@ export interface Table {
   zone: TableZone;
   status: TableStatus;
   currentOrderId?: string;
+  waiterCallActive?: boolean;
+  waiterCallTime?: string;
+  activeGuests?: number;
 }
 
 export type MenuCategory = 'starters' | 'mains' | 'desserts' | 'drinks' | 'specials';
@@ -79,6 +90,8 @@ export type MenuCategory = 'starters' | 'mains' | 'desserts' | 'drinks' | 'speci
 export interface MenuItem {
   id: string;
   restaurantId: string;
+  branchId?: string;
+  country?: CountryCode;
   name: Record<Language, string>;
   description: Record<Language, string>;
   category: MenuCategory;
@@ -87,8 +100,31 @@ export interface MenuItem {
   prepTimeMinutes: number;
   available: boolean;
   image: string;
+  emoji?: string;
+  gradient?: string;
   dietary?: ('vegetarian' | 'vegan' | 'gluten_free' | 'spicy' | 'chef_special')[];
   popular?: boolean;
+}
+
+export interface Review {
+  id: string;
+  restaurantId: string;
+  branchId: string;
+  orderId?: string;
+  reservationId?: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  rating: number; // 1 to 5
+  comment: string;
+  dishRatings?: { menuItemId: string; dishName: string; rating: number }[];
+  reply?: {
+    text: string;
+    repliedAt: string;
+    repliedBy: string;
+  };
+  hidden?: boolean;
+  createdAt: string;
 }
 
 export type ReservationStatus =
@@ -149,6 +185,8 @@ export interface Order {
   status: OrderStatus;
   paymentMethod: PaymentMethod;
   paymentStatus?: PaymentStatus;
+  billRequested?: boolean;
+  serviceRound?: number;
   createdAt: string;
   updatedAt: string;
   estimatedReadyMinutes?: number;
@@ -220,6 +258,13 @@ export type EventType =
   | 'ORDER_READY'
   | 'ORDER_DELIVERED'
   | 'ORDER_CANCELLED'
+  | 'ORDER_BILL_REQUESTED'
+  | 'REVIEW_CREATED'
+  | 'REVIEW_REPLIED'
+  | 'WAITER_CALLED'
+  | 'WAITER_CALL_RESOLVED'
+  | 'TABLE_OPENED'
+  | 'TABLE_CLEARED'
   | 'METRICS_AGGREGATED';
 
 export type EventStatus = 'pending' | 'processing' | 'completed' | 'failed';

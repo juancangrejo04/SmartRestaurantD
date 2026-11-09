@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   HashRouter,
   Routes,
@@ -22,6 +22,7 @@ import { KitchenView } from './views/KitchenView';
 import { AnalyticsView } from './views/AnalyticsView';
 import { DistributedMonitorView } from './views/DistributedMonitorView';
 import { BranchesView } from './views/BranchesView';
+import { ReviewsAdminView } from './views/ReviewsAdminView';
 import { Table } from './types';
 import { Menu } from 'lucide-react';
 
@@ -30,6 +31,8 @@ import { PublicNavbar } from './components/public/PublicNavbar';
 import { PublicFooter } from './components/public/PublicFooter';
 import { HomePage } from './pages/public/HomePage';
 import { RestaurantsPage } from './pages/public/RestaurantsPage';
+import { RestaurantDetailPage } from './pages/public/RestaurantDetailPage';
+import { ReviewsPage } from './pages/public/ReviewsPage';
 import { ReservationWizardPage } from './pages/public/ReservationWizardPage';
 import { TableQrMenuPage } from './pages/public/TableQrMenuPage';
 import { LiveOrderTrackerPage } from './pages/public/LiveOrderTrackerPage';
@@ -47,13 +50,21 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   );
 };
 
-// Staff SaaS Portal Layout
+// Staff SaaS Portal Layout with Route Protection
 const StaffPortal: React.FC = () => {
   const { view } = useParams<{ view: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { currentUser, isAuthenticated } = useApp();
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [qrSelectedTable, setQrSelectedTable] = useState<Table | null>(null);
+
+  // Protected route check: if visitor or only customer, redirect to login with redirect param
+  const isStaff = isAuthenticated && ['owner', 'admin', 'waiter', 'kitchen'].includes(currentUser.role);
+  if (!isStaff) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
 
   const currentView: ActiveView = (view as ActiveView) || 'dashboard';
 
@@ -139,6 +150,7 @@ const StaffPortal: React.FC = () => {
           {currentView === 'orders_qr' && <OrdersQRView initialTable={qrSelectedTable} />}
           {currentView === 'kitchen' && <KitchenView />}
           {currentView === 'analytics' && <AnalyticsView />}
+          {currentView === 'resenas' && <ReviewsAdminView />}
           {currentView === 'monitor' && <DistributedMonitorView />}
           {currentView === 'branches' && <BranchesView />}
         </main>
@@ -172,6 +184,22 @@ export default function App() {
             element={
               <PublicLayout>
                 <RestaurantsPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/restaurantes/:restaurantId"
+            element={
+              <PublicLayout>
+                <RestaurantDetailPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/resenas"
+            element={
+              <PublicLayout>
+                <ReviewsPage />
               </PublicLayout>
             }
           />

@@ -3,27 +3,31 @@ import { Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { COUNTRIES } from '../../i18n/countries';
 import { CountryCode, Restaurant, Branch } from '../../types';
+import { ImageWithFallback } from '../../components/common/ImageWithFallback';
 import {
   Search,
   Star,
   MapPin,
   Calendar,
   UtensilsCrossed,
-  Filter,
-  ArrowRight,
   Globe,
+  ArrowRight,
+  Store,
 } from 'lucide-react';
 
 export const RestaurantsPage: React.FC = () => {
-  const { restaurants, branches, country, setCountry, t } = useApp();
-  const [selectedCountryFilter, setSelectedCountryFilter] = useState<CountryCode | 'all'>(country);
+  const { restaurants, branches, country, setCountry, language } = useApp();
+  const [selectedCountryFilter, setSelectedCountryFilter] = useState<CountryCode | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCuisine, setSelectedCuisine] = useState<string>('all');
 
-  const filteredRestaurants = restaurants.filter((r) => {
-    if (selectedCountryFilter !== 'all' && r.country !== selectedCountryFilter) {
+  const filteredBrands = restaurants.filter((r) => {
+    const brandBranches = branches.filter((b) => b.restaurantId === r.id);
+    const operatingCountries = r.operatingCountries || Array.from(new Set(brandBranches.map((b) => b.country)));
+
+    if (selectedCountryFilter !== 'all' && !operatingCountries.includes(selectedCountryFilter)) {
       return false;
     }
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchName = r.name.toLowerCase().includes(q);
@@ -37,18 +41,18 @@ export const RestaurantsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FBF6EC] py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-10">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8A33D]/20 text-[#C8452C] text-xs font-mono font-bold">
             <UtensilsCrossed className="w-3.5 h-3.5" />
-            <span>CATÁLOGO MULTINACIONAL</span>
+            <span>MARCAS MULTINACIONALES</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1F1A17]">
-            Nuestros Restaurantes Exclusivos
+            Nuestras Propuestas Gastronómicas
           </h1>
           <p className="text-xs text-[#7A6E65] leading-relaxed">
-            Descubre las propuestas gastronómicas de nuestra red en 5 países. Cada restaurante cuenta con múltiples sucursales y gestión digital de mesas.
+            Descubre las 2 marcas de alta cocina que operan a través de 11 sucursales en 5 países. Cada sede cuenta con mesas en vivo y menú digitalizado.
           </p>
         </div>
 
@@ -57,22 +61,21 @@ export const RestaurantsPage: React.FC = () => {
           {/* Country Tabs */}
           <div className="flex flex-wrap items-center gap-2 border-b border-[#E9DFCC]/60 pb-3">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] mr-2">
-              País:
+              Filtrar por Mercado:
             </span>
             <button
               onClick={() => setSelectedCountryFilter('all')}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                 selectedCountryFilter === 'all'
-                  ? 'bg-[#1F1A17] text-white'
+                  ? 'bg-[#1F1A17] text-white shadow-xs'
                   : 'bg-[#FBF6EC] text-[#1F1A17] hover:bg-[#E9DFCC]'
               }`}
             >
-              Todos ({restaurants.length})
+              Todos los Países (5)
             </button>
             {(Object.keys(COUNTRIES) as CountryCode[]).map((code) => {
               const c = COUNTRIES[code];
               const isSelected = selectedCountryFilter === code;
-              const count = restaurants.filter((r) => r.country === code).length;
               return (
                 <button
                   key={code}
@@ -88,7 +91,6 @@ export const RestaurantsPage: React.FC = () => {
                 >
                   <span>{c.flagEmoji}</span>
                   <span>{c.name}</span>
-                  <span className="text-[10px] opacity-75 font-mono">({count})</span>
                 </button>
               );
             })}
@@ -101,98 +103,113 @@ export const RestaurantsPage: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por nombre de restaurante o especialidad culinaria..."
+              placeholder="Buscar marca culinaria, concepto o cocina..."
               className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl pl-9 pr-4 py-2 text-xs font-medium text-[#1F1A17] focus:outline-none focus:border-[#C8452C]"
             />
           </div>
         </div>
 
-        {/* Restaurants Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRestaurants.map((rest: Restaurant) => {
-            const restBranches = branches.filter((b: Branch) => b.restaurantId === rest.id);
-            const cConfig = COUNTRIES[rest.country];
-            const currentLang = cConfig.language;
-            const cuisineText =
-              typeof rest.cuisine === 'string'
-                ? rest.cuisine
-                : rest.cuisine[currentLang] || rest.cuisine.es;
-            const descText =
-              typeof rest.description === 'string'
-                ? rest.description
-                : rest.description[currentLang] || rest.description.es;
+        {/* Brand Cards Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {filteredBrands.map((brand: Restaurant) => {
+            const brandBranches = branches.filter((b: Branch) => b.restaurantId === brand.id);
+            const operatingCountries = brand.operatingCountries || Array.from(new Set(brandBranches.map((b) => b.country)));
+            const cuisineText = brand.cuisine[language] || brand.cuisine.es;
+            const taglineText = brand.tagline[language] || brand.tagline.es;
+            const descText = brand.description[language] || brand.description.es;
 
             return (
               <div
-                key={rest.id}
-                className="bg-[#FFFDF8] rounded-2xl overflow-hidden border border-[#E9DFCC] shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow group"
+                key={brand.id}
+                className="bg-[#FFFDF8] rounded-3xl overflow-hidden border border-[#E9DFCC] shadow-md flex flex-col justify-between hover:shadow-xl transition-all duration-300 group"
               >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={rest.heroImage}
-                    alt={rest.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                {/* Brand Hero Image */}
+                <div className="relative h-64 overflow-hidden">
+                  <ImageWithFallback
+                    src={brand.heroImage}
+                    alt={brand.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    fallbackEmoji="🍷"
+                    fallbackTitle={brand.name}
                   />
-                  <div className="absolute top-3 left-3 bg-[#1F1A17]/80 backdrop-blur-xs text-white px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5">
-                    <span>{cConfig.flagEmoji}</span>
-                    <span className="text-[11px]">{cConfig.name}</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1F1A17] via-[#1F1A17]/40 to-transparent" />
+
+                  {/* Brand Tag / Badge */}
+                  <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                    <span className="bg-[#1F1A17]/85 backdrop-blur-xs text-[#E8A33D] px-3 py-1 rounded-full text-xs font-mono font-bold border border-[#E8A33D]/30">
+                      {cuisineText}
+                    </span>
+                    <span className="bg-white/90 backdrop-blur-xs text-[#1F1A17] px-3 py-1 rounded-full text-xs font-mono font-bold">
+                      {brand.priceRange}
+                    </span>
                   </div>
-                  <div className="absolute top-3 right-3 bg-[#FFFDF8]/90 backdrop-blur-xs text-[#1F1A17] px-2.5 py-1 rounded-full text-xs font-mono font-bold">
-                    {rest.priceRange}
+
+                  <div className="absolute top-4 right-4 bg-[#FFFDF8]/95 backdrop-blur-xs text-[#1F1A17] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-xs">
+                    <Star className="w-3.5 h-3.5 fill-[#E8A33D] text-[#E8A33D]" />
+                    <span>{brand.rating}</span>
+                    <span className="text-[10px] text-[#7A6E65]">({brand.reviewCount})</span>
+                  </div>
+
+                  {/* Brand Title overlay */}
+                  <div className="absolute bottom-4 left-4 right-4 text-white space-y-1">
+                    <h3 className="font-serif font-bold text-2xl sm:text-3xl tracking-tight text-white">
+                      {brand.name}
+                    </h3>
+                    <p className="font-serif italic text-xs sm:text-sm text-[#E9DFCC]/90">
+                      "{taglineText}"
+                    </p>
                   </div>
                 </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <h3 className="font-serif font-bold text-lg text-[#1F1A17]">
-                        {rest.name}
-                      </h3>
-                      <div className="flex items-center gap-1 text-xs font-bold text-[#1F1A17]">
-                        <Star className="w-3.5 h-3.5 fill-[#E8A33D] text-[#E8A33D]" />
-                        <span>{rest.rating}</span>
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-mono font-bold text-[#C8452C] block mb-2">
-                      {cuisineText}
-                    </span>
-                    <p className="text-xs text-[#7A6E65] line-clamp-2 leading-relaxed">
-                      {descText}
-                    </p>
-                  </div>
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-6">
+                  <p className="text-xs text-[#7A6E65] leading-relaxed line-clamp-3">
+                    {descText}
+                  </p>
 
-                  <div className="pt-3 border-t border-[#E9DFCC] space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block">
-                      Sucursales ({restBranches.length})
-                    </span>
-                    <div className="space-y-1">
-                      {restBranches.map((br) => (
-                        <div
-                          key={br.id}
-                          className="flex items-center justify-between text-xs text-[#1F1A17] bg-[#FBF6EC] px-2.5 py-1.5 rounded-lg"
-                        >
-                          <span className="font-medium truncate mr-2">{br.name}</span>
-                          <span className="text-[10px] text-[#7A6E65] font-mono shrink-0">
-                            {br.totalTables} mesas
-                          </span>
-                        </div>
-                      ))}
+                  {/* Operating Countries & Branches summary */}
+                  <div className="space-y-3 pt-3 border-t border-[#E9DFCC]">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-mono font-bold text-[#C8452C] uppercase text-[10px]">
+                        Presencia en {operatingCountries.length} Países:
+                      </span>
+                      <span className="font-mono text-[#7A6E65] text-[11px]">
+                        {brandBranches.length} Sucursales activas
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {operatingCountries.map((cCode) => {
+                        const c = COUNTRIES[cCode];
+                        const countInCountry = brandBranches.filter((b) => b.country === cCode).length;
+                        return (
+                          <div
+                            key={cCode}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#FBF6EC] border border-[#E9DFCC] text-xs"
+                          >
+                            <span>{c.flagEmoji}</span>
+                            <span className="font-medium text-[#1F1A17]">{c.name}</span>
+                            <span className="text-[10px] font-mono text-[#7A6E65]">({countInCountry})</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div className="pt-2 flex items-center gap-2">
+                  {/* Action Buttons */}
+                  <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
                     <Link
-                      to={`/reservar?restaurantId=${rest.id}`}
-                      className="flex-1 py-2 px-3 rounded-xl bg-[#C8452C] hover:bg-[#A83720] text-white text-xs font-bold text-center transition-colors shadow-xs"
+                      to={`/restaurantes/${brand.id}`}
+                      className="w-full sm:flex-1 py-2.5 px-4 rounded-xl bg-[#1F1A17] hover:bg-[#332B25] text-white text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5 shadow-xs"
+                    >
+                      <span>Ver Ficha y Sucursales</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#E8A33D]" />
+                    </Link>
+
+                    <Link
+                      to={`/reservar?restaurantId=${brand.id}`}
+                      className="w-full sm:w-auto py-2.5 px-5 rounded-xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold text-center transition-all shadow-md shadow-[#C8452C]/20"
                     >
                       Reservar Mesa
-                    </Link>
-                    <Link
-                      to={`/mesa/${restBranches[0]?.id || 'branch-co-01'}/table-co-01-03`}
-                      className="py-2 px-3 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC] text-[#1F1A17] text-xs font-semibold transition-colors"
-                      title="Probar Menú QR"
-                    >
-                      Menú QR
                     </Link>
                   </div>
                 </div>
