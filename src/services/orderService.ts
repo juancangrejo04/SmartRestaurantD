@@ -49,6 +49,7 @@ export class OrderService {
       total,
       currency: countryConfig.currency,
       status: 'received',
+      paymentMethod: 'card',
       paymentStatus: 'pending',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

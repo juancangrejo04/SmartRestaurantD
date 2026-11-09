@@ -364,7 +364,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                 {events.slice(0, 5).map((ev: DistributedEvent) => (
                   <tr key={ev.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-2.5 pr-3 font-semibold text-slate-900">
-                      {ev.eventType}
+                      {ev.eventType || ev.type}
                     </td>
                     <td className="py-2.5 px-3 text-slate-600">
                       <span className="text-slate-800">{ev.sourceService.split('-')[0]}</span>

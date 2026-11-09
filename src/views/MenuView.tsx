@@ -86,7 +86,7 @@ export const MenuView: React.FC = () => {
     setDescEs(item.description.es);
     setDescEn(item.description.en);
     setCategory(item.category);
-    setBasePriceUSD(item.basePriceUSD);
+    setBasePriceUSD(item.basePriceUSD || (item.price > 500 ? Math.round(item.price / 4000) : item.price) || 15);
     setPrepTime(item.prepTimeMinutes);
     setImageUrl(item.image);
     setDietaryTag(item.dietary?.join(', ') || '');
@@ -112,10 +112,11 @@ export const MenuView: React.FC = () => {
           en: descEn || descEs,
         },
         category,
+        price: basePriceUSD * 4000,
         basePriceUSD,
         prepTimeMinutes: prepTime,
         image: imageUrl || editingItem.image,
-        dietary: dietaryArray,
+        dietary: dietaryArray as any,
       });
     } else {
       addMenuItem({
@@ -133,13 +134,14 @@ export const MenuView: React.FC = () => {
           ja: descEs,
         },
         category,
+        price: basePriceUSD * 4000,
         basePriceUSD,
         prepTimeMinutes: prepTime,
         available: true,
         image:
           imageUrl ||
           'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&auto=format&fit=crop&q=80',
-        dietary: dietaryArray,
+        dietary: dietaryArray as any,
         popular: false,
       });
     }
@@ -239,7 +241,7 @@ export const MenuView: React.FC = () => {
                       {displayName}
                     </h3>
                     <span className="font-mono font-bold text-slate-900 text-sm whitespace-nowrap">
-                      {formatPrice(item.basePriceUSD)}
+                      {formatPrice(item.basePriceUSD || (item.price > 500 ? item.price / 4000 : item.price) || 15)}
                     </span>
                   </div>
 

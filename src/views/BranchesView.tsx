@@ -62,10 +62,12 @@ export const BranchesView: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">{rest.logo}</span>
+                    <span className="text-2xl">{rest.logo || '🍽️'}</span>
                     <div>
                       <h3 className="font-bold text-sm text-slate-900">{rest.name}</h3>
-                      <p className="text-[11px] text-amber-600 font-medium">{rest.cuisine}</p>
+                      <p className="text-[11px] text-amber-600 font-medium">
+                        {typeof rest.cuisine === 'string' ? rest.cuisine : (rest.cuisine[cConfig.language] || rest.cuisine.es)}
+                      </p>
                     </div>
                   </div>
 
@@ -75,7 +77,7 @@ export const BranchesView: React.FC = () => {
                 </div>
 
                 <p className="text-xs text-slate-500 leading-relaxed mb-4">
-                  {rest.description}
+                  {typeof rest.description === 'string' ? rest.description : (rest.description[cConfig.language] || rest.description.es)}
                 </p>
 
                 {/* Branches for this restaurant */}

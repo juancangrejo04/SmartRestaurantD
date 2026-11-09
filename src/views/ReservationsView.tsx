@@ -98,7 +98,8 @@ export const ReservationsView: React.FC = () => {
         return 'bg-rose-50 text-rose-700 border-rose-200';
       case 'completed':
         return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'no-show':
+      case 'no_show':
+      case 'no-show' as any:
       default:
         return 'bg-slate-100 text-slate-700 border-slate-200';
     }

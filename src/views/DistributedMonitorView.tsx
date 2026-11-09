@@ -195,9 +195,10 @@ export const DistributedMonitorView: React.FC = () => {
             const isDown = svc.status === 'down';
             const isDegraded = svc.status === 'degraded';
 
+            const serviceId = (svc.id || svc.service || '') as ServiceName;
             return (
               <div
-                key={svc.id}
+                key={serviceId}
                 className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
                   isDown
                     ? 'bg-rose-50 border-rose-300 text-rose-900'
@@ -209,7 +210,7 @@ export const DistributedMonitorView: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-xs text-slate-900 truncate pr-2">
-                      {svc.name}
+                      {svc.name || serviceId}
                     </span>
                     <span
                       className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
@@ -225,21 +226,21 @@ export const DistributedMonitorView: React.FC = () => {
                   </div>
 
                   <p className="text-[11px] text-slate-500 line-clamp-2 mb-3">
-                    {svc.description}
+                    {svc.description || ''}
                   </p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 text-[11px] font-mono flex items-center justify-between">
                   <div>
                     <span className="text-slate-400 block text-[9px]">Eventos</span>
-                    <span className="font-bold text-slate-800">{svc.processedEventsCount}</span>
+                    <span className="font-bold text-slate-800">{svc.processedEventsCount || svc.processedCount || 0}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block text-[9px]">Uptime</span>
-                    <span className="font-bold text-slate-800">{svc.uptimePercent}%</span>
+                    <span className="font-bold text-slate-800">{svc.uptimePercent || 99.9}%</span>
                   </div>
                   <button
-                    onClick={() => toggleServiceHealth(svc.id)}
+                    onClick={() => toggleServiceHealth(serviceId)}
                     className={`px-2 py-1 rounded text-[10px] font-semibold transition-colors ${
                       isDown
                         ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
@@ -310,7 +311,7 @@ export const DistributedMonitorView: React.FC = () => {
                       {ev.id.slice(0, 14)}
                     </td>
                     <td className="py-2.5 px-3 font-semibold text-slate-900 font-sans">
-                      {ev.eventType}
+                      {ev.eventType || ev.type}
                     </td>
                     <td className="py-2.5 px-3 text-slate-600">
                       <span className="font-semibold text-slate-800">{ev.sourceService}</span>
@@ -375,7 +376,7 @@ export const DistributedMonitorView: React.FC = () => {
               <div className="grid grid-cols-2 gap-2 text-[11px] pb-3 border-b border-slate-800">
                 <div>
                   <span className="text-slate-400 block">Tipo:</span>
-                  <span className="text-amber-400 font-bold">{inspectedEvent.eventType}</span>
+                  <span className="text-amber-400 font-bold">{inspectedEvent.eventType || inspectedEvent.type}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block">Estado / Intentos:</span>
@@ -397,9 +398,9 @@ export const DistributedMonitorView: React.FC = () => {
                 </div>
               </div>
 
-              {inspectedEvent.errorDetails && (
+              {(inspectedEvent.errorDetails || inspectedEvent.error) && (
                 <div className="p-2.5 rounded bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[11px]">
-                  <strong>Fallo detectado:</strong> {inspectedEvent.errorDetails}
+                  <strong>Fallo detectado:</strong> {inspectedEvent.errorDetails || inspectedEvent.error}
                 </div>
               )}
 

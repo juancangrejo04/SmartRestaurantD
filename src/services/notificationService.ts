@@ -16,7 +16,8 @@ export class NotificationService {
     const id = `notif-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     const timestamp = new Date().toISOString();
 
-    switch (event.eventType) {
+    const eventType = event.eventType || event.type;
+    switch (eventType as any) {
       case 'RESERVATION_CREATED':
         return {
           id,

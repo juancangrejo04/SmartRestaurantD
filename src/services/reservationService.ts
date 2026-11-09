@@ -67,8 +67,10 @@ export class ReservationService {
     table: Table;
     notes?: string;
   }): Reservation {
+    const randCode = `RES-${Math.floor(1000 + Math.random() * 9000)}`;
     return {
       id: `res-${Date.now().toString(36)}-${Math.floor(Math.random() * 1000)}`,
+      code: randCode,
       branchId: data.branchId,
       restaurantId: data.restaurantId,
       customerName: data.customerName,

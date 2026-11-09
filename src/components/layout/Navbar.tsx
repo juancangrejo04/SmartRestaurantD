@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { COUNTRIES, getLiveTimeInTimezone } from '../../i18n/countries';
 import { CountryCode, UserRole } from '../../types';
@@ -141,6 +142,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenDemoModal, onNavigateToMon
 
         {/* Right Zone: Demo accounts, Role Switcher, Monitor Shortcut, Notifications */}
         <div className="flex items-center gap-2.5 shrink-0">
+          <Link
+            to="/"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 transition-colors"
+            title="Ir al sitio web de comensales"
+          >
+            <span>Ver Comensales →</span>
+          </Link>
           {/* Quick Distributed Monitor Button */}
           <button
             onClick={onNavigateToMonitor}

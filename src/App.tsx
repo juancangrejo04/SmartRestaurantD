@@ -1,4 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  HashRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar, ActiveView } from './components/layout/Sidebar';
@@ -14,27 +23,53 @@ import { AnalyticsView } from './views/AnalyticsView';
 import { DistributedMonitorView } from './views/DistributedMonitorView';
 import { BranchesView } from './views/BranchesView';
 import { Table } from './types';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
-const AppContent: React.FC = () => {
-  const [currentView, setCurrentView] = useState<ActiveView>('dashboard');
+// Public Pages
+import { PublicNavbar } from './components/public/PublicNavbar';
+import { PublicFooter } from './components/public/PublicFooter';
+import { HomePage } from './pages/public/HomePage';
+import { RestaurantsPage } from './pages/public/RestaurantsPage';
+import { ReservationWizardPage } from './pages/public/ReservationWizardPage';
+import { TableQrMenuPage } from './pages/public/TableQrMenuPage';
+import { LiveOrderTrackerPage } from './pages/public/LiveOrderTrackerPage';
+import { MyReservationsPage } from './pages/public/MyReservationsPage';
+import { LoginPage } from './pages/public/LoginPage';
+
+// Public Layout Wrapper
+const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="min-h-screen flex flex-col bg-[#FBF6EC]">
+      <PublicNavbar />
+      <main className="flex-1">{children}</main>
+      <PublicFooter />
+    </div>
+  );
+};
+
+// Staff SaaS Portal Layout
+const StaffPortal: React.FC = () => {
+  const { view } = useParams<{ view: string }>();
+  const navigate = useNavigate();
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [qrSelectedTable, setQrSelectedTable] = useState<Table | null>(null);
 
+  const currentView: ActiveView = (view as ActiveView) || 'dashboard';
+
+  const handleSelectView = (newView: ActiveView) => {
+    navigate(`/app/${newView}`);
+    setMobileMenuOpen(false);
+  };
+
   const handleOpenQRForTable = (table: Table) => {
     setQrSelectedTable(table);
-    setCurrentView('orders_qr');
+    navigate('/app/orders_qr');
   };
 
   const handleOpenOrderForTable = (table: Table) => {
     setQrSelectedTable(table);
-    setCurrentView('orders_qr');
-  };
-
-  const handleSelectView = (view: ActiveView) => {
-    setCurrentView(view);
-    setMobileMenuOpen(false);
+    navigate('/app/orders_qr');
   };
 
   return (
@@ -42,7 +77,7 @@ const AppContent: React.FC = () => {
       {/* Top Navbar */}
       <Navbar
         onOpenDemoModal={() => setIsDemoModalOpen(true)}
-        onNavigateToMonitor={() => setCurrentView('monitor')}
+        onNavigateToMonitor={() => handleSelectView('monitor')}
       />
 
       {/* Main Body with Sidebar + View Viewport */}
@@ -92,7 +127,7 @@ const AppContent: React.FC = () => {
             </span>
           </div>
 
-          {currentView === 'dashboard' && <DashboardView onNavigate={setCurrentView} />}
+          {currentView === 'dashboard' && <DashboardView onNavigate={handleSelectView} />}
           {currentView === 'floor' && (
             <FloorView
               onOpenQR={handleOpenQRForTable}
@@ -109,12 +144,11 @@ const AppContent: React.FC = () => {
         </main>
       </div>
 
-      {/* Global Modals & Notifications */}
+      {/* Global Modals */}
       <DemoAccountsModal
         isOpen={isDemoModalOpen}
         onClose={() => setIsDemoModalOpen(false)}
       />
-      <ToastContainer />
     </div>
   );
 };
@@ -122,7 +156,64 @@ const AppContent: React.FC = () => {
 export default function App() {
   return (
     <AppProvider>
-      <AppContent />
+      <HashRouter>
+        <Routes>
+          {/* Public Gastronomy Surface */}
+          <Route
+            path="/"
+            element={
+              <PublicLayout>
+                <HomePage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/restaurantes"
+            element={
+              <PublicLayout>
+                <RestaurantsPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/reservar"
+            element={
+              <PublicLayout>
+                <ReservationWizardPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/pedido/:orderId"
+            element={
+              <PublicLayout>
+                <LiveOrderTrackerPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/mis-reservas"
+            element={
+              <PublicLayout>
+                <MyReservationsPage />
+              </PublicLayout>
+            }
+          />
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Interactive QR Table Ordering Page */}
+          <Route path="/mesa/:branchId/:tableId" element={<TableQrMenuPage />} />
+
+          {/* Staff SaaS Management Portal */}
+          <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
+          <Route path="/app/:view" element={<StaffPortal />} />
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+
+        <ToastContainer />
+      </HashRouter>
     </AppProvider>
   );
 }

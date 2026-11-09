@@ -54,7 +54,7 @@ export class AnalyticsService {
           dishMap.set(mi.id, {
             name: mi.name.es,
             count: mi.popular ? 8 : 4,
-            revenueUSD: (mi.popular ? 8 : 4) * mi.basePriceUSD,
+            revenueUSD: (mi.popular ? 8 : 4) * (mi.basePriceUSD || (mi.price ? mi.price / 100 : 15)),
           });
         }
       }
@@ -64,7 +64,7 @@ export class AnalyticsService {
   }
 
   public getWeeklySalesData(countryCode: CountryCode) {
-    const rate = COUNTRIES[countryCode].ratePerUSD;
+    const rate = COUNTRIES[countryCode]?.ratePerUSD || 1;
     return [
       { day: 'Lun', salesUSD: 420, orders: 18, localSales: Math.round(420 * rate) },
       { day: 'Mar', salesUSD: 580, orders: 24, localSales: Math.round(580 * rate) },

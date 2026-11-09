@@ -18,6 +18,7 @@ import {
   DistributedEvent,
   ServiceHealth,
   ServiceName,
+  ServiceStatus,
 } from '../types';
 import {
   INITIAL_USERS,
@@ -288,11 +289,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       // Update service metrics
       setServicesHealth((prev) =>
         prev.map((s) => {
-          if (s.id === sourceService || s.id === targetService) {
+          if ((s.id || s.service) === sourceService || (s.id || s.service) === targetService) {
             return {
               ...s,
-              processedEventsCount: s.processedEventsCount + 1,
-              failedEventsCount: processed.status === 'failed' ? s.failedEventsCount + 1 : s.failedEventsCount,
+              processedEventsCount: (s.processedEventsCount || 0) + 1,
+              failedEventsCount: processed.status === 'failed' ? (s.failedEventsCount || 0) + 1 : (s.failedEventsCount || 0),
             };
           }
           return s;
@@ -303,7 +304,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const notif = notificationService.createFromEvent(processed);
       if (notif) {
         setNotifications((prev) => [notif, ...prev]);
-        showToast(notif.title, 'info');
+        showToast(notif.title || 'Nueva notificación', 'info');
       }
 
       return processed;
@@ -586,10 +587,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     (serviceId: ServiceName) => {
       setServicesHealth((prev) =>
         prev.map((s) => {
-          if (s.id === serviceId) {
-            const nextStatus = s.status === 'healthy' ? 'down' : 'healthy';
+          if ((s.id || s.service) === serviceId) {
+            const isCurrentlyUp = s.status === 'up' || s.status === 'healthy';
+            const nextStatus: ServiceStatus = isCurrentlyUp ? 'down' : 'up';
             showToast(
-              `Servicio [${s.name}] cambiado a: ${nextStatus.toUpperCase()}`,
+              `Servicio [${s.name || s.id || s.service}] cambiado a: ${nextStatus.toUpperCase()}`,
               nextStatus === 'down' ? 'error' : 'success'
             );
             return { ...s, status: nextStatus };
@@ -740,7 +742,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const t = useCallback(
     (key: string): string => {
       const lang = COUNTRIES[country].language;
-      return getTranslation(lang, key);
+      return getTranslation(lang, key as any);
     },
     [country]
   );

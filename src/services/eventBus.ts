@@ -48,12 +48,14 @@ export class SimulatedEventBus {
       timestamp: new Date().toISOString(),
       sourceService: params.sourceService,
       targetService: params.targetService,
+      type: params.eventType,
       eventType: params.eventType,
       payload: params.payload,
       status: 'pending',
       attempts: 0,
       maxAttempts: 3,
       idempotencyKey,
+      correlationId: `corr-${id}`,
       latencyMs: Math.floor(Math.random() * 25) + 15,
     };
   }
@@ -90,12 +92,12 @@ export class SimulatedEventBus {
 
     // 3. Check Target Service Health (Chaos / Failure Injection)
     if (event.targetService !== 'broadcast' && event.targetService !== 'event-bus') {
-      const targetHealth = servicesHealth.find((s) => s.id === event.targetService);
+      const targetHealth = servicesHealth.find((s: any) => s.service === event.targetService || (s as any).id === event.targetService);
       if (targetHealth && targetHealth.status === 'down') {
         currentEvent = {
           ...currentEvent,
           status: 'failed',
-          errorDetails: `Destino inaccesible: Servicio [${targetHealth.name}] se encuentra FUERA DE LÍNEA. Guardado en Dead Letter Queue para reintento.`,
+          errorDetails: `Destino inaccesible: Servicio [${(targetHealth as any).name || targetHealth.service}] se encuentra FUERA DE LÍNEA. Guardado en Dead Letter Queue para reintento.`,
         };
         onUpdateEvent(currentEvent);
         return currentEvent;
@@ -103,7 +105,8 @@ export class SimulatedEventBus {
     }
 
     // 4. Execute all registered domain subscribers
-    const handlers = this.subscribers.get(event.eventType) || [];
+    const evtType = event.eventType || event.type;
+    const handlers = this.subscribers.get(evtType) || [];
     try {
       for (const handler of handlers) {
         await handler(currentEvent);

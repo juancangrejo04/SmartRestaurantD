@@ -81,8 +81,8 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
           menuItemId: item.id,
           name: itemName,
           quantity: 1,
-          unitPrice: item.basePriceUSD,
-          subtotal: item.basePriceUSD,
+          unitPrice: item.basePriceUSD || (item.price > 500 ? item.price / 4000 : item.price) || 15,
+          subtotal: item.basePriceUSD || (item.price > 500 ? item.price / 4000 : item.price) || 15,
         },
       ];
     });
@@ -312,7 +312,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
                             {localizedName}
                           </h5>
                           <span className="font-mono text-xs font-bold text-amber-400 whitespace-nowrap">
-                            {formatPrice(item.basePriceUSD)}
+                            {formatPrice(item.basePriceUSD || (item.price > 500 ? item.price / 4000 : item.price) || 15)}
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">

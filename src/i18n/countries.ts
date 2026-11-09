@@ -10,9 +10,10 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     symbol: '$ COP',
     flagEmoji: '🇨🇴',
     timeZone: 'America/Bogota',
-    taxRate: 0.08, // Impuesto Nacional al Consumo
+    taxRate: 0.08,
     taxName: 'Impoconsumo (8%)',
     locale: 'es-CO',
+    hasDecimals: false,
     ratePerUSD: 4100,
   },
   MX: {
@@ -24,10 +25,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     symbol: '$ MXN',
     flagEmoji: '🇲🇽',
     timeZone: 'America/Mexico_City',
-    taxRate: 0.16, // IVA
+    taxRate: 0.16,
     taxName: 'IVA (16%)',
     locale: 'es-MX',
-    ratePerUSD: 19.5,
+    hasDecimals: true,
+    ratePerUSD: 18.5,
   },
   US: {
     code: 'US',
@@ -38,9 +40,10 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     symbol: '$ USD',
     flagEmoji: '🇺🇸',
     timeZone: 'America/New_York',
-    taxRate: 0.08875, // NY Sales Tax
+    taxRate: 0.08875,
     taxName: 'Sales Tax (8.875%)',
     locale: 'en-US',
+    hasDecimals: true,
     ratePerUSD: 1.0,
   },
   BR: {
@@ -52,9 +55,10 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     symbol: 'R$ BRL',
     flagEmoji: '🇧🇷',
     timeZone: 'America/Sao_Paulo',
-    taxRate: 0.10, // Taxa de Serviço / ICMS
-    taxName: 'Taxa de Serviço (10%)',
+    taxRate: 0.10,
+    taxName: 'Taxa de Serviço / ICMS (10%)',
     locale: 'pt-BR',
+    hasDecimals: true,
     ratePerUSD: 5.6,
   },
   JP: {
@@ -66,41 +70,33 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     symbol: '¥ JPY',
     flagEmoji: '🇯🇵',
     timeZone: 'Asia/Tokyo',
-    taxRate: 0.10, // 消費税
+    taxRate: 0.10,
     taxName: '消費税 (10%)',
     locale: 'ja-JP',
-    ratePerUSD: 152,
+    hasDecimals: false,
+    ratePerUSD: 155,
   },
 };
 
 /**
- * Formats a monetary amount in the target country's currency and locale
+ * Format currency with Intl.NumberFormat according to regional rules:
+ * COP and JPY without decimals; USD, MXN and BRL with 2 decimals.
  */
-export function formatCurrency(amountUSD: number, countryCode: CountryCode): string {
-  const config = COUNTRIES[countryCode];
-  const localAmount = amountUSD * config.ratePerUSD;
-
-  if (countryCode === 'CO') {
-    // Format COP rounded to nearest thousand or hundred
-    return `${Math.round(localAmount).toLocaleString('es-CO')} COP`;
-  }
-  if (countryCode === 'JP') {
-    return `¥${Math.round(localAmount).toLocaleString('ja-JP')}`;
-  }
-  if (countryCode === 'BR') {
-    return `R$ ${localAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }
-  if (countryCode === 'MX') {
-    return `$${localAmount.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN`;
-  }
-  return `$${localAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export function formatCurrency(amount: number, countryCode: CountryCode): string {
+  const config = COUNTRIES[countryCode] || COUNTRIES.CO;
+  return new Intl.NumberFormat(config.locale, {
+    style: 'currency',
+    currency: config.currency,
+    minimumFractionDigits: config.hasDecimals ? 2 : 0,
+    maximumFractionDigits: config.hasDecimals ? 2 : 0,
+  }).format(amount);
 }
 
 /**
- * Formats a date & time taking into account the country's timezone
+ * Format regional date/time in the target country's timezone
  */
-export function formatRegionalDateTime(isoString: string | Date, countryCode: CountryCode): string {
-  const config = COUNTRIES[countryCode];
+export function formatDateTime(isoString: string | Date, countryCode: CountryCode): string {
+  const config = COUNTRIES[countryCode] || COUNTRIES.CO;
   const date = typeof isoString === 'string' ? new Date(isoString) : isoString;
   try {
     return new Intl.DateTimeFormat(config.locale, {
@@ -117,10 +113,28 @@ export function formatRegionalDateTime(isoString: string | Date, countryCode: Co
 }
 
 /**
- * Returns the current time formatted in the country's timezone
+ * Format regional time only (HH:mm)
  */
-export function getLiveTimeInTimezone(countryCode: CountryCode): string {
-  const config = COUNTRIES[countryCode];
+export function formatTime(isoString: string | Date, countryCode: CountryCode): string {
+  const config = COUNTRIES[countryCode] || COUNTRIES.CO;
+  const date = typeof isoString === 'string' ? new Date(isoString) : isoString;
+  try {
+    return new Intl.DateTimeFormat(config.locale, {
+      timeZone: config.timeZone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(date);
+  } catch {
+    return date.toLocaleTimeString();
+  }
+}
+
+/**
+ * Live time string with seconds in the country's timezone
+ */
+export function getLiveTime(countryCode: CountryCode): string {
+  const config = COUNTRIES[countryCode] || COUNTRIES.CO;
   try {
     return new Intl.DateTimeFormat(config.locale, {
       timeZone: config.timeZone,
@@ -133,3 +147,7 @@ export function getLiveTimeInTimezone(countryCode: CountryCode): string {
     return new Date().toLocaleTimeString();
   }
 }
+
+export const formatRegionalDateTime = formatDateTime;
+export const getLiveTimeInTimezone = getLiveTime;
+

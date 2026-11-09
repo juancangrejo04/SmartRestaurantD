@@ -1,0 +1,382 @@
+# PROYECTO: SMARTRESTAURANT v2 — PLATAFORMA WEB COMPLETA, INTUITIVA Y LISTA PARA VERCEL
+
+Actúa como un equipo senior de desarrollo (arquitectura de sistemas distribuidos, UX/UI, React, TypeScript).
+
+Entrega la aplicación COMPLETA en una sola ejecución: todos los archivos, con su contenido íntegro, sin fragmentos, sin "// resto igual", sin TODO, sin pedir confirmación y sin hacer preguntas. Si algo no está especificado, decide tú con criterio profesional y sigue adelante.
+
+Si el límite de salida te obliga a elegir, prioriza en este orden: (1) que compile y no tenga errores, (2) flujos principales funcionando de punta a punta, (3) monitor distribuido, (4) pulido visual. Nunca entregues archivos truncados ni vistas vacías.
+
+---
+
+## 0. LECCIONES DE UNA VERSIÓN ANTERIOR (ERRORES QUE NO DEBES REPETIR)
+
+Una versión previa de este proyecto tenía estos fallos. Cada uno es un criterio de aceptación de esta versión:
+
+1. **Sin pantalla de login.** Solo había una ventana modal con credenciales. → Debe existir una ruta `/login` real, con tarjetas de acceso rápido por rol.
+2. **Roles solo decorativos.** Cambiar de rol no restringía nada; todos veían todos los módulos. → Cada rol tiene su menú, su pantalla de inicio y rutas protegidas. Si entra a una ruta no permitida, se redirige a su inicio con un aviso.
+3. **React Router instalado pero sin usar.** La navegación era un `useState`, sin URLs, sin botón atrás, sin enlaces compartibles. → Usa React Router de verdad con las rutas de la sección 4. El QR de una mesa debe ser una URL real (`/mesa/:branchId/:tableId`).
+4. **Textos escritos a mano en los componentes** (en español fijo: "Cliente", "Estado", "Acciones", "Popular", "Ver Menú", "Mesa"…) aunque el país fuera Japón o EE. UU. → Cero cadenas literales visibles en componentes. Todo pasa por `t('clave')`.
+5. **Un solo estilo de panel administrativo para todos**, sin experiencia pensada para el cliente final. → Hay dos superficies: sitio público para clientes (sección 5) y aplicación de personal (sección 9).
+6. **Dependencias inútiles y conflictivas** (`express`, `@google/genai`, `dotenv`, `tsx`, un `.env.example` con GEMINI_API_KEY) y un `npm install` que fallaba por conflicto de peer dependencies. → Usa EXACTAMENTE las versiones de la sección 2. `npm install` debe funcionar sin `--force` ni `--legacy-peer-deps`. No incluyas `.env.example`, servidor Express, ni SDK de IA.
+7. **Metadatos HTML mal formados** (`meta-description`, `meta-og:title`, separadores `---` dentro del `<head>`). → `index.html` limpio y válido.
+8. **"Tiempo real" que no era visible**: cambiar el estado en cocina no se notaba en otra pantalla. → Sincronización real entre pestañas (sección 6.4) y animaciones visibles al llegar un pedido.
+
+---
+
+## 1. CONCEPTO
+
+SmartRestaurant es una plataforma multinacional que conecta clientes con restaurantes: reservas, pedidos por QR, menús, mesas, cocina, notificaciones y analítica, desde un solo sistema. Opera en cinco mercados con idioma, moneda, impuestos y zona horaria propios, y administra varios restaurantes con varias sucursales.
+
+Es una **simulación académica de arquitectura distribuida** que corre 100 % en el navegador. Debe decirlo con claridad en el monitor y en el pie de página ("Simulación académica: los servicios son módulos independientes dentro del navegador que se comunican mediante un Event Bus simulado; no hay servidores ni comunicación real entre máquinas"). Nunca afirmes que existen servidores independientes.
+
+---
+
+## 2. STACK Y DEPENDENCIAS (FIJAS)
+
+React 18 + TypeScript + Vite + Tailwind CSS 3 + React Router 6 + lucide-react + recharts + LocalStorage. SPA.
+
+`package.json` (usa estas versiones exactas, son compatibles entre sí):
+
+```json
+{
+  "name": "smartrestaurant",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide-react": "0.460.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.28.0",
+    "recharts": "2.13.3"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.3",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.15",
+    "typescript": "5.6.3",
+    "vite": "5.4.11"
+  }
+}
+```
+
+Incluye `tailwind.config.js`, `postcss.config.js`, `tsconfig.json` (strict), `vite.config.ts`, `index.html`, `vercel.json` y `README.md`.
+
+**Usa `HashRouter`** (rutas del tipo `/#/mesa/...`). Así la app funciona igual en la vista previa de AI Studio, en Vercel y al abrir un QR, sin depender de reglas del servidor. Mantén además `vercel.json` con build `npm run build`, output `dist`, framework `vite` y rewrite SPA.
+
+**Prohibido:** Supabase, Firebase, PostgreSQL, MySQL, RabbitMQ, QStash, backend, variables de entorno, autenticación real, APIs externas para que la app funcione. Las imágenes pueden venir de URLs públicas de Unsplash, pero TODA imagen debe tener `onError` con un fallback local (degradado cálido + emoji o ícono del plato), de modo que la app sea 100 % usable sin internet. Las fuentes de Google Fonts también deben degradar a fuentes del sistema. El código QR debe generarse localmente (implementa tú el generador QR en TypeScript o produce un patrón QR válido en SVG; no uses una API externa).
+
+---
+
+## 3. INTERNACIONALIZACIÓN (5 MERCADOS, OBLIGATORIO)
+
+| País | Idioma | Moneda | Zona horaria | Impuesto de consumo |
+|---|---|---|---|---|
+| Colombia | es-CO | COP | America/Bogota | Impoconsumo 8 % |
+| México | es-MX | MXN | America/Mexico_City | IVA 16 % |
+| Estados Unidos | en-US | USD | America/New_York | Sales tax 8,875 % (NY) |
+| Brasil | pt-BR | BRL | America/Sao_Paulo | ISS/ICMS 10 % (referencial) |
+| Japón | ja-JP | JPY | Asia/Tokyo | 消費税 10 % |
+
+Reglas:
+
+- **Selector de país siempre visible** (barra superior y también en el sitio público y en el login), con bandera, nombre y código. Al cambiarlo se actualizan idioma, moneda, formato de precios, formato de fechas/horas con `Intl.DateTimeFormat` en su zona horaria, impuestos y los datos de ejemplo del mercado (restaurantes, sucursales, platos con nombres locales).
+- Formato de precios con `Intl.NumberFormat`: COP y JPY sin decimales; USD, MXN y BRL con 2 decimales. Los precios del seed se definen en la moneda local de cada mercado (no conviertas con tasas inventadas).
+- Un único módulo de traducciones tipado (`es`, `en`, `pt`, `ja`) con TODAS las claves en los 4 idiomas: navegación, botones, formularios, validaciones, estados (Pending/Confirmed/etc.), columnas de tablas, mensajes de error, confirmaciones, toasts, notificaciones, reportes, textos del sitio público, del monitor y de la demostración guiada. Si falta una clave, el TypeScript debe fallar al compilar (tipa las claves).
+- Notificaciones y eventos se guardan como `{ key, params }` y se traducen al mostrarse, de modo que al cambiar de idioma también cambia el historial.
+- Los nombres de categorías, platos y descripciones del seed tienen traducción propia por idioma.
+- Ninguna cadena visible puede estar escrita directamente en un componente. Revisa los `aria-label`, `placeholder`, `title` y textos de botones.
+
+---
+
+## 4. RUTAS Y ROLES
+
+### Rutas públicas (sin sesión)
+
+| Ruta | Contenido |
+|---|---|
+| `/` | Sitio de inicio para clientes (sección 5) |
+| `/restaurantes` | Listado con búsqueda y filtros (cocina, ciudad) |
+| `/restaurantes/:restaurantId` | Ficha: galería, sucursales, horario, menú, botón Reservar |
+| `/reservar/:restaurantId?` | Asistente de reserva (sección 7) |
+| `/mesa/:branchId/:tableId` | Menú QR de la mesa, pensado para móvil (sección 8) |
+| `/pedido/:orderId` | Seguimiento del pedido en vivo |
+| `/login` | Inicio de sesión con acceso rápido por rol |
+
+### Rutas protegidas por rol
+
+| Ruta | Owner | Admin | Waiter | Kitchen | Customer |
+|---|---|---|---|---|---|
+| `/app/dashboard` | ✓ | ✓ | | | |
+| `/app/restaurantes` (restaurantes, sucursales, mesas) | ✓ | ✓ | | | |
+| `/app/menu` | ✓ | ✓ | | | |
+| `/app/reservas` | ✓ | ✓ | ✓ | | |
+| `/app/mesas` (plano de sala) | ✓ | ✓ | ✓ | | |
+| `/app/pedidos` | ✓ | ✓ | ✓ | | |
+| `/app/cocina` | ✓ | ✓ | | ✓ | |
+| `/app/analitica` | ✓ | ✓ | | | |
+| `/app/notificaciones` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `/app/monitor` (Distributed System Monitor) | ✓ | ✓ | | | |
+| `/app/mis-reservas` | | | | | ✓ |
+| `/app/mis-pedidos` | | | | | ✓ |
+
+Pantalla de inicio por rol tras iniciar sesión: Owner y Admin → dashboard; Waiter → plano de mesas; Kitchen → tablero de cocina; Customer → mis reservas. Ruta no permitida → redirección al inicio del rol + toast traducido. Ruta inexistente → página 404 con enlace de regreso. La sesión se guarda en LocalStorage y sobrevive a recargas; cerrar sesión la limpia.
+
+### Diferencias de permisos visibles (no solo de menú)
+
+- **Owner:** todo, incluida la gestión de restaurantes y sucursales, y ver ingresos.
+- **Admin:** operación completa de su restaurante; no puede eliminar el restaurante.
+- **Waiter:** crea pedidos para una mesa, marca entregados, consulta reservas y hace check-in; no ve ingresos ni analítica; no edita menú.
+- **Kitchen:** solo el tablero de cocina y la disponibilidad de productos (puede marcar un plato como agotado).
+- **Customer:** solo sus reservas, sus pedidos y notificaciones propias.
+
+Los botones sin permiso no se muestran (no se dejan deshabilitados sin explicación).
+
+### Login
+
+Pantalla dividida: a la izquierda una imagen/ilustración gastronómica cálida con el eslogan; a la derecha el formulario (correo + contraseña con validación) y debajo **5 tarjetas de acceso rápido** (una por rol), con su nombre, descripción de lo que puede hacer y botón "Entrar". Las credenciales de demostración se muestran de forma discreta (bloque plegable "Cuentas de demostración"). Incluye el selector de país. Al entrar con una tarjeta, no hace falta escribir nada.
+
+---
+
+## 5. SITIO PÚBLICO PARA CLIENTES — DISEÑO INSPIRADO EN CENTRALPAELLERA.COM
+
+La referencia visual es un sitio de restaurante español: cálido, festivo, apetitoso, con tipografía editorial, fotografía de comida protagonista, divisores decorativos, llamados a la acción muy claros ("Ordena ahora", "Reservar"), menú con tarjetas título + descripción + precio, sección de preguntas frecuentes, reseñas y pie de página con contacto. SmartRestaurant debe sentirse como la versión plataforma de esa experiencia, no como un panel genérico.
+
+### Estructura de `/`
+
+1. **Barra superior** translúcida sobre el hero: logo SmartRestaurant, enlaces (Restaurantes, Cómo funciona, Preguntas), selector de país, botón "Reservar" y "Iniciar sesión".
+2. **Hero a pantalla completa**: foto grande de comida (con degradado oscuro cálido encima), titular editorial en serif con una palabra en cursiva ("Reserva, ordena y disfruta *sin esperas*"), subtítulo, dos botones (Reservar mesa / Ver restaurantes) y una **mini-barra de reserva rápida** (país/ciudad, fecha, hora, personas → "Buscar mesa") que lleva al asistente con los datos ya cargados.
+3. **Tres pasos "Cómo funciona"**: Elige → Reserva o escanea el QR → Disfruta. Con íconos, divisores decorativos y mucho aire.
+4. **Restaurantes destacados** del mercado seleccionado (tarjetas con foto, cocina, sucursales, rango de precio en moneda local, botón).
+5. **Platos más pedidos** (datos reales derivados de los pedidos existentes), con "Añadir" que lleva al restaurante.
+6. **Franja de números** (restaurantes, sucursales, pedidos servidos, reservas), calculados desde los datos reales.
+7. **Reseñas** (3 tarjetas, traducidas) y **Preguntas frecuentes** en acordeón (reservas, cancelaciones, QR, pagos simulados).
+8. **Demo QR**: bloque "Prueba el pedido por QR" con un QR real y navegable de una mesa de demostración.
+9. **Pie de página** oscuro con contacto, selector de idioma/país, enlaces y la aclaración académica.
+
+Todas las imágenes tienen fallback. Todos los textos se traducen.
+
+---
+
+## 6. ARQUITECTURA SIMULADA DE SISTEMA DISTRIBUIDO
+
+### 6.1 Siete servicios (carpeta `src/services/<nombre>/`)
+
+Cada servicio es un módulo independiente con su propio estado interno, API pública mínima y suscripciones al Event Bus. **Ningún servicio importa a otro**; solo se comunican por eventos (excepto la interfaz de consulta del "API Gateway" simulado, que enruta llamadas desde la UI hacia el servicio de dominio correcto).
+
+1. **Auth Service:** usuarios, sesión, roles, permisos. Publica `USER_LOGGED_IN`, `USER_LOGGED_OUT`.
+2. **Restaurant Service:** restaurantes, sucursales, mesas, menú, categorías, disponibilidad. Publica `PRODUCT_AVAILABILITY_CHANGED`, `RESTAURANT_UPDATED`.
+3. **Reservation Service:** reservas y validación de disponibilidad. Publica `RESERVATION_CREATED`, `RESERVATION_CONFIRMED`, `RESERVATION_CANCELLED`, `RESERVATION_REJECTED`, `RESERVATION_COMPLETED`, `RESERVATION_NO_SHOW`.
+4. **Order Service:** carrito, pedidos, pago simulado. Publica `ORDER_CREATED`, `ORDER_PAID`, `ORDER_DELIVERED`, `ORDER_CANCELLED`.
+5. **Kitchen Service:** cola de cocina. Escucha `ORDER_CREATED` y publica `ORDER_RECEIVED_BY_KITCHEN`, `ORDER_PREPARING`, `ORDER_READY`.
+6. **Notification Service:** mantiene su propio almacén de notificaciones. Escucha casi todos los eventos y los convierte en notificaciones traducibles.
+7. **Analytics Service:** mantiene su propio *read model* (agregados de ventas, reservas, ocupación, productos top) que se actualiza SOLO al procesar eventos.
+
+### 6.2 Event Bus (`src/core/eventBus.ts`)
+
+Sobre cada evento guarda: `id` único, `type`, `payload`, `timestamp`, `sourceService`, `targetService`, `status` (`pending | processing | completed | failed`), `attempts`, `maxAttempts` (3), `idempotencyKey`, `correlationId` (para agrupar el flujo de una misma reserva o pedido), `error?`, `processedAt?`.
+
+Un evento que interesa a varios servicios se **abre en un mensaje por destinatario** (fan-out), cada uno con su propio estado. Así se ve que Notification puede completar mientras Analytics falla.
+
+Procesamiento asíncrono real (con `setTimeout`/cola de microtareas, no instantáneo): `pending` → `processing` (400–900 ms visibles) → `completed`. Los eventos publicados desde la UI nunca bloquean la interfaz.
+
+Debe demostrar de forma visible:
+
+- **Independencia de servicios:** cada servicio tiene un interruptor Up/Down/Degraded.
+- **Tolerancia a fallos:** si el servicio destinatario está caído, el mensaje pasa a `failed` tras reintentos con *backoff* exponencial (1 s, 2 s, 4 s); la operación original del usuario **no falla** (reservar/pedir sigue funcionando).
+- **Reintentos:** automáticos y manual con botón; al restablecer el servicio, los eventos fallidos pueden reprocesarse y la información se pone al día.
+- **Idempotencia:** cada consumidor guarda las `idempotencyKey` ya procesadas; un botón "Publicar evento duplicado" demuestra que el segundo se marca como `completed — duplicado ignorado` y no genera una segunda notificación ni suma dos veces en analítica.
+- **Consistencia eventual:** mientras Analytics tiene eventos pendientes/fallidos, el dashboard y la analítica muestran una insignia "Datos pendientes de sincronizar (N eventos)" y, al procesarse, los números se actualizan con una animación sutil.
+- **Distribución de responsabilidades:** cada servicio solo escribe en su propio estado.
+
+Persistencia del bus y del estado de cada servicio en LocalStorage. Límite de historial (p. ej. 500 eventos) para no saturar.
+
+### 6.3 Capa de aplicación
+
+Un `AppStore` (Context + reducer o similar) expone selectores a la UI y un `apiGateway` que traduce acciones de la UI ("crear reserva") en llamadas a servicios. La UI nunca modifica LocalStorage ni estados de servicios directamente. Una clave versionada (`smartrestaurant:v2`) permite restaurar datos y evitar choques con versiones previas.
+
+### 6.4 Sincronización entre pestañas ("tiempo real" demostrable)
+
+Usa `BroadcastChannel` (con respaldo por el evento `storage`) para que, si el profesor abre el tablero de cocina en una pestaña y el menú QR en otra, **cada cambio aparezca en la otra pestaña en menos de un segundo**, sin recargar. Incluye en el monitor un botón "Abrir pantalla de cocina en nueva pestaña" y un botón "Abrir menú QR de la Mesa 3 en nueva pestaña".
+
+---
+
+## 7. RESERVAS (EXPERIENCIA DEL CLIENTE)
+
+Asistente de 4 pasos con barra de progreso y botón Atrás en cada paso, sin perder datos:
+
+1. **Restaurante y sucursal** (tarjetas; si viene de la ficha, se salta el restaurante).
+2. **Fecha, hora y personas:** calendario simple (próximos 30 días, sin fechas pasadas), franjas de hora de 30 min según el horario de la sucursal, selector de 1–12 personas. Las franjas sin mesa disponible se muestran deshabilitadas con el motivo.
+3. **Mesa:** mapa/lista de mesas aptas (capacidad ≥ personas) con estado libre/ocupada en esa franja; si no hay, el sistema sugiere las 3 franjas más cercanas disponibles.
+4. **Datos y confirmación:** nombre, teléfono, notas, resumen completo y botón "Confirmar reserva". Pantalla final con código de reserva, resumen, "Añadir a mis reservas" y "Cancelar".
+
+Reglas:
+
+- Duración fija de 90 min. Una mesa no puede reservarse si se solapa con otra reserva activa (Pending o Confirmed) de esa mesa.
+- La disponibilidad se recalcula en el momento de confirmar; si otra reserva ganó el cupo, se muestra un error claro y se ofrecen alternativas.
+- Estados: Pending, Confirmed, Cancelled, Completed, No-show, más Rejected. Las transiciones válidas están definidas (p. ej. Completed y Cancelled son finales) y los botones solo ofrecen transiciones válidas.
+- Cliente: ve y cancela sus reservas (con confirmación). Personal (Owner/Admin/Waiter): lista con filtros por estado, sucursal y fecha, y acciones Confirmar, Rechazar (con motivo), Modificar (fecha/hora/mesa/personas con la misma validación de solapamiento), Cancelar, Check-in/Completar y No-show.
+- Cada cambio genera su evento y su notificación.
+
+---
+
+## 8. PEDIDOS POR QR (EXPERIENCIA DEL CLIENTE, MÓVIL PRIMERO)
+
+`/mesa/:branchId/:tableId` abre el menú de **esa** sucursal y **esa** mesa, mostrando arriba "Mesa 5 · Sucursal Chapinero".
+
+- Barra de categorías fija con desplazamiento horizontal, búsqueda, tarjetas de producto con foto, descripción, etiquetas (vegano, picante, popular) y precio local. Productos agotados visibles pero marcados como "Agotado" y sin botón de añadir.
+- Botón flotante del carrito con contador y total. Carrito como panel inferior (bottom sheet): cambiar cantidades (+/−), eliminar, nota por producto, subtotal, impuesto del mercado (con su nombre local), total.
+- **Pago simulado** en 3 pasos: elegir método (tarjeta / efectivo en mesa / billetera digital, todos de mentira), pantalla "Procesando…" de 1,5 s y recibo. Deja claro con una etiqueta "Pago simulado".
+- Al confirmar: se crea el pedido (id legible tipo `PED-2041`, restaurante, sucursal, mesa, líneas con cantidad y precio unitario, subtotal, impuestos, total, fecha, estado), se redirige a `/pedido/:orderId`.
+- **Seguimiento en vivo:** barra de progreso de 4 pasos (Recibido → Preparando → Listo → Entregado) que cambia en cuanto cocina actualiza el estado, con mensaje amigable y hora de cada paso.
+- En el plano de mesas del mesero y en administración, cada mesa tiene el botón "Ver QR": muestra un QR real (generado localmente) que apunta a esa URL, con opción de copiar el enlace, abrirlo en una pestaña nueva e imprimir.
+
+---
+
+## 9. APLICACIÓN DE PERSONAL (SaaS)
+
+Layout: barra lateral oscura (colapsable en tablet, cajón en móvil), barra superior con selector de país, selector de restaurante/sucursal, campana de notificaciones con contador, menú de usuario (cambiar de rol sin cerrar sesión, cerrar sesión). Usa los mismos tokens de color que el sitio público.
+
+### Dashboard (Owner/Admin)
+Filtros: rango de fechas (hoy, 7 días, 30 días, personalizado), restaurante/sucursal y mercado. KPIs: total de reservas, pedidos del día, ingresos estimados, mesas ocupadas, mesas disponibles, pedidos pendientes. Gráfico de ventas por día, productos más vendidos, actividad reciente (últimos eventos y operaciones) y estado de las sucursales (tarjetas con ocupación). **Todo se calcula a partir de los datos reales y se actualiza al operar; no hay cifras fijas.** Si el Analytics Service está caído o con eventos pendientes, muestra la insignia de consistencia eventual.
+
+### Restaurantes y sucursales
+Crear, editar, consultar y desactivar restaurantes; administrar sucursales (nombre, dirección, país, moneda, zona horaria, horarios); administrar mesas (número, capacidad, zona) y ver disponibilidad por franja. Formularios con validaciones inline y confirmación al eliminar.
+
+### Menú
+CRUD de productos y categorías: nombre, descripción, categoría, precio, imagen (URL con vista previa y fallback), etiquetas y disponibilidad (interruptor con efecto inmediato). Búsqueda por nombre y filtro por categoría. Eliminar pide confirmación. Cambiar la disponibilidad publica `PRODUCT_AVAILABILITY_CHANGED` y se refleja en el menú QR abierto en otra pestaña.
+
+### Plano de mesas (Waiter)
+Cuadrícula visual de mesas con colores y etiqueta de texto (no solo color) para: Libre, Ocupada, Reservada pronto, Pedido listo para servir. Al tocar una mesa: panel lateral con su pedido actual, próxima reserva, botones "Nuevo pedido" (abre el mismo menú QR en modo mesero), "Marcar entregado", "Liberar mesa" y "Ver QR".
+
+### Cocina (Kitchen)
+Tablero Kanban a pantalla completa con 4 columnas: **Recibidos, Preparando, Listos, Entregados**. Tarjetas con mesa, productos y cantidades, notas, tiempo transcurrido (se pone ámbar a los 10 min y rojo a los 20) y botón grande para avanzar de estado (también arrastrar y soltar en escritorio). Sonido opcional discreto al llegar un pedido nuevo y animación de entrada. Interruptor para marcar productos como agotados. Los cambios aparecen en cliente, mesero y administración (incluso en otra pestaña).
+
+### Pedidos
+Tabla con filtros por estado, sucursal, fecha y búsqueda por id/mesa; detalle en modal; el mesero puede crear pedidos y marcar entregados.
+
+### Notificaciones
+Campana con panel desplegable + página de historial con filtros (tipo, leídas/no leídas), "marcar todas como leídas", y toasts visuales al llegar nuevas. Se generan al crear/confirmar/cancelar reserva, crear pedido, recibir cocina, pedido listo y pedido entregado. Cada rol ve solo las relevantes para él.
+
+### Analítica
+Ingresos, pedidos, reservas, productos más vendidos, rendimiento por sucursal, ocupación de mesas, tendencia de ventas y **comparación entre periodos** (periodo actual vs. anterior, con variación porcentual y flechas). Filtros por fecha, sucursal y mercado. Botón **Exportar CSV** por reporte (con codificación UTF-8 con BOM para que Excel lea bien tildes y caracteres japoneses). Estados vacíos informativos.
+
+---
+
+## 10. DISTRIBUTED SYSTEM MONITOR (`/app/monitor`) — PIEZA CLAVE PARA LA SUSTENTACIÓN
+
+Debe ser clara para alguien que no programó, y completa para un profesor de sistemas distribuidos.
+
+**Cabecera:** título "Distributed System Monitor", aviso de simulación académica, contadores (eventos totales, pendientes, procesando, completados, fallidos, latencia media).
+
+**Diagrama de arquitectura animado (SVG o CSS):**
+`Cliente → API Gateway (simulado) → Servicios de dominio (Auth, Restaurant, Reservation, Order, Kitchen) → Event Bus → Servicios destinatarios (Notification, Analytics, Kitchen…)`.
+Los siete servicios aparecen como nodos con color de estado (verde Up, ámbar Degraded, rojo Down). Cuando un evento se procesa, **un punto animado recorre las flechas** del origen al bus y del bus al destinatario. Al tocar un nodo se abre su ficha: responsabilidades, eventos que publica, eventos que consume, contador de eventos, cola propia, y los controles Up/Down/Degraded.
+
+**Cola de eventos (tabla en vivo):** id, tipo, origen, destinatario, fecha/hora en la zona horaria del mercado, estado (insignias Pending/Processing/Completed/Failed), intentos (`1/3`), correlationId. Filtros por estado, servicio y tipo; búsqueda por id. Al seleccionar un evento, panel de detalle con payload JSON formateado, línea de tiempo de intentos (hora y resultado de cada uno), error y botón "Reintentar".
+
+**Controles (cada uno con efecto visible y explicación breve debajo):**
+- Generar evento de prueba (elige tipo).
+- Generar ráfaga de 10 eventos.
+- Simular fallo de servicio (elige servicio).
+- Restablecer servicios (todos a Up y reprocesa los fallidos).
+- Reintentar evento / reintentar todos los fallidos.
+- Publicar evento duplicado (demuestra idempotencia).
+- Consultar historial completo (con paginación).
+- Restaurar datos de demostración.
+
+**Demostración guiada "Flujo completo" (botón destacado "Ejecutar demostración para el profesor"):**
+Un asistente narrado paso a paso, con botones Siguiente/Anterior/Auto-reproducir, que ejecuta de verdad las acciones y resalta el nodo correspondiente en el diagrama, con una frase explicativa traducida en cada paso:
+
+1. Un cliente crea una reserva (se crea una reserva real).
+2. Reservation Service genera `RESERVATION_CREATED`.
+3. El Event Bus distribuye el evento (fan-out a Notification y Analytics).
+4. Notification Service recibe el evento y crea la notificación.
+5. Analytics Service lo registra y actualiza sus agregados.
+6. El monitor muestra el procesamiento terminado, con los dos mensajes en `completed`.
+
+Variante B (mismo asistente, un botón aparte): "Demostrar tolerancia a fallos": se apaga Analytics → se crea una reserva → Notification completa y Analytics falla tras 3 intentos con backoff → el dashboard muestra datos pendientes → se restablece Analytics → se reintenta → los datos se ponen al día (consistencia eventual). Variante C: "Demostrar idempotencia".
+
+---
+
+## 11. DATOS DE DEMOSTRACIÓN (PRECARGADOS Y COHERENTES)
+
+Debe verse completa desde el primer segundo.
+
+- **5 mercados × 2 restaurantes = 10 restaurantes**, cada uno con 2–3 sucursales, con cocinas y nombres locales verosímiles (p. ej. paella y cocina colombiana en Bogotá, tacos y mole en CDMX, burgers y deli en Nueva York, churrasco y feijoada en São Paulo, sushi y ramen en Tokio). Cada restaurante tiene datos independientes.
+- 8–12 mesas por sucursal con distinta capacidad (2, 4, 6, 8).
+- 5 categorías y 20–30 productos por restaurante, con foto, descripción, etiquetas y precios realistas en la moneda local.
+- Usuarios de demostración para los 5 roles (+ uno por mercado para el cliente) con contraseñas simples visibles en el login.
+- 30 días de historial **generado de forma determinista y relativa a la fecha actual** (no fechas fijas que queden viejas): 80–150 reservas en todos los estados, 200–400 pedidos entregados, y también pedidos activos *ahora* en cocina (algunos en cada columna) y reservas para hoy y mañana.
+- Notificaciones y eventos distribuidos ya existentes (con mezcla de estados, incluyendo 1–2 fallidos para mostrar reintento).
+- Botón **"Restaurar datos iniciales"** (en el monitor y en el menú de usuario, con confirmación) que regenera todo.
+- Todo cambio hecho por el usuario persiste tras recargar.
+
+---
+
+## 12. DISEÑO VISUAL — SISTEMA ÚNICO
+
+**Dirección:** "restaurante premium cálido" para el sitio público y los flujos de cliente; "SaaS tipo Stripe/Linear/Toast" para el personal, con los mismos colores y tipografías. Nada genérico: nada de fondos grises planos con tarjetas blancas idénticas.
+
+**Tokens (defínelos en `tailwind.config.js` y úsalos siempre):**
+
+- `cream` #FBF6EC (fondo claro), `paper` #FFFDF8 (tarjetas), `sand` #E9DFCC (bordes)
+- `espresso` #1F1A17 y `charcoal` #2B211C (fondos oscuros, sidebar, footer)
+- `saffron` #E8A33D (acento principal / CTA), `paprika` #C8452C (acción fuerte, errores suaves), `terracotta` #B5532F (hover), `olive` #6B7A3A (éxito/disponible)
+- Texto: `ink` #1F1A17 sobre claro; `cream` sobre oscuro. Contraste mínimo AA.
+
+**Tipografía:** títulos y cifras destacadas en serif editorial (Playfair Display; fallback Georgia), con cursiva para la palabra emotiva; interfaz en una sans limpia (DM Sans o Inter; fallback system-ui); ids y claves en monoespaciada. Soporta correctamente japonés (`'Noto Sans JP'` en la pila de `ja`).
+
+**Componentes reutilizables** (`src/components/ui/`): Button (variantes primary/secondary/ghost/danger, tamaños, estado loading), Card, Badge de estado, Modal y ConfirmDialog, Drawer/BottomSheet, Table con cabecera fija y estado vacío, FormField con error inline, Select, Tabs, Stepper, Toast, Skeleton, EmptyState, ImageWithFallback, QrCode, Divider decorativo (guarda/ornamento fino, inspirado en los divisores de la referencia), KPI Card, Switch.
+
+**Experiencia:** transiciones suaves de 150–250 ms, microanimaciones al llegar eventos y pedidos, skeletons mientras "cargan" las vistas (retardo simulado corto), foco visible, navegación por teclado, `aria-label` traducidos, `prefers-reduced-motion` respetado.
+
+**Responsive real:** escritorio, tableta y smartphone. Sidebar → cajón en móvil; tablas → tarjetas apiladas en móvil; el menú QR y el seguimiento están diseñados primero para pantalla de 360 px; el tablero de cocina se desplaza por columnas en tableta/móvil y es a pantalla completa en escritorio.
+
+---
+
+## 13. CALIDAD E INTUITIVIDAD (REGLAS DURAS)
+
+- Cada pantalla tiene una acción principal obvia, un título claro y una línea de ayuda. Ninguna pantalla vacía: siempre hay datos o un estado vacío con una acción.
+- Cada botón hace algo real; cada enlace lleva a una ruta existente; no hay botones decorativos.
+- Toda acción destructiva (cancelar, eliminar, restaurar) pide confirmación con texto claro.
+- Todo formulario valida (campos requeridos, rangos, formato de teléfono/correo, precios > 0, capacidad ≥ 1, fecha no pasada) con mensajes traducidos bajo el campo.
+- Estados de carga, éxito y error visibles; `ErrorBoundary` global con pantalla de recuperación ("Restaurar datos") ante un LocalStorage corrupto o de otra versión.
+- Sin `any` innecesarios, sin `console.error` en uso normal, sin advertencias de React (keys, efectos con limpieza de timers e intervalos y de listeners de BroadcastChannel).
+- Código modular: `src/core` (eventBus, store, storage, qr), `src/services/*`, `src/i18n`, `src/data` (seed), `src/hooks`, `src/components/ui`, `src/components/layout`, `src/pages/{public,staff,customer}`. Separación estricta entre interfaz, lógica y servicios.
+- Fechas siempre guardadas en ISO/UTC y mostradas en la zona horaria del mercado activo.
+
+---
+
+## 14. ARCHIVOS FINALES Y README
+
+`README.md` corto y en español: 1) instalar dependencias (`npm install`), 2) ejecutar (`npm run dev`), 3) build (`npm run build`), 4) subir a GitHub, 5) desplegar en Vercel (Framework Vite, build `npm run build`, output `dist`, sin variables de entorno). Añade una sección "Credenciales de demostración", una "Guía de la demostración para sustentación" (los 3 flujos del monitor en 2 minutos) y la aclaración de que es una simulación académica.
+
+---
+
+## 15. VERIFICACIÓN ANTES DE ENTREGAR (HAZLA REVISANDO TU PROPIO CÓDIGO)
+
+Recorre mentalmente cada punto y corrige lo que falle. **No digas que ejecutaste pruebas ni el build si no los ejecutaste realmente**: si no puedes ejecutar el build, escribe "build no ejecutado; revisión estática realizada" y enumera lo que revisaste.
+
+1. `package.json` instala sin conflictos y coincide con las versiones fijas.
+2. Todas las rutas de las secciones 4–10 existen, y cada enlace del menú apunta a una.
+3. Los 5 roles: login por tarjeta y por formulario, menú propio, inicio propio, redirección en ruta prohibida.
+4. Los 5 mercados: cambiar país actualiza idioma, moneda, fechas, impuesto, restaurantes y platos; no queda ninguna cadena en español en las vistas en inglés, portugués o japonés.
+5. Reserva: no permite solapamientos; cliente crea y cancela; personal confirma, rechaza, modifica y completa; cada paso genera evento y notificación.
+6. Pedido QR: la URL de la mesa abre el menú correcto; carrito, impuestos y total correctos por mercado; pedido visible en cocina y en seguimiento.
+7. Cocina: los 4 estados avanzan y se reflejan en administración, mesero y cliente, también entre pestañas.
+8. Menú: crear, editar, eliminar, categoría nueva, precio, disponibilidad, imagen con fallback, búsqueda y filtro.
+9. Notificaciones: aparecen las 7 situaciones requeridas y el historial se traduce al cambiar de idioma.
+10. Monitor: 7 servicios, diagrama animado, detalle de evento, 3 demostraciones guiadas, fallo/reintento/idempotencia/restablecer funcionando.
+11. Recargar la página conserva los cambios; "Restaurar datos iniciales" los devuelve al estado original.
+12. Vista a 360 px, 768 px y 1440 px sin desbordes horizontales.
+
+Al terminar, entrega primero todos los archivos completos y después un resumen de máximo 15 líneas: qué incluye, cómo probar la demostración del monitor y qué verificaste realmente.
