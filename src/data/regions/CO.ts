@@ -1,0 +1,111 @@
+import { RegionProfile } from '../../types';
+
+export const CO_PROFILE: RegionProfile = {
+  code: 'CO',
+  nameKey: 'country_co',
+  nativeName: 'Colombia',
+  pilotCity: 'Bogotá',
+  pilotCityKey: 'city_bogota',
+  flagEmoji: '🇨🇴',
+  defaultLanguage: 'es',
+  supportedLanguages: ['es', 'en', 'pt', 'fr', 'ja'],
+  currency: 'COP',
+  currencySymbol: '$',
+  currencySymbolOverride: '$',
+  symbolPosition: 'before',
+  symbolSpacing: true, // "$ 25.900"
+  fractionDigits: 0,
+  thousandSeparator: '.',
+  decimalSeparator: ',',
+  dateFormatPattern: 'dd/mm/aaaa',
+  clockFormat: '12h',
+  timeZone: 'America/Bogota',
+  hasDaylightSaving: false,
+  firstDayOfWeek: 0, // Sunday
+  measurementSystem: 'metric',
+  distanceUnit: 'km',
+  phonePrefix: '+57',
+  phoneFormatPlaceholder: '3XX XXX XXXX',
+  phoneRegex: '^3\\d{9}$',
+  postalCodeMask: 'NNNNNN',
+  postalCodeRegex: '^\\d{6}$',
+  nameOrder: 'given_family',
+  addressFields: [
+    { key: 'streetLine', labelKey: 'field_address_street', required: true, placeholderKey: 'placeholder_address_co' },
+    { key: 'suiteOrApt', labelKey: 'field_address_apt', required: false, placeholderKey: 'placeholder_apt' },
+    { key: 'neighborhood', labelKey: 'field_address_neighborhood', required: true, placeholderKey: 'placeholder_neighborhood' },
+    { key: 'city', labelKey: 'field_address_city', required: true, placeholderKey: 'placeholder_city' },
+    { key: 'postalCode', labelKey: 'field_address_postal_code', required: false, placeholderKey: 'placeholder_postal_co' },
+  ],
+  taxRules: [
+    {
+      id: 'co-impoconsumo-food',
+      appliesTo: 'prepared_food',
+      orderType: '*',
+      jurisdiction: 'Nacional',
+      rateBps: 800, // 8%
+      labelKey: 'tax_impoconsumo_8',
+      source: 'https://www.dian.gov.co/impuestos/personas/Paginas/impuesto-nacional-al-consumo.aspx',
+      verifiedAt: '2026-01-15',
+    },
+    {
+      id: 'co-iva-delivery',
+      appliesTo: 'delivery_fee',
+      orderType: 'delivery',
+      jurisdiction: 'Nacional',
+      rateBps: 1900, // 19%
+      labelKey: 'tax_iva_delivery_19',
+      source: 'https://www.dian.gov.co/impuestos/personas/Paginas/iva.aspx',
+      verifiedAt: '2026-01-15',
+    },
+  ],
+  tipPolicy: {
+    mode: 'voluntary',
+    suggestionsBps: [0, 500, 1000, 1500],
+    defaultBps: 0,
+    showWidget: true,
+  },
+  receipt: {
+    documentTypeKey: 'receipt_electronic_invoice_dian',
+    officialAuthority: 'DIAN — Dirección de Impuestos y Aduanas Nacionales',
+    fiscalNumberLabelKey: 'fiscal_id_nit',
+    requiresFiscalIdOnReceipt: true,
+    electronicInvoiceSystem: 'Factura Electrónica con Validación Previa DIAN (CUFE)',
+    footerLegalTextKey: 'receipt_legal_co',
+  },
+  paymentMethods: [
+    { id: 'pse', labelKey: 'payment_pse', iconName: 'Banknote', kind: 'bank_transfer', isElectronic: true },
+    { id: 'nequi', labelKey: 'payment_nequi', iconName: 'Smartphone', kind: 'wallet', isElectronic: true },
+    { id: 'card', labelKey: 'payment_card', iconName: 'CreditCard', kind: 'card', isElectronic: true },
+    { id: 'cash', labelKey: 'payment_cash', iconName: 'Banknote', kind: 'cash', isElectronic: false },
+  ],
+  holidays: [
+    { date: '2026-01-01', nameKey: 'holiday_new_year', isNational: true },
+    { date: '2026-01-12', nameKey: 'holiday_epiphany', isNational: true },
+    { date: '2026-03-23', nameKey: 'holiday_st_joseph', isNational: true },
+    { date: '2026-04-02', nameKey: 'holiday_maundy_thursday', isNational: true },
+    { date: '2026-04-03', nameKey: 'holiday_good_friday', isNational: true },
+    { date: '2026-05-01', nameKey: 'holiday_labor_day', isNational: true },
+    { date: '2026-05-18', nameKey: 'holiday_ascension', isNational: true },
+    { date: '2026-06-08', nameKey: 'holiday_corpus_christi', isNational: true },
+    { date: '2026-07-20', nameKey: 'holiday_independence_co', isNational: true },
+    { date: '2026-08-07', nameKey: 'holiday_boyaca', isNational: true },
+    { date: '2026-12-25', nameKey: 'holiday_christmas', isNational: true },
+  ],
+  dataResidency: {
+    dataRegion: 'southamerica-east1 (Bogotá edge / São Paulo primary)',
+    applicableLaw: 'Ley 1581 de 2012 (Habeas Data & Protección de Datos Personales)',
+    legalBasis: 'Consentimiento explícito y ejecución de contrato mercantil',
+    retentionMonths: 60,
+  },
+  domain: 'smartrestaurant.co',
+  revenueModel: {
+    platformCommissionBps: 1500, // 15%
+    baseDeliveryFeeMinorUnits: 5500, // COP 5.500
+  },
+  ui: {
+    showTipWidget: true,
+    serviceIncludedNotice: false,
+    addressInLocalOrder: true,
+  },
+};

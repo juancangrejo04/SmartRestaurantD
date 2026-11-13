@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export const ReviewsAdminView: React.FC = () => {
-  const { reviews, restaurants, branches, replyReview, toggleHideReview, currentUser, showToast } = useApp();
+  const { reviews, restaurants, branches, replyReview, toggleHideReview, currentUser, showToast, loc } = useApp();
   const canReply = useCan('reviews.reply');
   const canModerate = useCan('reviews.moderate');
 
@@ -197,13 +197,13 @@ export const ReviewsAdminView: React.FC = () => {
 
                 {/* Comment body */}
                 <p className="text-xs text-slate-700 italic bg-slate-50 p-3 rounded-xl border border-slate-100">
-                  "{rev.comment}"
+                  "{loc(rev.comment)}"
                 </p>
 
                 {/* Per-dish feedback if exists */}
-                {rev.dishesRating && rev.dishesRating.length > 0 && (
+                {(rev.dishesRating || rev.dishRatings) && (rev.dishesRating || rev.dishRatings)!.length > 0 && (
                   <div className="flex flex-wrap gap-2 text-xs">
-                    {rev.dishesRating.map((dr, idx) => (
+                    {(rev.dishesRating || rev.dishRatings)!.map((dr: any, idx: number) => (
                       <span
                         key={idx}
                         className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-mono"
@@ -220,13 +220,13 @@ export const ReviewsAdminView: React.FC = () => {
                     <div className="flex items-center justify-between text-[11px] font-bold text-amber-900">
                       <span className="flex items-center gap-1">
                         <CornerDownRight className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Respuesta publicada por Staff ({rev.reply.userRole.toUpperCase()})</span>
+                        <span>Respuesta publicada por Staff ({(rev.reply.userRole || 'STAFF').toUpperCase()})</span>
                       </span>
                       <span className="font-mono text-[10px] text-amber-700">
-                        {new Date(rev.reply.createdAt).toLocaleDateString()}
+                        {new Date(rev.reply.createdAt || rev.reply.repliedAt || '').toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="text-slate-700 leading-relaxed">{rev.reply.text}</p>
+                    <p className="text-slate-700 leading-relaxed">{loc(rev.reply.text)}</p>
                   </div>
                 )}
 

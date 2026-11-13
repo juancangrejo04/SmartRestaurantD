@@ -1,15 +1,103 @@
-import { Restaurant, Branch, Table, TableStatus, TableZone, CountryCode } from '../types';
+import {
+  Restaurant,
+  Branch,
+  Table,
+  TableStatus,
+  TableZone,
+  MenuItem,
+} from '../types';
+import { broker } from '../core/broker';
+
+interface CatalogCacheEntry {
+  items: MenuItem[];
+  expiresAtMs: number;
+  cachedAtUtc: string;
+}
+
+const CATALOG_CACHE_TTL_MS = 45 * 1000; // 45s simulated TTL cache
 
 export class RestaurantService {
   private static instance: RestaurantService;
+  private menuCache: Map<string, CatalogCacheEntry> = new Map();
+  private cacheHits = 0;
+  private cacheMisses = 0;
 
-  private constructor() {}
+  private constructor() {
+    broker.subscribe('PRODUCT_AVAILABILITY_CHANGED', 'restaurant-service', async (ev) => {
+      this.invalidateCatalogCache(ev.payload?.branchId);
+    });
+    broker.subscribe('CATALOG_CACHE_INVALIDATED', 'restaurant-service', async (ev) => {
+      this.invalidateCatalogCache(ev.payload?.branchId);
+    });
+  }
 
   public static getInstance(): RestaurantService {
     if (!RestaurantService.instance) {
       RestaurantService.instance = new RestaurantService();
     }
     return RestaurantService.instance;
+  }
+
+  /**
+   * Reads menu items for a restaurant/branch using a simulated TTL cache with live hit/miss metrics.
+   */
+  public getMenuWithCache(
+    restaurantId: string,
+    allMenuItems: MenuItem[],
+    countryCode?: string
+  ): { items: MenuItem[]; fromCache: boolean } {
+    const cacheKey = `${restaurantId}:${countryCode || 'ALL'}`;
+    const now = Date.now();
+    const cached = this.menuCache.get(cacheKey);
+
+    if (cached && cached.expiresAtMs > now) {
+      this.cacheHits += 1;
+      return { items: cached.items, fromCache: true };
+    }
+
+    this.cacheMisses += 1;
+    const filtered = allMenuItems.filter(
+      (item) =>
+        item.restaurantId === restaurantId &&
+        (!countryCode || item.countryCode === countryCode)
+    );
+
+    this.menuCache.set(cacheKey, {
+      items: filtered,
+      expiresAtMs: now + CATALOG_CACHE_TTL_MS,
+      cachedAtUtc: new Date().toISOString().replace('.000Z', 'Z'),
+    });
+
+    return { items: filtered, fromCache: false };
+  }
+
+  public invalidateCatalogCache(scopeKey?: string): void {
+    if (!scopeKey) {
+      this.menuCache.clear();
+      return;
+    }
+    for (const key of Array.from(this.menuCache.keys())) {
+      if (key.includes(scopeKey)) {
+        this.menuCache.delete(key);
+      }
+    }
+  }
+
+  public getCatalogCacheStats(): {
+    hits: number;
+    misses: number;
+    hitRatePct: number;
+    cachedBuckets: number;
+    ttlSeconds: number;
+  } {
+    const total = this.cacheHits + this.cacheMisses;
+    return {
+      hits: this.cacheHits,
+      misses: this.cacheMisses,
+      hitRatePct: total > 0 ? Math.round((this.cacheHits / total) * 100) : 100,
+      cachedBuckets: this.menuCache.size,
+      ttlSeconds: CATALOG_CACHE_TTL_MS / 1000,
+    };
   }
 
   public getAvailableTables(tables: Table[], branchId: string): Table[] {
@@ -34,7 +122,7 @@ export class RestaurantService {
         return {
           ...t,
           status: newStatus,
-          currentOrderId: newStatus === 'available' ? undefined : (currentOrderId ?? t.currentOrderId),
+          currentOrderId: newStatus === 'available' ? undefined : currentOrderId ?? t.currentOrderId,
         };
       }
       return t;

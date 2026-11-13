@@ -1,0 +1,702 @@
+[
+  {
+    "id": "br-aura-co-chapinero",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza Chapinero",
+    "localizedName": {
+      "es": "Aura Mestiza — Chapinero Alto",
+      "en": "Aura Mestiza — Chapinero Alto",
+      "pt": "Aura Mestiza — Chapinero Alto",
+      "fr": "Aura Mestiza — Chapinero Alto",
+      "ja": "オーラ・メスティーサ チャピネロ店"
+    },
+    "city": "Bogotá",
+    "localizedCity": {
+      "es": "Bogotá",
+      "en": "Bogota",
+      "pt": "Bogotá",
+      "fr": "Bogota",
+      "ja": "ボゴタ"
+    },
+    "neighborhood": "Chapinero Alto",
+    "address": "Calle 69A # 4-15",
+    "country": "CO",
+    "phone": "+57 310 450 8920",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 10,
+    "active": true,
+    "currency": "COP",
+    "timeZone": "America/Bogota",
+    "coordinates": {
+      "lat": 4.6534,
+      "lng": -74.0583
+    },
+    "deliveryRadiusKmOrMi": 8,
+    "heroImage": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-aura-co-usaquen",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza Usaquén",
+    "localizedName": {
+      "es": "Aura Mestiza — Usaquén Colonial",
+      "en": "Aura Mestiza — Historic Usaquen",
+      "pt": "Aura Mestiza — Usaquén Histórico",
+      "fr": "Aura Mestiza — Usaquén Colonial",
+      "ja": "オーラ・メスティーサ ウサケン店"
+    },
+    "city": "Bogotá",
+    "localizedCity": {
+      "es": "Bogotá",
+      "en": "Bogota",
+      "pt": "Bogotá",
+      "fr": "Bogota",
+      "ja": "ボゴタ"
+    },
+    "neighborhood": "Usaquén",
+    "address": "Carrera 6 # 118-20",
+    "country": "CO",
+    "phone": "+57 312 890 1144",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 12,
+    "active": true,
+    "currency": "COP",
+    "timeZone": "America/Bogota",
+    "coordinates": {
+      "lat": 4.6978,
+      "lng": -74.0312
+    },
+    "deliveryRadiusKmOrMi": 9,
+    "heroImage": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-co-chico",
+    "restaurantId": "brand-sora",
+    "name": "Sora Nikkei Chicó",
+    "localizedName": {
+      "es": "Sora Nikkei & Fusión — Chicó",
+      "en": "Sora Nikkei & Fusion — Chico",
+      "pt": "Sora Nikkei — Chicó",
+      "fr": "Sora Nikkei — Chicó",
+      "ja": "宙 (Sora) 日系フュージョン チコ店"
+    },
+    "city": "Bogotá",
+    "localizedCity": {
+      "es": "Bogotá",
+      "en": "Bogota",
+      "pt": "Bogotá",
+      "fr": "Bogota",
+      "ja": "ボゴタ"
+    },
+    "neighborhood": "El Chicó",
+    "address": "Calle 90 # 11-45",
+    "country": "CO",
+    "phone": "+57 314 620 3388",
+    "openingHours": "12:30 - 23:30",
+    "totalTables": 10,
+    "active": true,
+    "currency": "COP",
+    "timeZone": "America/Bogota",
+    "coordinates": {
+      "lat": 4.6738,
+      "lng": -74.0489
+    },
+    "deliveryRadiusKmOrMi": 8,
+    "heroImage": "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-co-zonag",
+    "restaurantId": "brand-sora",
+    "name": "Sora Nikkei Zona G",
+    "localizedName": {
+      "es": "Sora Nikkei — Zona G Gastronómica",
+      "en": "Sora Nikkei — Zona G Dining District",
+      "pt": "Sora Nikkei — Zona G",
+      "fr": "Sora Nikkei — Zona G",
+      "ja": "宙 (Sora) 日系フュージョン ソナG店"
+    },
+    "city": "Bogotá",
+    "localizedCity": {
+      "es": "Bogotá",
+      "en": "Bogota",
+      "pt": "Bogotá",
+      "fr": "Bogota",
+      "ja": "ボゴタ"
+    },
+    "neighborhood": "Zona G",
+    "address": "Carrera 5 # 69-26",
+    "country": "CO",
+    "phone": "+57 311 772 9010",
+    "openingHours": "12:30 - 23:30",
+    "totalTables": 8,
+    "active": true,
+    "currency": "COP",
+    "timeZone": "America/Bogota",
+    "coordinates": {
+      "lat": 4.6519,
+      "lng": -74.0562
+    },
+    "deliveryRadiusKmOrMi": 7,
+    "heroImage": "https://images.unsplash.com/photo-1544025162-d76694265947?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-aura-br-pinheiros",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza Pinheiros",
+    "localizedName": {
+      "es": "Aura Mestiza — Pinheiros",
+      "en": "Aura Mestiza — Pinheiros",
+      "pt": "Aura Mestiza — Pinheiros",
+      "fr": "Aura Mestiza — Pinheiros",
+      "ja": "オーラ・メスティーサ ピニェイロス店"
+    },
+    "city": "São Paulo",
+    "localizedCity": {
+      "es": "São Paulo",
+      "en": "Sao Paulo",
+      "pt": "São Paulo",
+      "fr": "São Paulo",
+      "ja": "サンパウロ"
+    },
+    "neighborhood": "Pinheiros",
+    "address": "Rua dos Pinheiros, 740",
+    "country": "BR",
+    "phone": "+55 11 98711-2040",
+    "openingHours": "12:00 - 23:30",
+    "totalTables": 10,
+    "active": true,
+    "currency": "BRL",
+    "timeZone": "America/Sao_Paulo",
+    "coordinates": {
+      "lat": -23.5658,
+      "lng": -46.6874
+    },
+    "deliveryRadiusKmOrMi": 8,
+    "heroImage": "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-aura-br-jardins",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza Jardins",
+    "localizedName": {
+      "es": "Aura Mestiza — Jardins",
+      "en": "Aura Mestiza — Jardins District",
+      "pt": "Aura Mestiza — Jardins",
+      "fr": "Aura Mestiza — Jardins",
+      "ja": "オーラ・メスティーサ ジャルジンス店"
+    },
+    "city": "São Paulo",
+    "localizedCity": {
+      "es": "São Paulo",
+      "en": "Sao Paulo",
+      "pt": "São Paulo",
+      "fr": "São Paulo",
+      "ja": "サンパウロ"
+    },
+    "neighborhood": "Jardins",
+    "address": "Rua Oscar Freire, 1020",
+    "country": "BR",
+    "phone": "+55 11 99823-4411",
+    "openingHours": "12:00 - 23:30",
+    "totalTables": 12,
+    "active": true,
+    "currency": "BRL",
+    "timeZone": "America/Sao_Paulo",
+    "coordinates": {
+      "lat": -23.5615,
+      "lng": -46.6698
+    },
+    "deliveryRadiusKmOrMi": 9,
+    "heroImage": "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-br-liberdade",
+    "restaurantId": "brand-sora",
+    "name": "Sora Liberdade",
+    "localizedName": {
+      "es": "Sora — Bairro Liberdade",
+      "en": "Sora — Liberdade District",
+      "pt": "Sora — Liberdade Oriental",
+      "fr": "Sora — Quartier Liberdade",
+      "ja": "宙 (Sora) リベルダーデ店"
+    },
+    "city": "São Paulo",
+    "localizedCity": {
+      "es": "São Paulo",
+      "en": "Sao Paulo",
+      "pt": "São Paulo",
+      "fr": "São Paulo",
+      "ja": "サンパウロ"
+    },
+    "neighborhood": "Liberdade",
+    "address": "Rua Galvão Bueno, 380",
+    "country": "BR",
+    "phone": "+55 11 97600-8812",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 10,
+    "active": true,
+    "currency": "BRL",
+    "timeZone": "America/Sao_Paulo",
+    "coordinates": {
+      "lat": -23.5583,
+      "lng": -46.6349
+    },
+    "deliveryRadiusKmOrMi": 8,
+    "heroImage": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-br-itaim",
+    "restaurantId": "brand-sora",
+    "name": "Sora Itaim Bibi",
+    "localizedName": {
+      "es": "Sora — Itaim Bibi Alta Cocina",
+      "en": "Sora — Itaim Bibi Dining",
+      "pt": "Sora — Itaim Bibi",
+      "fr": "Sora — Itaim Bibi",
+      "ja": "宙 (Sora) イタイ・ビビ店"
+    },
+    "city": "São Paulo",
+    "localizedCity": {
+      "es": "São Paulo",
+      "en": "Sao Paulo",
+      "pt": "São Paulo",
+      "fr": "São Paulo",
+      "ja": "サンパウロ"
+    },
+    "neighborhood": "Itaim Bibi",
+    "address": "Rua Pedroso Alvarenga, 810",
+    "country": "BR",
+    "phone": "+55 11 96510-7744",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 10,
+    "active": true,
+    "currency": "BRL",
+    "timeZone": "America/Sao_Paulo",
+    "coordinates": {
+      "lat": -23.5839,
+      "lng": -46.6781
+    },
+    "deliveryRadiusKmOrMi": 9,
+    "heroImage": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-aura-us-manhattan",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza Manhattan",
+    "localizedName": {
+      "es": "Aura Mestiza — Midtown Manhattan",
+      "en": "Aura Mestiza — Midtown Manhattan",
+      "pt": "Aura Mestiza — Midtown Manhattan",
+      "fr": "Aura Mestiza — Midtown Manhattan",
+      "ja": "オーラ・メスティーサ マンハッタン店"
+    },
+    "city": "New York",
+    "localizedCity": {
+      "es": "Nueva York",
+      "en": "New York",
+      "pt": "Nova York",
+      "fr": "New York",
+      "ja": "ニューヨーク"
+    },
+    "neighborhood": "Midtown Manhattan",
+    "address": "450 Lexington Ave",
+    "country": "US",
+    "phone": "+1 212 555 0184",
+    "openingHours": "11:30 - 22:30",
+    "totalTables": 12,
+    "active": true,
+    "currency": "USD",
+    "timeZone": "America/New_York",
+    "coordinates": {
+      "lat": 40.7527,
+      "lng": -73.9755
+    },
+    "deliveryRadiusKmOrMi": 5,
+    "heroImage": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-aura-us-brooklyn",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza DUMBO",
+    "localizedName": {
+      "es": "Aura Mestiza — Brooklyn DUMBO",
+      "en": "Aura Mestiza — Brooklyn DUMBO",
+      "pt": "Aura Mestiza — Brooklyn DUMBO",
+      "fr": "Aura Mestiza — Brooklyn DUMBO",
+      "ja": "オーラ・メスティーサ ブルックリン・ダンボ店"
+    },
+    "city": "New York",
+    "localizedCity": {
+      "es": "Nueva York",
+      "en": "New York",
+      "pt": "Nova York",
+      "fr": "New York",
+      "ja": "ニューヨーク"
+    },
+    "neighborhood": "DUMBO, Brooklyn",
+    "address": "55 Water St",
+    "country": "US",
+    "phone": "+1 718 555 0192",
+    "openingHours": "11:30 - 22:30",
+    "totalTables": 10,
+    "active": true,
+    "currency": "USD",
+    "timeZone": "America/New_York",
+    "coordinates": {
+      "lat": 40.7033,
+      "lng": -73.9903
+    },
+    "deliveryRadiusKmOrMi": 6,
+    "heroImage": "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-us-soho",
+    "restaurantId": "brand-sora",
+    "name": "Sora SoHo",
+    "localizedName": {
+      "es": "Sora — SoHo Historic District",
+      "en": "Sora — SoHo Historic District",
+      "pt": "Sora — SoHo",
+      "fr": "Sora — SoHo",
+      "ja": "宙 (Sora) ソーホー店"
+    },
+    "city": "New York",
+    "localizedCity": {
+      "es": "Nueva York",
+      "en": "New York",
+      "pt": "Nova York",
+      "fr": "New York",
+      "ja": "ニューヨーク"
+    },
+    "neighborhood": "SoHo, Manhattan",
+    "address": "472 West Broadway",
+    "country": "US",
+    "phone": "+1 212 555 0133",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 10,
+    "active": true,
+    "currency": "USD",
+    "timeZone": "America/New_York",
+    "coordinates": {
+      "lat": 40.7259,
+      "lng": -74.0003
+    },
+    "deliveryRadiusKmOrMi": 5,
+    "heroImage": "https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-us-williamsburg",
+    "restaurantId": "brand-sora",
+    "name": "Sora Williamsburg",
+    "localizedName": {
+      "es": "Sora — Williamsburg Waterfront",
+      "en": "Sora — Williamsburg Waterfront",
+      "pt": "Sora — Williamsburg",
+      "fr": "Sora — Williamsburg",
+      "ja": "宙 (Sora) ウィリアムズバーグ店"
+    },
+    "city": "New York",
+    "localizedCity": {
+      "es": "Nueva York",
+      "en": "New York",
+      "pt": "Nova York",
+      "fr": "New York",
+      "ja": "ニューヨーク"
+    },
+    "neighborhood": "Williamsburg, Brooklyn",
+    "address": "110 Kent Ave",
+    "country": "US",
+    "phone": "+1 718 555 0177",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 10,
+    "active": true,
+    "currency": "USD",
+    "timeZone": "America/New_York",
+    "coordinates": {
+      "lat": 40.7196,
+      "lng": -73.9631
+    },
+    "deliveryRadiusKmOrMi": 5,
+    "heroImage": "https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-aura-fr-marais",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza Le Marais",
+    "localizedName": {
+      "es": "Aura Mestiza — Le Marais",
+      "en": "Aura Mestiza — Le Marais District",
+      "pt": "Aura Mestiza — Le Marais",
+      "fr": "Aura Mestiza — Le Marais",
+      "ja": "オーラ・メスティーサ マレ地区店"
+    },
+    "city": "Paris",
+    "localizedCity": {
+      "es": "París",
+      "en": "Paris",
+      "pt": "Paris",
+      "fr": "Paris",
+      "ja": "パリ"
+    },
+    "neighborhood": "Le Marais (4e)",
+    "address": "22 Rue des Francs-Bourgeois",
+    "country": "FR",
+    "phone": "+33 1 42 68 55 10",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 10,
+    "active": true,
+    "currency": "EUR",
+    "timeZone": "Europe/Paris",
+    "coordinates": {
+      "lat": 48.8575,
+      "lng": 2.3601
+    },
+    "deliveryRadiusKmOrMi": 7,
+    "heroImage": "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-aura-fr-saintgermain",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza Saint-Germain",
+    "localizedName": {
+      "es": "Aura Mestiza — Saint-Germain-des-Prés",
+      "en": "Aura Mestiza — Saint-Germain",
+      "pt": "Aura Mestiza — Saint-Germain",
+      "fr": "Aura Mestiza — Saint-Germain-des-Prés",
+      "ja": "オーラ・メスティーサ サン＝ジェルマン店"
+    },
+    "city": "Paris",
+    "localizedCity": {
+      "es": "París",
+      "en": "Paris",
+      "pt": "Paris",
+      "fr": "Paris",
+      "ja": "パリ"
+    },
+    "neighborhood": "Saint-Germain (6e)",
+    "address": "38 Boulevard Saint-Germain",
+    "country": "FR",
+    "phone": "+33 1 43 25 11 90",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 12,
+    "active": true,
+    "currency": "EUR",
+    "timeZone": "Europe/Paris",
+    "coordinates": {
+      "lat": 48.8519,
+      "lng": 2.3486
+    },
+    "deliveryRadiusKmOrMi": 7,
+    "heroImage": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-fr-opera",
+    "restaurantId": "brand-sora",
+    "name": "Sora Opéra Sainte-Anne",
+    "localizedName": {
+      "es": "Sora — Quartier Japonais Opéra",
+      "en": "Sora — Opera Sainte-Anne",
+      "pt": "Sora — Opéra Sainte-Anne",
+      "fr": "Sora — Opéra Sainte-Anne",
+      "ja": "宙 (Sora) パリ・オペラ通り店"
+    },
+    "city": "Paris",
+    "localizedCity": {
+      "es": "París",
+      "en": "Paris",
+      "pt": "Paris",
+      "fr": "Paris",
+      "ja": "パリ"
+    },
+    "neighborhood": "Quartier Sainte-Anne (2e)",
+    "address": "55 Rue Sainte-Anne",
+    "country": "FR",
+    "phone": "+33 1 47 03 44 22",
+    "openingHours": "12:00 - 22:30",
+    "totalTables": 10,
+    "active": true,
+    "currency": "EUR",
+    "timeZone": "Europe/Paris",
+    "coordinates": {
+      "lat": 48.8682,
+      "lng": 2.3364
+    },
+    "deliveryRadiusKmOrMi": 8,
+    "heroImage": "https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-fr-montparnasse",
+    "restaurantId": "brand-sora",
+    "name": "Sora Montparnasse",
+    "localizedName": {
+      "es": "Sora — Montparnasse Rive Gauche",
+      "en": "Sora — Montparnasse Left Bank",
+      "pt": "Sora — Montparnasse",
+      "fr": "Sora — Montparnasse",
+      "ja": "宙 (Sora) モンパルナス店"
+    },
+    "city": "Paris",
+    "localizedCity": {
+      "es": "París",
+      "en": "Paris",
+      "pt": "Paris",
+      "fr": "Paris",
+      "ja": "パリ"
+    },
+    "neighborhood": "Montparnasse (14e)",
+    "address": "14 Avenue du Maine",
+    "country": "FR",
+    "phone": "+33 1 45 38 70 80",
+    "openingHours": "12:00 - 22:30",
+    "totalTables": 8,
+    "active": true,
+    "currency": "EUR",
+    "timeZone": "Europe/Paris",
+    "coordinates": {
+      "lat": 48.8421,
+      "lng": 2.3218
+    },
+    "deliveryRadiusKmOrMi": 7,
+    "heroImage": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-aura-jp-shibuya",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza Shibuya",
+    "localizedName": {
+      "es": "Aura Mestiza — Shibuya Flagship",
+      "en": "Aura Mestiza — Shibuya Flagship",
+      "pt": "Aura Mestiza — Shibuya",
+      "fr": "Aura Mestiza — Shibuya",
+      "ja": "オーラ・メスティーサ 渋谷旗艦店"
+    },
+    "city": "東京 (Tokyo)",
+    "localizedCity": {
+      "es": "Tokio",
+      "en": "Tokyo",
+      "pt": "Tóquio",
+      "fr": "Tokyo",
+      "ja": "東京"
+    },
+    "neighborhood": "Shibuya Jinnan",
+    "address": "渋谷区神南1-19-10",
+    "country": "JP",
+    "phone": "+81 3-5458-1200",
+    "openingHours": "11:30 - 23:00",
+    "totalTables": 12,
+    "active": true,
+    "currency": "JPY",
+    "timeZone": "Asia/Tokyo",
+    "coordinates": {
+      "lat": 35.6628,
+      "lng": 139.7005
+    },
+    "deliveryRadiusKmOrMi": 6,
+    "heroImage": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-aura-jp-roppongi",
+    "restaurantId": "brand-aura",
+    "name": "Aura Mestiza Roppongi",
+    "localizedName": {
+      "es": "Aura Mestiza — Roppongi Hills",
+      "en": "Aura Mestiza — Roppongi Hills",
+      "pt": "Aura Mestiza — Roppongi Hills",
+      "fr": "Aura Mestiza — Roppongi Hills",
+      "ja": "オーラ・メスティーサ 六本木ヒルズ店"
+    },
+    "city": "東京 (Tokyo)",
+    "localizedCity": {
+      "es": "Tokio",
+      "en": "Tokyo",
+      "pt": "Tóquio",
+      "fr": "Tokyo",
+      "ja": "東京"
+    },
+    "neighborhood": "Roppongi",
+    "address": "港区六本木6-10-1",
+    "country": "JP",
+    "phone": "+81 3-5770-3344",
+    "openingHours": "11:30 - 23:00",
+    "totalTables": 10,
+    "active": true,
+    "currency": "JPY",
+    "timeZone": "Asia/Tokyo",
+    "coordinates": {
+      "lat": 35.6604,
+      "lng": 139.7292
+    },
+    "deliveryRadiusKmOrMi": 6,
+    "heroImage": "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-jp-ginza",
+    "restaurantId": "brand-sora",
+    "name": "Sora Ginza Honten",
+    "localizedName": {
+      "es": "Sora — Ginza Honten Casa Matriz",
+      "en": "Sora — Ginza Flagship Store",
+      "pt": "Sora — Ginza Honten",
+      "fr": "Sora — Ginza Honten",
+      "ja": "宙 (Sora) 銀座本店"
+    },
+    "city": "東京 (Tokyo)",
+    "localizedCity": {
+      "es": "Tokio",
+      "en": "Tokyo",
+      "pt": "Tóquio",
+      "fr": "Tokyo",
+      "ja": "東京"
+    },
+    "neighborhood": "Ginza 6-chome",
+    "address": "中央区銀座6-10-1 GINZA SIX 13F",
+    "country": "JP",
+    "phone": "+81 3-6264-5588",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 12,
+    "active": true,
+    "currency": "JPY",
+    "timeZone": "Asia/Tokyo",
+    "coordinates": {
+      "lat": 35.6696,
+      "lng": 139.7641
+    },
+    "deliveryRadiusKmOrMi": 7,
+    "heroImage": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=1000&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "br-sora-jp-shinjuku",
+    "restaurantId": "brand-sora",
+    "name": "Sora Shinjuku Minamiguchi",
+    "localizedName": {
+      "es": "Sora — Shinjuku Minamiguchi",
+      "en": "Sora — Shinjuku South Gate",
+      "pt": "Sora — Shinjuku Minamiguchi",
+      "fr": "Sora — Shinjuku Minamiguchi",
+      "ja": "宙 (Sora) 新宿南口店"
+    },
+    "city": "東京 (Tokyo)",
+    "localizedCity": {
+      "es": "Tokio",
+      "en": "Tokyo",
+      "pt": "Tóquio",
+      "fr": "Tokyo",
+      "ja": "東京"
+    },
+    "neighborhood": "Shinjuku",
+    "address": "新宿区西新宿1-1-4",
+    "country": "JP",
+    "phone": "+81 3-3344-9911",
+    "openingHours": "12:00 - 23:00",
+    "totalTables": 10,
+    "active": true,
+    "currency": "JPY",
+    "timeZone": "Asia/Tokyo",
+    "coordinates": {
+      "lat": 35.6896,
+      "lng": 139.6998
+    },
+    "deliveryRadiusKmOrMi": 6,
+    "heroImage": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1000&auto=format&fit=crop&q=80"
+  }
+]

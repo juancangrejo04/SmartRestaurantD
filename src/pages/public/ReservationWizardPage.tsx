@@ -1,26 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { COUNTRIES } from '../../i18n/countries';
-import { Table, Branch, Restaurant } from '../../types';
+import { Table } from '../../types';
 import { reservationService } from '../../services/reservationService';
 import { generateQrSvgPath } from '../../core/qr';
+import { getRegionProfile } from '../../data/regions';
+import { NameFields } from '../../components/common/NameFields';
+import { PhoneInput } from '../../components/common/PhoneInput';
 import {
   Calendar,
-  Clock,
-  Users,
   CheckCircle2,
-  AlertCircle,
   MapPin,
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  Phone,
-  Mail,
-  User as UserIcon,
-  QrCode,
-  ArrowRight,
-  Lock,
 } from 'lucide-react';
 
 export const ReservationWizardPage: React.FC = () => {
@@ -33,13 +27,14 @@ export const ReservationWizardPage: React.FC = () => {
     createReservation,
     currentUser,
     isAuthenticated,
-    registerCustomer,
-    loginUser,
+    loginWithCredentials,
     showToast,
     language,
+    getBranchDisplayName,
+    getBranchCityName,
+    t,
   } = useApp();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   const preselectedRestId = searchParams.get('restaurantId') || '';
   const preselectedBranchId = searchParams.get('branchId') || '';
@@ -66,17 +61,24 @@ export const ReservationWizardPage: React.FC = () => {
   const [date, setDate] = useState<string>(preselectedDate);
   const [time, setTime] = useState<string>(preselectedTime);
   const [selectedTableId, setSelectedTableId] = useState<string>('');
-  const [customerName, setCustomerName] = useState<string>(currentUser.name || 'Familia Jiménez');
-  const [customerEmail, setCustomerEmail] = useState<string>(currentUser.email || 'reservas@cliente.com');
-  const [customerPhone, setCustomerPhone] = useState<string>('+57 310 987 6543');
-  const [notes, setNotes] = useState<string>('Celebración especial. Mesa tranquila.');
 
-  // Quick auth tab inside Step 4 if not authenticated
-  const [step4AuthMode, setStep4AuthMode] = useState<'guest' | 'login' | 'register'>('guest');
+  const [givenName, setGivenName] = useState<string>(
+    currentUser?.firstName || currentUser?.name?.split(' ')[0] || ''
+  );
+  const [familyName, setFamilyName] = useState<string>(
+    currentUser?.lastName || currentUser?.name?.split(' ').slice(1).join(' ') || ''
+  );
+  const [customerEmail, setCustomerEmail] = useState<string>(currentUser?.email || '');
+  const [customerPhone, setCustomerPhone] = useState<string>(
+    currentUser?.phone ? currentUser.phone.replace(/^\+\d+\s*/, '') : ''
+  );
+  const [notes, setNotes] = useState<string>('');
+
+  // Quick sign in in Step 4 for existing accounts
+  const [showQuickLogin, setShowQuickLogin] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
-  const [regName, setRegName] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPhone, setRegPhone] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
 
   // Confirmed result
   const [confirmedReservationCode, setConfirmedReservationCode] = useState<string | null>(null);
@@ -85,21 +87,18 @@ export const ReservationWizardPage: React.FC = () => {
   const selectedRestaurant = selectedBranch
     ? restaurants.find((r) => r.id === selectedBranch.restaurantId)
     : restaurants[0];
+  const branchProfile = getRegionProfile(selectedBranch?.country || country);
 
-  // Available tables for this branch
-  const branchTables = tables.filter((t) => t.branchId === selectedBranch?.id);
+  const branchTables = tables.filter((tb) => tb.branchId === selectedBranch?.id);
+  const eligibleTables = branchTables.filter((tb) => tb.capacity >= guestsCount);
 
-  // Filter tables matching capacity
-  const eligibleTables = branchTables.filter((t) => t.capacity >= guestsCount);
-
-  // Collision Check helper
   const checkTableCollision = (table: Table) => {
     return reservationService.checkTableCollision(reservations, table.id, date, time);
   };
 
   const handleStep1Next = () => {
     if (!selectedBranchId) {
-      showToast('Por favor selecciona una sucursal', 'warning');
+      showToast(t('select_branch'), 'warning');
       return;
     }
     setCurrentStep(2);
@@ -107,7 +106,7 @@ export const ReservationWizardPage: React.FC = () => {
 
   const handleStep2Next = () => {
     if (!date || !time) {
-      showToast('Por favor selecciona fecha y hora', 'warning');
+      showToast(t('select_datetime_party'), 'warning');
       return;
     }
     setCurrentStep(3);
@@ -115,47 +114,52 @@ export const ReservationWizardPage: React.FC = () => {
 
   const handleStep3Next = () => {
     if (!selectedTableId) {
-      showToast('Por favor selecciona una mesa para continuar', 'warning');
+      showToast(t('select_table'), 'warning');
       return;
     }
     setCurrentStep(4);
   };
 
-  const handleQuickRegister = (e: React.FormEvent) => {
+  const handleQuickLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regName || !regEmail) {
-      showToast('Por favor completa tu nombre y correo', 'warning');
-      return;
+    if (!loginEmail || !loginPassword) return;
+    setLoginLoading(true);
+    try {
+      const res = await loginWithCredentials(loginEmail, loginPassword);
+      if (res.success && res.user) {
+        setGivenName(res.user.firstName || res.user.name.split(' ')[0] || res.user.name);
+        setFamilyName(res.user.lastName || res.user.name.split(' ').slice(1).join(' ') || '-');
+        setCustomerEmail(res.user.email);
+        if (res.user.phone) {
+          setCustomerPhone(res.user.phone.replace(/^\+\d+\s*/, ''));
+        }
+        setShowQuickLogin(false);
+        showToast(t('auth_welcome_back', { name: res.user.name }), 'success');
+      } else {
+        showToast(t(res.messageKey || 'auth_err_invalid_credentials'), 'error');
+      }
+    } finally {
+      setLoginLoading(false);
     }
-    const user = registerCustomer(regName, regEmail, regPhone);
-    setCustomerName(user.name);
-    setCustomerEmail(user.email);
-    if (user.phone) setCustomerPhone(user.phone);
-    setStep4AuthMode('guest');
-  };
-
-  const handleQuickLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!loginEmail) {
-      showToast('Por favor introduce tu correo', 'warning');
-      return;
-    }
-    loginUser(loginEmail);
-    setCustomerName(loginEmail.split('@')[0]);
-    setCustomerEmail(loginEmail);
-    setStep4AuthMode('guest');
   };
 
   const handleConfirmReservation = () => {
-    if (!customerName || !customerEmail || !customerPhone) {
-      showToast('Por favor completa tus datos de contacto', 'warning');
+    const fullName =
+      currentUser?.name ||
+      (branchProfile.nameOrder === 'family_given'
+        ? `${familyName.trim()} ${givenName.trim()}`
+        : `${givenName.trim()} ${familyName.trim()}`
+      ).trim();
+
+    if (!fullName || !customerEmail.trim() || !customerPhone.trim()) {
+      showToast(t('required_field'), 'warning');
       return;
     }
 
     const res = createReservation({
-      customerName,
-      customerEmail,
-      customerPhone,
+      customerName: fullName,
+      customerEmail: customerEmail.trim(),
+      customerPhone: `${branchProfile.phonePrefix} ${customerPhone.trim()}`,
       date,
       time,
       guestsCount,
@@ -164,18 +168,16 @@ export const ReservationWizardPage: React.FC = () => {
     });
 
     if (res.success && res.reservation) {
-      setConfirmedReservationCode(res.reservation.code || res.reservation.id.slice(0, 8).toUpperCase());
+      setConfirmedReservationCode(
+        res.reservation.code || res.reservation.id.slice(0, 8).toUpperCase()
+      );
       setCurrentStep(5);
     } else {
-      showToast(res.error || 'No se pudo crear la reserva', 'error');
+      showToast(res.error || t('error'), 'error');
     }
   };
 
-  const selectedTable = tables.find((t) => t.id === selectedTableId);
-  const branchCountry = selectedBranch?.country || country;
-  const branchConfig = COUNTRIES[branchCountry];
-
-  // Demo QR path for confirmed reservation
+  const selectedTable = tables.find((tb) => tb.id === selectedTableId);
   const reservationQrSvg = confirmedReservationCode
     ? generateQrSvgPath(`SMARTRESTAURANT-RES:${confirmedReservationCode}`, 29)
     : '';
@@ -187,24 +189,22 @@ export const ReservationWizardPage: React.FC = () => {
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8A33D]/20 text-[#C8452C] text-xs font-mono font-bold">
             <Calendar className="w-3.5 h-3.5" />
-            <span>RESERVA EN LÍNEA SIN ESPERAS</span>
+            <span>{t('cta_reserve')}</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1F1A17]">
-            Agenda tu Mesa Culinaria
+            {t('res_title')}
           </h1>
-          <p className="text-xs text-[#7A6E65]">
-            Asignación directa con confirmación instantánea.
-          </p>
+          <p className="text-xs text-[#7A6E65]">{t('res_subtitle')}</p>
         </div>
 
-        {/* Progress Bar (4 Steps) */}
+        {/* Progress Bar */}
         {currentStep <= 4 && (
           <div className="grid grid-cols-4 gap-2 text-center text-xs font-semibold">
             {[
-              { num: 1, label: 'Sucursal' },
-              { num: 2, label: 'Fecha y Hora' },
-              { num: 3, label: 'Mesa' },
-              { num: 4, label: 'Confirmación' },
+              { num: 1, label: t('wizard_step_1') },
+              { num: 2, label: t('wizard_step_2') },
+              { num: 3, label: t('wizard_step_3') },
+              { num: 4, label: t('wizard_step_4') },
             ].map((st) => (
               <div
                 key={st.num}
@@ -216,8 +216,8 @@ export const ReservationWizardPage: React.FC = () => {
                     : 'bg-[#FFFDF8] text-[#7A6E65] border-[#E9DFCC]'
                 }`}
               >
-                <span className="font-mono text-[10px] block opacity-75">PASO {st.num}</span>
-                <span className="font-serif text-xs">{st.label}</span>
+                <span className="font-mono text-[10px] block opacity-75">0{st.num}</span>
+                <span className="font-serif text-xs truncate block">{st.label}</span>
               </div>
             ))}
           </div>
@@ -225,56 +225,60 @@ export const ReservationWizardPage: React.FC = () => {
 
         {/* STEP 1: Select Brand & Branch */}
         {currentStep === 1 && (
-          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6 animate-in fade-in">
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-[#E9DFCC]">
               <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
-                Paso 1: Elige el Restaurante y la Sucursal
+                {t('select_restaurant_branch')}
               </h2>
               <span className="text-xs font-mono text-[#7A6E65]">
-                {branches.length} sedes disponibles
+                {branches.length} {t('branch_plural')}
               </span>
             </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {branches.map((b) => {
-                  const rest = restaurants.find((r) => r.id === b.restaurantId);
-                  const isSelected = selectedBranchId === b.id;
-                  const cConfig = COUNTRIES[b.country];
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {branches.map((b) => {
+                const rest = restaurants.find((r) => r.id === b.restaurantId);
+                const isSelected = selectedBranchId === b.id;
+                const cConfig = COUNTRIES[b.country];
 
-                  return (
-                    <button
-                      key={b.id}
-                      type="button"
-                      onClick={() => setSelectedBranchId(b.id)}
-                      className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                        isSelected
-                          ? 'border-[#C8452C] bg-[#FBF6EC] ring-2 ring-[#C8452C]/20 shadow-md'
-                          : 'border-[#E9DFCC] bg-white hover:border-[#E8A33D]'
-                      }`}
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="font-serif font-bold text-sm text-[#1F1A17]">
-                            {rest?.name}
-                          </span>
-                          <span className="text-sm">{cConfig.flagEmoji}</span>
-                        </div>
-                        <p className="text-xs font-semibold text-[#C8452C]">{b.name}</p>
-                        <p className="text-[11px] text-[#7A6E65] flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-[#C8452C]" />
-                          <span>{b.address}, {b.city}</span>
-                        </p>
+                return (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => setSelectedBranchId(b.id)}
+                    className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                      isSelected
+                        ? 'border-[#C8452C] bg-[#FBF6EC] ring-2 ring-[#C8452C]/20 shadow-md'
+                        : 'border-[#E9DFCC] bg-white hover:border-[#E8A33D]'
+                    }`}
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-serif font-bold text-sm text-[#1F1A17]">
+                          {rest?.name}
+                        </span>
+                        <span className="text-sm">{cConfig.flagEmoji}</span>
                       </div>
+                      <p className="text-xs font-semibold text-[#C8452C]">
+                        {getBranchDisplayName(b)}
+                      </p>
+                      <p className="text-[11px] text-[#7A6E65] flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-[#C8452C]" />
+                        <span>
+                          {b.address}, {getBranchCityName(b)}
+                        </span>
+                      </p>
+                    </div>
 
-                      <div className="mt-3 pt-2 border-t border-[#E9DFCC]/60 flex items-center justify-between text-[10px] font-mono text-[#7A6E65]">
-                        <span>{b.totalTables} mesas</span>
-                        <span>{cConfig.currency}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                    <div className="mt-3 pt-2 border-t border-[#E9DFCC]/60 flex items-center justify-between text-[10px] font-mono text-[#7A6E65]">
+                      <span>
+                        {b.totalTables} {t('table')}
+                      </span>
+                      <span>{cConfig.currency}</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="pt-4 flex justify-end border-t border-[#E9DFCC]">
@@ -283,7 +287,7 @@ export const ReservationWizardPage: React.FC = () => {
                 onClick={handleStep1Next}
                 className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-md shadow-[#C8452C]/20 transition-all flex items-center gap-2"
               >
-                <span>Siguiente: Fecha y Comensales</span>
+                <span>{t('next')}</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -292,14 +296,14 @@ export const ReservationWizardPage: React.FC = () => {
 
         {/* STEP 2: Guests, Date, and Time */}
         {currentStep === 2 && (
-          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6 animate-in fade-in">
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-[#E9DFCC]">
               <div>
                 <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
-                  Paso 2: Comensales y Horario
+                  {t('select_datetime_party')}
                 </h2>
                 <p className="text-xs text-[#7A6E65]">
-                  {selectedRestaurant?.name} — {selectedBranch?.name}
+                  {selectedRestaurant?.name} — {getBranchDisplayName(selectedBranch)}
                 </p>
               </div>
             </div>
@@ -307,7 +311,7 @@ export const ReservationWizardPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
-                  Número de Personas
+                  {t('res_guests')}
                 </label>
                 <select
                   value={guestsCount}
@@ -316,7 +320,7 @@ export const ReservationWizardPage: React.FC = () => {
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12].map((n) => (
                     <option key={n} value={n}>
-                      {n} {n === 1 ? 'persona' : 'personas'}
+                      {n} {n === 1 ? t('guest_singular') : t('guest_plural')}
                     </option>
                   ))}
                 </select>
@@ -324,7 +328,7 @@ export const ReservationWizardPage: React.FC = () => {
 
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
-                  Fecha de la Reserva
+                  {t('res_date')}
                 </label>
                 <input
                   type="date"
@@ -336,7 +340,7 @@ export const ReservationWizardPage: React.FC = () => {
 
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
-                  Hora de Llegada
+                  {t('res_time')}
                 </label>
                 <select
                   value={time}
@@ -345,7 +349,7 @@ export const ReservationWizardPage: React.FC = () => {
                 >
                   {['12:30', '13:00', '13:30', '14:00', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'].map((h) => (
                     <option key={h} value={h}>
-                      {h} hrs
+                      {h}
                     </option>
                   ))}
                 </select>
@@ -359,7 +363,7 @@ export const ReservationWizardPage: React.FC = () => {
                 className="py-2.5 px-4 rounded-xl text-xs font-semibold text-[#7A6E65] hover:bg-[#FBF6EC] flex items-center gap-1"
               >
                 <ChevronLeft className="w-4 h-4" />
-                <span>Volver</span>
+                <span>{t('back')}</span>
               </button>
 
               <button
@@ -367,7 +371,7 @@ export const ReservationWizardPage: React.FC = () => {
                 onClick={handleStep2Next}
                 className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-md shadow-[#C8452C]/20 transition-all flex items-center gap-2"
               >
-                <span>Siguiente: Seleccionar Mesa</span>
+                <span>{t('next')}</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -376,14 +380,14 @@ export const ReservationWizardPage: React.FC = () => {
 
         {/* STEP 3: Table Selection & Collision Detection */}
         {currentStep === 3 && (
-          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6 animate-in fade-in">
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-[#E9DFCC]">
               <div>
                 <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
-                  Paso 3: Selecciona tu Mesa en Plano
+                  {t('select_table')}
                 </h2>
                 <p className="text-xs text-[#7A6E65]">
-                  Mostrando mesas con capacidad para {guestsCount}+ comensales en {selectedBranch?.name}
+                  {getBranchDisplayName(selectedBranch)} · {guestsCount}+ {t('guests')}
                 </p>
               </div>
             </div>
@@ -411,26 +415,26 @@ export const ReservationWizardPage: React.FC = () => {
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-mono font-bold text-sm text-[#1F1A17]">
-                          Mesa #{tbl.number}
+                          {t('table_label', { number: tbl.number })}
                         </span>
                         <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
                           {tbl.capacity}p
                         </span>
                       </div>
                       <span className="text-[11px] text-[#7A6E65] capitalize">
-                        Zona {tbl.zone}
+                        {t(`zone_${tbl.zone}`)}
                       </span>
                     </div>
 
                     <div className="mt-3 pt-2 border-t border-current/10">
                       {isOccupiedByDate ? (
                         <span className="text-[10px] text-rose-600 font-bold block truncate">
-                          Ocupada ({collision.conflictingReservation?.time})
+                          {t('slot_unavailable')} ({collision.conflictingReservation?.time})
                         </span>
                       ) : (
                         <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" />
-                          <span>Disponible</span>
+                          <span>{t('status_available')}</span>
                         </span>
                       )}
                     </div>
@@ -446,7 +450,7 @@ export const ReservationWizardPage: React.FC = () => {
                 className="py-2.5 px-4 rounded-xl text-xs font-semibold text-[#7A6E65] hover:bg-[#FBF6EC] flex items-center gap-1"
               >
                 <ChevronLeft className="w-4 h-4" />
-                <span>Volver</span>
+                <span>{t('back')}</span>
               </button>
 
               <button
@@ -455,177 +459,161 @@ export const ReservationWizardPage: React.FC = () => {
                 onClick={handleStep3Next}
                 className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-md shadow-[#C8452C]/20 transition-all flex items-center gap-2 disabled:opacity-50"
               >
-                <span>Siguiente: Datos de Contacto</span>
+                <span>{t('next')}</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
 
-        {/* STEP 4: Contact details & Quick customer registration */}
+        {/* STEP 4: Contact details & Sign In option */}
         {currentStep === 4 && (
-          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6 animate-in fade-in">
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-md space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-[#E9DFCC]">
               <div>
                 <h2 className="font-serif font-bold text-xl text-[#1F1A17]">
-                  Paso 4: Confirmación y Datos de Contacto
+                  {t('guest_details')}
                 </h2>
-                <p className="text-xs text-[#7A6E65]">
-                  Revisa los detalles y completa tu información para la reserva.
-                </p>
+                <p className="text-xs text-[#7A6E65]">{t('res_subtitle')}</p>
               </div>
             </div>
 
-            {/* Reservation Summary Pill */}
+            {/* Summary */}
             <div className="bg-[#FBF6EC] rounded-2xl p-4 border border-[#E9DFCC] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div>
-                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">Restaurante</span>
+                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">
+                  {t('select_restaurant')}
+                </span>
                 <span className="font-semibold text-[#1F1A17]">{selectedRestaurant?.name}</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">Sucursal</span>
-                <span className="font-semibold text-[#1F1A17]">{selectedBranch?.name}</span>
+                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">
+                  {t('select_branch')}
+                </span>
+                <span className="font-semibold text-[#1F1A17]">
+                  {getBranchDisplayName(selectedBranch)}
+                </span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">Fecha & Hora</span>
-                <span className="font-semibold text-[#1F1A17]">{date} · {time} hrs</span>
+                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">
+                  {t('date')}
+                </span>
+                <span className="font-semibold text-[#1F1A17]">
+                  {date} · {time}
+                </span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">Mesa & Personas</span>
-                <span className="font-semibold text-[#C8452C]">Mesa #{selectedTable?.number} ({guestsCount}p)</span>
+                <span className="text-[10px] uppercase font-bold text-[#7A6E65] block font-mono">
+                  {t('res_table')}
+                </span>
+                <span className="font-semibold text-[#C8452C]">
+                  {t('table_label', { number: selectedTable?.number || 1 })} ({guestsCount}p)
+                </span>
               </div>
             </div>
 
-            {/* Quick account switch / registration for seamless session */}
+            {/* Optional quick sign in */}
             {!isAuthenticated && (
               <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-amber-600" />
-                    <span>¿Deseas guardar esta reserva en tu perfil de comensal?</span>
+                    <span>{t('res_save_to_account_prompt')}</span>
                   </span>
-                  <div className="flex items-center gap-1 text-xs">
+                  <div className="flex items-center gap-2 text-xs">
                     <button
                       type="button"
-                      onClick={() => setStep4AuthMode('register')}
-                      className={`px-2.5 py-1 rounded-lg font-semibold transition-colors ${
-                        step4AuthMode === 'register' ? 'bg-[#1F1A17] text-white' : 'text-amber-900 hover:underline'
-                      }`}
+                      onClick={() => setShowQuickLogin(!showQuickLogin)}
+                      className="px-2.5 py-1 rounded-lg bg-[#1F1A17] text-white font-semibold"
                     >
-                      Crear Cuenta
+                      {t('login_button')}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setStep4AuthMode('login')}
-                      className={`px-2.5 py-1 rounded-lg font-semibold transition-colors ${
-                        step4AuthMode === 'login' ? 'bg-[#1F1A17] text-white' : 'text-amber-900 hover:underline'
-                      }`}
+                    <Link
+                      to="/registro?redirect=/reservar"
+                      className="px-2.5 py-1 rounded-lg border border-amber-300 text-amber-950 font-semibold hover:bg-amber-100"
                     >
-                      Iniciar Sesión
-                    </button>
+                      {t('auth_register_link')}
+                    </Link>
                   </div>
                 </div>
 
-                {step4AuthMode === 'register' && (
-                  <form onSubmit={handleQuickRegister} className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-                    <input
-                      type="text"
-                      placeholder="Tu nombre completo"
-                      value={regName}
-                      onChange={(e) => setRegName(e.target.value)}
-                      className="bg-white border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-medium"
-                      required
-                    />
+                {showQuickLogin && (
+                  <form onSubmit={handleQuickLogin} className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                     <input
                       type="email"
-                      placeholder="correo@ejemplo.com"
-                      value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
-                      className="bg-white border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-medium"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="py-1.5 px-3 bg-[#1F1A17] text-white text-xs font-bold rounded-xl"
-                    >
-                      Registrarme y Continuar
-                    </button>
-                  </form>
-                )}
-
-                {step4AuthMode === 'login' && (
-                  <form onSubmit={handleQuickLogin} className="flex gap-2 pt-2">
-                    <input
-                      type="email"
-                      placeholder="Tu correo registrado"
+                      placeholder={t('email')}
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      className="flex-1 bg-white border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-medium"
+                      className="bg-white border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-medium"
+                      required
+                    />
+                    <input
+                      type="password"
+                      placeholder={t('auth_password_label')}
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      className="bg-white border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-medium"
                       required
                     />
                     <button
                       type="submit"
-                      className="py-1.5 px-4 bg-[#1F1A17] text-white text-xs font-bold rounded-xl"
+                      disabled={loginLoading}
+                      className="py-1.5 px-4 bg-[#1F1A17] text-white text-xs font-bold rounded-xl disabled:opacity-50"
                     >
-                      Acceder
+                      {loginLoading ? t('loading') : t('login_button')}
                     </button>
                   </form>
                 )}
               </div>
             )}
 
-            {/* Direct Contact Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
-                  Nombre Completo
-                </label>
-                <input
-                  type="text"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17]"
-                  required
-                />
-              </div>
+            {/* Contact Fields using localized NameFields & PhoneInput */}
+            <NameFields
+              profile={branchProfile}
+              language={language}
+              givenName={givenName}
+              familyName={familyName}
+              onGivenNameChange={setGivenName}
+              onFamilyNameChange={setFamilyName}
+            />
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
-                  Correo Electrónico
+                <label className="text-xs font-semibold text-[#1F1A17] block mb-1">
+                  {t('res_customer_email')}
                 </label>
                 <input
                   type="email"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17]"
+                  placeholder="name@example.com"
+                  className="w-full bg-[#FFFDF8] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-medium text-[#1F1A17]"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
-                  Teléfono de Contacto
+                <label className="text-xs font-semibold text-[#1F1A17] block mb-1">
+                  {t('res_customer_phone')}
                 </label>
-                <input
-                  type="tel"
+                <PhoneInput
+                  profile={branchProfile}
                   value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F1A17]"
-                  required
+                  onChange={setCustomerPhone}
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6E65] block mb-1">
-                Peticiones Especiales (opcional)
+              <label className="text-xs font-semibold text-[#1F1A17] block mb-1">
+                {t('res_notes')}
               </label>
               <textarea
                 rows={2}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Alergias, silla para bebé, motivo de celebración..."
-                className="w-full bg-[#FBF6EC] border border-[#E9DFCC] rounded-xl p-3 text-xs font-medium text-[#1F1A17]"
+                placeholder={t('special_notes')}
+                className="w-full bg-[#FFFDF8] border border-[#E9DFCC] rounded-xl p-3 text-xs font-medium text-[#1F1A17]"
               />
             </div>
 
@@ -636,7 +624,7 @@ export const ReservationWizardPage: React.FC = () => {
                 className="py-2.5 px-4 rounded-xl text-xs font-semibold text-[#7A6E65] hover:bg-[#FBF6EC] flex items-center gap-1"
               >
                 <ChevronLeft className="w-4 h-4" />
-                <span>Volver</span>
+                <span>{t('back')}</span>
               </button>
 
               <button
@@ -645,7 +633,7 @@ export const ReservationWizardPage: React.FC = () => {
                 className="py-3.5 px-8 rounded-2xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-lg shadow-[#C8452C]/30 transition-all flex items-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Confirmar Reservación</span>
+                <span>{t('confirm_reservation')}</span>
               </button>
             </div>
           </div>
@@ -653,18 +641,16 @@ export const ReservationWizardPage: React.FC = () => {
 
         {/* STEP 5: Success Confirmation Card */}
         {currentStep === 5 && (
-          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-xl text-center space-y-6 animate-in zoom-in-95">
+          <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-xl text-center space-y-6">
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md">
               <CheckCircle2 className="w-8 h-8" />
             </div>
 
             <div className="space-y-1">
               <h2 className="font-serif font-bold text-2xl text-[#1F1A17]">
-                ¡Reservación Confirmada con Éxito!
+                {t('reservation_confirmed_title')}
               </h2>
-              <p className="text-xs text-[#7A6E65]">
-                Hemos reservado tu mesa. Presenta este código al llegar a la sucursal.
-              </p>
+              <p className="text-xs text-[#7A6E65]">{t('reservation_confirmed_desc')}</p>
             </div>
 
             <div className="max-w-sm mx-auto bg-[#FBF6EC] rounded-2xl p-6 border border-[#E9DFCC] space-y-4">
@@ -679,26 +665,35 @@ export const ReservationWizardPage: React.FC = () => {
               </div>
 
               <div className="text-xs text-[#7A6E65] space-y-1">
-                <p><strong className="text-[#1F1A17]">{selectedRestaurant?.name}</strong> — {selectedBranch?.name}</p>
-                <p>{date} a las {time} hrs</p>
-                <p>Mesa #{selectedTable?.number} · {guestsCount} comensales</p>
-                <p className="font-medium text-[#1F1A17]">Titular: {customerName}</p>
+                <p>
+                  <strong className="text-[#1F1A17]">{selectedRestaurant?.name}</strong> —{' '}
+                  {getBranchDisplayName(selectedBranch)}
+                </p>
+                <p>
+                  {date} · {time}
+                </p>
+                <p>
+                  {t('table_label', { number: selectedTable?.number || 1 })} · {guestsCount}{' '}
+                  {t('guests')}
+                </p>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              <Link
-                to="/mis-reservas"
-                className="py-2.5 px-6 rounded-xl bg-[#1F1A17] text-white text-xs font-bold hover:bg-[#332B25] transition-colors"
-              >
-                Ver Mis Reservaciones
-              </Link>
+              {isAuthenticated && (
+                <Link
+                  to="/mis-reservas"
+                  className="py-2.5 px-6 rounded-xl bg-[#1F1A17] text-white text-xs font-bold hover:bg-[#332B25] transition-colors"
+                >
+                  {t('nav_my_reservations')}
+                </Link>
+              )}
 
               <Link
                 to="/"
                 className="py-2.5 px-6 rounded-xl bg-[#FBF6EC] text-[#1F1A17] text-xs font-semibold border border-[#E9DFCC] hover:bg-[#E9DFCC] transition-colors"
               >
-                Volver al Inicio
+                {t('back_to_home')}
               </Link>
             </div>
           </div>

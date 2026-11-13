@@ -1,30 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   HashRouter,
   Routes,
   Route,
   Navigate,
-  useParams,
-  useNavigate,
-  useLocation,
 } from 'react-router-dom';
-import { AppProvider, useApp } from './context/AppContext';
-import { Navbar } from './components/layout/Navbar';
-import { Sidebar, ActiveView } from './components/layout/Sidebar';
-import { DemoAccountsModal } from './components/common/DemoAccountsModal';
+import { AppProvider } from './context/AppContext';
 import { ToastContainer } from './components/common/ToastContainer';
-import { DashboardView } from './views/DashboardView';
-import { FloorView } from './views/FloorView';
-import { ReservationsView } from './views/ReservationsView';
-import { MenuView } from './views/MenuView';
-import { OrdersQRView } from './views/OrdersQRView';
-import { KitchenView } from './views/KitchenView';
-import { AnalyticsView } from './views/AnalyticsView';
-import { DistributedMonitorView } from './views/DistributedMonitorView';
-import { BranchesView } from './views/BranchesView';
-import { ReviewsAdminView } from './views/ReviewsAdminView';
-import { Table } from './types';
-import { Menu } from 'lucide-react';
+import { RequireAuth, RequireRole, RequirePermission } from './components/common/RouteGuards';
+import { StaffLayout } from './components/layout/StaffLayout';
 
 // Public Pages
 import { PublicNavbar } from './components/public/PublicNavbar';
@@ -32,14 +16,44 @@ import { PublicFooter } from './components/public/PublicFooter';
 import { HomePage } from './pages/public/HomePage';
 import { RestaurantsPage } from './pages/public/RestaurantsPage';
 import { RestaurantDetailPage } from './pages/public/RestaurantDetailPage';
+import { BranchDetailPage } from './pages/public/BranchDetailPage';
+import { CartPage } from './pages/public/CartPage';
 import { ReviewsPage } from './pages/public/ReviewsPage';
 import { ReservationWizardPage } from './pages/public/ReservationWizardPage';
 import { TableQrMenuPage } from './pages/public/TableQrMenuPage';
+import { CheckoutPage } from './pages/public/CheckoutPage';
 import { LiveOrderTrackerPage } from './pages/public/LiveOrderTrackerPage';
+import { LegalReceiptPage } from './pages/public/LegalReceiptPage';
+import { MyOrdersPage } from './pages/public/MyOrdersPage';
 import { MyReservationsPage } from './pages/public/MyReservationsPage';
+import { MyDataPrivacyPage } from './pages/public/MyDataPrivacyPage';
+import { PrivacyPolicyPage } from './pages/public/PrivacyPolicyPage';
+import { HelpPage } from './pages/public/HelpPage';
+import { NotFoundPage } from './pages/public/NotFoundPage';
 import { LoginPage } from './pages/public/LoginPage';
+import { CustomerRegisterPage } from './pages/public/CustomerRegisterPage';
 
-// Public Layout Wrapper
+// Staff Private Pages & Panels
+import { StaffLoginPage } from './pages/staff/StaffLoginPage';
+import { OwnerDashboardView } from './views/staff/OwnerDashboardView';
+import { BranchAdminDashboardView } from './views/staff/BranchAdminDashboardView';
+import { WaiterDashboardView } from './views/staff/WaiterDashboardView';
+import { KitchenDashboardView } from './views/staff/KitchenDashboardView';
+import { CourierPanelView } from './views/staff/CourierPanelView';
+import { PlatformAdminView } from './views/staff/PlatformAdminView';
+import { TeamManagementView } from './views/staff/TeamManagementView';
+import { PlatformSystemConsoleView } from './views/staff/PlatformSystemConsoleView';
+import { LocalizationTestView } from './views/staff/LocalizationTestView';
+
+// Reused Existing Staff Views
+import { FloorView } from './views/FloorView';
+import { MenuView } from './views/MenuView';
+import { ReservationsView } from './views/ReservationsView';
+import { AnalyticsView } from './views/AnalyticsView';
+import { BranchesView } from './views/BranchesView';
+import { ReviewsAdminView } from './views/ReviewsAdminView';
+import { DistributedMonitorView } from './views/DistributedMonitorView';
+
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-[#FBF6EC]">
@@ -50,127 +64,14 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   );
 };
 
-// Staff SaaS Portal Layout with Route Protection
-const StaffPortal: React.FC = () => {
-  const { view } = useParams<{ view: string }>();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { currentUser, isAuthenticated } = useApp();
-  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [qrSelectedTable, setQrSelectedTable] = useState<Table | null>(null);
-
-  // Protected route check: if visitor or only customer, redirect to login with redirect param
-  const isStaff = isAuthenticated && ['owner', 'admin', 'waiter', 'kitchen'].includes(currentUser.role);
-  if (!isStaff) {
-    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
-  }
-
-  const currentView: ActiveView = (view as ActiveView) || 'dashboard';
-
-  const handleSelectView = (newView: ActiveView) => {
-    navigate(`/app/${newView}`);
-    setMobileMenuOpen(false);
-  };
-
-  const handleOpenQRForTable = (table: Table) => {
-    setQrSelectedTable(table);
-    navigate('/app/orders_qr');
-  };
-
-  const handleOpenOrderForTable = (table: Table) => {
-    setQrSelectedTable(table);
-    navigate('/app/orders_qr');
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      {/* Top Navbar */}
-      <Navbar
-        onOpenDemoModal={() => setIsDemoModalOpen(true)}
-        onNavigateToMonitor={() => handleSelectView('monitor')}
-      />
-
-      {/* Main Body with Sidebar + View Viewport */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Desktop Sidebar */}
-        <div className="hidden md:flex">
-          <Sidebar
-            currentView={currentView}
-            onSelectView={handleSelectView}
-            onOpenDemoModal={() => setIsDemoModalOpen(true)}
-          />
-        </div>
-
-        {/* Mobile Sidebar Overlay */}
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 z-40 md:hidden flex">
-            <div
-              className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-            <div className="relative z-50 flex">
-              <Sidebar
-                currentView={currentView}
-                onSelectView={handleSelectView}
-                onOpenDemoModal={() => {
-                  setIsDemoModalOpen(true);
-                  setMobileMenuOpen(false);
-                }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Main Content Viewport */}
-        <main className="flex-1 overflow-y-auto bg-slate-50 relative pb-12">
-          {/* Mobile sub-bar to toggle navigation menu */}
-          <div className="md:hidden p-3 bg-white border-b border-slate-200 flex items-center justify-between">
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="flex items-center gap-2 text-xs font-semibold text-slate-800 p-1.5 rounded-lg bg-slate-100"
-            >
-              <Menu className="w-4 h-4" />
-              <span>Menú de Navegación</span>
-            </button>
-            <span className="text-xs font-bold text-slate-700 capitalize">
-              {currentView.replace('_', ' ')}
-            </span>
-          </div>
-
-          {currentView === 'dashboard' && <DashboardView onNavigate={handleSelectView} />}
-          {currentView === 'floor' && (
-            <FloorView
-              onOpenQR={handleOpenQRForTable}
-              onOpenOrderForTable={handleOpenOrderForTable}
-            />
-          )}
-          {currentView === 'reservations' && <ReservationsView />}
-          {currentView === 'menu' && <MenuView />}
-          {currentView === 'orders_qr' && <OrdersQRView initialTable={qrSelectedTable} />}
-          {currentView === 'kitchen' && <KitchenView />}
-          {currentView === 'analytics' && <AnalyticsView />}
-          {currentView === 'resenas' && <ReviewsAdminView />}
-          {currentView === 'monitor' && <DistributedMonitorView />}
-          {currentView === 'branches' && <BranchesView />}
-        </main>
-      </div>
-
-      {/* Global Modals */}
-      <DemoAccountsModal
-        isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
-      />
-    </div>
-  );
-};
-
 export default function App() {
   return (
     <AppProvider>
       <HashRouter>
         <Routes>
-          {/* Public Gastronomy Surface */}
+          {/* =========================================
+              PUBLIC CUSTOMER FACING ROUTES
+              ========================================= */}
           <Route
             path="/"
             element={
@@ -196,6 +97,22 @@ export default function App() {
             }
           />
           <Route
+            path="/sucursal/:branchId"
+            element={
+              <PublicLayout>
+                <BranchDetailPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/carrito"
+            element={
+              <PublicLayout>
+                <CartPage />
+              </PublicLayout>
+            }
+          />
+          <Route
             path="/resenas"
             element={
               <PublicLayout>
@@ -212,10 +129,34 @@ export default function App() {
             }
           />
           <Route
+            path="/checkout"
+            element={
+              <PublicLayout>
+                <CheckoutPage />
+              </PublicLayout>
+            }
+          />
+          <Route
             path="/pedido/:orderId"
             element={
               <PublicLayout>
                 <LiveOrderTrackerPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/comprobante/:orderId"
+            element={
+              <PublicLayout>
+                <LegalReceiptPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/mis-pedidos"
+            element={
+              <PublicLayout>
+                <MyOrdersPage />
               </PublicLayout>
             }
           />
@@ -227,17 +168,246 @@ export default function App() {
               </PublicLayout>
             }
           />
+          <Route
+            path="/mis-datos"
+            element={
+              <PublicLayout>
+                <MyDataPrivacyPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/privacidad"
+            element={
+              <PublicLayout>
+                <PrivacyPolicyPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/ayuda"
+            element={
+              <PublicLayout>
+                <HelpPage />
+              </PublicLayout>
+            }
+          />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/registro" element={<CustomerRegisterPage />} />
 
           {/* Interactive QR Table Ordering Page */}
           <Route path="/mesa/:branchId/:tableId" element={<TableQrMenuPage />} />
 
-          {/* Staff SaaS Management Portal */}
-          <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
-          <Route path="/app/:view" element={<StaffPortal />} />
+          {/* =========================================
+              HIDDEN PRIVATE STAFF PORTAL
+              ========================================= */}
+          <Route path="/staff" element={<StaffLoginPage />} />
 
-          {/* Catch-all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="/staff/app/owner"
+            element={
+              <RequireAuth>
+                <RequireRole allowedRoles={['owner', 'platform_admin']}>
+                  <StaffLayout>
+                    <OwnerDashboardView />
+                  </StaffLayout>
+                </RequireRole>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/branch_admin"
+            element={
+              <RequireAuth>
+                <RequireRole allowedRoles={['branch_admin', 'owner', 'platform_admin']}>
+                  <StaffLayout>
+                    <BranchAdminDashboardView />
+                  </StaffLayout>
+                </RequireRole>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/waiter"
+            element={
+              <RequireAuth>
+                <RequireRole allowedRoles={['waiter', 'cashier', 'branch_admin', 'owner', 'platform_admin']}>
+                  <StaffLayout>
+                    <WaiterDashboardView />
+                  </StaffLayout>
+                </RequireRole>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/kitchen"
+            element={
+              <RequireAuth>
+                <RequireRole allowedRoles={['kitchen', 'branch_admin', 'owner', 'platform_admin']}>
+                  <StaffLayout>
+                    <KitchenDashboardView />
+                  </StaffLayout>
+                </RequireRole>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/courier"
+            element={
+              <RequireAuth>
+                <RequireRole allowedRoles={['courier', 'platform_admin']}>
+                  <StaffLayout>
+                    <CourierPanelView />
+                  </StaffLayout>
+                </RequireRole>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/platform_admin"
+            element={
+              <RequireAuth>
+                <RequirePermission permission="global.console">
+                  <StaffLayout>
+                    <PlatformAdminView />
+                  </StaffLayout>
+                </RequirePermission>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/equipo"
+            element={
+              <RequireAuth>
+                <RequirePermission permission="team.manage">
+                  <StaffLayout>
+                    <TeamManagementView />
+                  </StaffLayout>
+                </RequirePermission>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/sistema"
+            element={
+              <RequireAuth>
+                <RequirePermission permission="regions.edit">
+                  <StaffLayout>
+                    <PlatformSystemConsoleView />
+                  </StaffLayout>
+                </RequirePermission>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/prueba-localizacion"
+            element={
+              <RequireAuth>
+                <RequirePermission permission="regions.edit">
+                  <StaffLayout>
+                    <LocalizationTestView />
+                  </StaffLayout>
+                </RequirePermission>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/floor"
+            element={
+              <RequireAuth>
+                <RequireRole allowedRoles={['waiter', 'cashier', 'branch_admin', 'owner', 'platform_admin']}>
+                  <StaffLayout>
+                    <FloorView />
+                  </StaffLayout>
+                </RequireRole>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/menu"
+            element={
+              <RequireAuth>
+                <RequirePermission permission="menu.edit">
+                  <StaffLayout>
+                    <MenuView />
+                  </StaffLayout>
+                </RequirePermission>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/reservations"
+            element={
+              <RequireAuth>
+                <RequirePermission permission="reservations.manage">
+                  <StaffLayout>
+                    <ReservationsView />
+                  </StaffLayout>
+                </RequirePermission>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/analytics"
+            element={
+              <RequireAuth>
+                <RequirePermission permission="analytics.view">
+                  <StaffLayout>
+                    <AnalyticsView />
+                  </StaffLayout>
+                </RequirePermission>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/branches"
+            element={
+              <RequireAuth>
+                <RequireRole allowedRoles={['owner', 'platform_admin']}>
+                  <StaffLayout>
+                    <BranchesView />
+                  </StaffLayout>
+                </RequireRole>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/reviews"
+            element={
+              <RequireAuth>
+                <RequirePermission permission="reviews.moderate">
+                  <StaffLayout>
+                    <ReviewsAdminView />
+                  </StaffLayout>
+                </RequirePermission>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff/app/monitor"
+            element={
+              <RequireAuth>
+                <RequirePermission permission="monitor.view">
+                  <StaffLayout>
+                    <DistributedMonitorView />
+                  </StaffLayout>
+                </RequirePermission>
+              </RequireAuth>
+            }
+          />
+
+          {/* Legacy /app redirect */}
+          <Route path="/app/*" element={<Navigate to="/staff" replace />} />
+
+          {/* Catch-all localized 404 */}
+          <Route
+            path="*"
+            element={
+              <PublicLayout>
+                <NotFoundPage />
+              </PublicLayout>
+            }
+          />
         </Routes>
 
         <ToastContainer />

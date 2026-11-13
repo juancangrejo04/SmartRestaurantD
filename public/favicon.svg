@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Background Rounded Square in Espresso -->
+  <rect width="64" height="64" rx="16" fill="#1F1A17" />
+  
+  <!-- Subtle Amber Border Glow -->
+  <rect x="2" y="2" width="60" height="60" rx="14" stroke="#E8A33D" stroke-width="1.5" stroke-opacity="0.4" />
+  
+  <!-- Crossed Fork and Knife in Saffron & Paprika -->
+  <g transform="translate(14, 14)">
+    <!-- Fork -->
+    <path d="M7 3 L7 13 C7 16 10 18 13 18 L13 33 C13 34.5 14.5 35 15 35 C15.5 35 17 34.5 17 33 L17 18 C20 18 23 16 23 13 L23 3" 
+          stroke="#E8A33D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 3 L11 12" stroke="#E8A33D" stroke-width="2" stroke-linecap="round"/>
+    <path d="M15 3 L15 12" stroke="#E8A33D" stroke-width="2" stroke-linecap="round"/>
+    <path d="M19 3 L19 12" stroke="#E8A33D" stroke-width="2" stroke-linecap="round"/>
+    
+    <!-- Stylized Plate Ring / Accent Dot -->
+    <circle cx="15" cy="18" r="2.5" fill="#C8452C"/>
+  </g>
+</svg>

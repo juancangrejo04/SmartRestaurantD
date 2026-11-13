@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { COUNTRIES } from '../../i18n/countries';
+import { COUNTRIES, formatTime } from '../../i18n/countries';
 import { CountryCode, Language } from '../../types';
 import {
   Globe,
   ChevronDown,
   UtensilsCrossed,
   CalendarCheck,
-  LayoutDashboard,
+  ShoppingBag,
+  ShoppingCart,
+  Shield,
   LogIn,
-  Search,
   Star,
-  User as UserIcon,
   LogOut,
   Menu as MenuIcon,
   X,
   Compass,
+  Bell,
 } from 'lucide-react';
 
 export const PublicNavbar: React.FC = () => {
@@ -29,21 +30,44 @@ export const PublicNavbar: React.FC = () => {
     isAuthenticated,
     logoutUser,
     activeBranchId,
+    tables,
+    deliveryCart,
+    notifications,
+    markNotificationsRead,
     t,
   } = useApp();
+
   const [showCountryMenu, setShowCountryMenu] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const countryConfig = COUNTRIES[country];
 
+  const activeBranchTable =
+    tables.find((tbl) => tbl.branchId === activeBranchId) || tables[0];
+  const qrHref = activeBranchTable
+    ? `/mesa/${activeBranchId}/${activeBranchTable.id}`
+    : `/sucursal/${activeBranchId}`;
+
+  const cartCount =
+    deliveryCart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+  const myNotifications = isAuthenticated && currentUser
+    ? notifications
+        .filter((n) => !n.targetUserId || n.targetUserId === currentUser.id)
+        .filter((n) => !n.targetRole || n.targetRole === currentUser.role)
+        .slice(0, 12)
+    : [];
+  const unreadCount = myNotifications.filter((n) => !n.read).length;
+
   const languages: { code: Language; label: string; flag: string }[] = [
-    { code: 'es', label: 'Español', flag: '🇪🇸' },
-    { code: 'en', label: 'English', flag: '🇺🇸' },
+    { code: 'es', label: 'Español', flag: '🇨🇴' },
     { code: 'pt', label: 'Português', flag: '🇧🇷' },
+    { code: 'en', label: 'English', flag: '🇺🇸' },
+    { code: 'fr', label: 'Français', flag: '🇫🇷' },
     { code: 'ja', label: '日本語', flag: '🇯🇵' },
   ];
 
@@ -53,32 +77,24 @@ export const PublicNavbar: React.FC = () => {
     return false;
   };
 
-  const isStaff = ['owner', 'admin', 'waiter', 'kitchen'].includes(currentUser.role);
-
   return (
     <header className="sticky top-0 z-40 bg-[#FFFDF8]/95 backdrop-blur-md border-b border-[#E9DFCC] text-[#1F1A17] transition-all">
-      {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-        {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-3 group">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#E8A33D] via-[#C8452C] to-[#1F1A17] flex items-center justify-center text-white shadow-md shadow-[#C8452C]/20 group-hover:scale-105 transition-transform">
             <span className="font-serif italic font-bold text-2xl">S</span>
           </div>
           <div className="flex flex-col">
             <span className="font-serif font-bold text-xl tracking-tight text-[#1F1A17] flex items-center gap-1.5">
-              SmartRestaurant
-              <span className="text-[10px] font-sans font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#E8A33D]/20 text-[#C8452C] border border-[#E8A33D]/40">
-                Gastronomía
-              </span>
+              {t('app_name')}
             </span>
-            <span className="text-[11px] font-sans text-[#7A6E65] -mt-0.5">
-              Experiencias culinarias sin esperas
+            <span className="text-[11px] font-sans text-[#7A6E65] -mt-0.5 hidden sm:inline">
+              {t('app_subtitle')}
             </span>
           </div>
         </Link>
 
-        {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-6 font-sans text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-5 font-sans text-sm font-medium">
           <Link
             to="/restaurantes"
             className={`transition-colors flex items-center gap-1.5 ${
@@ -88,7 +104,7 @@ export const PublicNavbar: React.FC = () => {
             }`}
           >
             <Compass className="w-4 h-4" />
-            <span>Restaurantes</span>
+            <span>{t('nav_restaurants')}</span>
           </Link>
           <Link
             to="/resenas"
@@ -99,7 +115,7 @@ export const PublicNavbar: React.FC = () => {
             }`}
           >
             <Star className="w-4 h-4 text-[#E8A33D]" />
-            <span>Reseñas</span>
+            <span>{t('nav_reviews')}</span>
           </Link>
           <Link
             to="/reservar"
@@ -110,10 +126,10 @@ export const PublicNavbar: React.FC = () => {
             }`}
           >
             <CalendarCheck className="w-4 h-4" />
-            <span>Reservar Mesa</span>
+            <span>{t('nav_reserve')}</span>
           </Link>
           <Link
-            to={`/mesa/${activeBranchId}/tbl-co-bogota-3`}
+            to={qrHref}
             className={`transition-colors flex items-center gap-1.5 ${
               isActive('/mesa')
                 ? 'text-[#C8452C] font-semibold'
@@ -121,38 +137,51 @@ export const PublicNavbar: React.FC = () => {
             }`}
           >
             <UtensilsCrossed className="w-4 h-4" />
-            <span>Menú QR Mesa</span>
+            <span>{t('qr_code_menu')}</span>
           </Link>
 
           {isAuthenticated && (
-            <Link
-              to="/mis-reservas"
-              className={`transition-colors ${
-                isActive('/mis-reservas')
-                  ? 'text-[#C8452C] font-semibold'
-                  : 'text-[#1F1A17]/80 hover:text-[#C8452C]'
-              }`}
-            >
-              Mis Reservas
-            </Link>
+            <>
+              <Link
+                to="/mis-pedidos"
+                className={`transition-colors flex items-center gap-1.5 ${
+                  isActive('/mis-pedidos')
+                    ? 'text-[#C8452C] font-semibold'
+                    : 'text-[#1F1A17]/80 hover:text-[#C8452C]'
+                }`}
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>{t('nav_my_orders')}</span>
+              </Link>
+              <Link
+                to="/mis-reservas"
+                className={`transition-colors flex items-center gap-1.5 ${
+                  isActive('/mis-reservas')
+                    ? 'text-[#C8452C] font-semibold'
+                    : 'text-[#1F1A17]/80 hover:text-[#C8452C]'
+                }`}
+              >
+                <span>{t('my_reservations')}</span>
+              </Link>
+            </>
           )}
         </nav>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Country Selector Dropdown */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Country Selector */}
           <div className="relative">
             <button
               onClick={() => {
                 setShowCountryMenu(!showCountryMenu);
                 setShowLanguageMenu(false);
                 setShowUserDropdown(false);
+                setShowNotifications(false);
               }}
-              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC]/60 border border-[#E9DFCC] text-xs font-medium text-[#1F1A17] transition-colors"
-              title="Seleccionar país / mercado"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC]/60 border border-[#E9DFCC] text-xs font-medium text-[#1F1A17] transition-colors"
+              title={t('select_country')}
             >
               <span className="text-base leading-none">{countryConfig.flagEmoji}</span>
-              <span className="hidden sm:inline">{countryConfig.name}</span>
+              <span className="hidden sm:inline">{t(countryConfig.profile.nameKey)}</span>
               <span className="font-mono font-bold text-[#C8452C]">
                 {countryConfig.currency}
               </span>
@@ -160,9 +189,9 @@ export const PublicNavbar: React.FC = () => {
             </button>
 
             {showCountryMenu && (
-              <div className="absolute right-0 mt-2 w-64 bg-[#FFFDF8] border border-[#E9DFCC] rounded-2xl shadow-xl p-2 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute right-0 mt-2 w-64 bg-[#FFFDF8] border border-[#E9DFCC] rounded-2xl shadow-xl p-2 z-50">
                 <div className="px-3 py-2 text-[10px] font-bold text-[#7A6E65] uppercase tracking-wider border-b border-[#E9DFCC]/60">
-                  Mercado Culinario
+                  {t('select_market')}
                 </div>
                 <div className="mt-1 space-y-1">
                   {(Object.keys(COUNTRIES) as CountryCode[]).map((code) => {
@@ -184,9 +213,9 @@ export const PublicNavbar: React.FC = () => {
                         <div className="flex items-center gap-2.5">
                           <span className="text-xl">{c.flagEmoji}</span>
                           <div className="text-left">
-                            <div className="font-medium">{c.name}</div>
+                            <div className="font-medium">{t(c.profile.nameKey)}</div>
                             <div className="text-[10px] text-[#7A6E65]">
-                              {c.timeZone.split('/')[1]?.replace('_', ' ')}
+                              {t(c.profile.pilotCityKey)}
                             </div>
                           </div>
                         </div>
@@ -208,9 +237,9 @@ export const PublicNavbar: React.FC = () => {
                 setShowLanguageMenu(!showLanguageMenu);
                 setShowCountryMenu(false);
                 setShowUserDropdown(false);
+                setShowNotifications(false);
               }}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC]/60 border border-[#E9DFCC] text-xs font-semibold text-[#1F1A17] transition-colors"
-              title="Cambiar idioma de la interfaz"
             >
               <Globe className="w-3.5 h-3.5 text-[#7A6E65]" />
               <span className="uppercase">{language}</span>
@@ -218,7 +247,7 @@ export const PublicNavbar: React.FC = () => {
             </button>
 
             {showLanguageMenu && (
-              <div className="absolute right-0 mt-2 w-40 bg-[#FFFDF8] border border-[#E9DFCC] rounded-2xl shadow-xl p-1.5 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute right-0 mt-2 w-40 bg-[#FFFDF8] border border-[#E9DFCC] rounded-2xl shadow-xl p-1.5 z-50">
                 {languages.map((l) => (
                   <button
                     key={l.code}
@@ -240,25 +269,91 @@ export const PublicNavbar: React.FC = () => {
             )}
           </div>
 
-          {/* Staff Access or User Dropdown */}
-          {isAuthenticated && isStaff ? (
-            <Link
-              to="/app/dashboard"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1F1A17] hover:bg-[#332B25] text-white text-xs font-semibold shadow-xs transition-colors"
-              title="Ir al panel de gestión del personal"
-            >
-              <LayoutDashboard className="w-3.5 h-3.5 text-[#E8A33D]" />
-              <span>Panel Staff</span>
-            </Link>
-          ) : null}
+          {/* Delivery Cart Icon */}
+          <Link
+            to="/carrito"
+            className="relative p-2 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC]/60 border border-[#E9DFCC] text-[#1F1A17] transition-colors"
+            title={t('cart')}
+          >
+            <ShoppingCart className="w-4 h-4 text-[#C8452C]" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#C8452C] text-white font-mono font-bold text-[10px] flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </Link>
 
-          {isAuthenticated ? (
+          {/* Customer Notifications Bell */}
+          {isAuthenticated && currentUser && (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  setShowUserDropdown(false);
+                  setShowCountryMenu(false);
+                  setShowLanguageMenu(false);
+                }}
+                className="relative p-2 rounded-xl bg-[#FBF6EC] hover:bg-[#E9DFCC]/60 border border-[#E9DFCC] text-[#1F1A17] transition-colors"
+                title={t('notifications')}
+              >
+                <Bell className="w-4 h-4 text-[#1F1A17]" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#C8452C] text-white text-[9px] font-bold flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-[#FFFDF8] border border-[#E9DFCC] rounded-2xl shadow-xl overflow-hidden z-50">
+                  <div className="px-4 py-2.5 border-b border-[#E9DFCC] flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#1F1A17]">
+                      {t('notifications')}
+                    </span>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markNotificationsRead}
+                        className="text-[10px] font-semibold text-[#C8452C] hover:underline"
+                      >
+                        {t('mark_all_read')}
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-72 overflow-y-auto divide-y divide-[#E9DFCC]/60">
+                    {myNotifications.length === 0 ? (
+                      <div className="p-6 text-center text-xs text-[#7A6E65]">
+                        {t('no_notifications')}
+                      </div>
+                    ) : (
+                      myNotifications.map((n) => (
+                        <div key={n.id} className="p-3 text-xs space-y-0.5">
+                          <div className="font-bold text-[#1F1A17]">
+                            {n.titleKey ? t(n.titleKey, n.messageParams) : n.title}
+                          </div>
+                          <div className="text-[11px] text-[#7A6E65]">
+                            {n.messageKey ? t(n.messageKey, n.messageParams) : n.message}
+                          </div>
+                          <div className="text-[10px] font-mono text-[#7A6E65]/70">
+                            {formatTime(n.instantUtc || n.timestamp, country)}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Customer Account or Login */}
+          {isAuthenticated && currentUser ? (
             <div className="relative">
               <button
                 onClick={() => {
                   setShowUserDropdown(!showUserDropdown);
                   setShowCountryMenu(false);
                   setShowLanguageMenu(false);
+                  setShowNotifications(false);
                 }}
                 className="flex items-center gap-2 p-1 rounded-xl hover:bg-[#FBF6EC] border border-transparent hover:border-[#E9DFCC] transition-colors"
               >
@@ -274,43 +369,42 @@ export const PublicNavbar: React.FC = () => {
               </button>
 
               {showUserDropdown && (
-                <div className="absolute right-0 mt-2 w-56 bg-[#FFFDF8] border border-[#E9DFCC] rounded-2xl shadow-xl p-2 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-2 w-56 bg-[#FFFDF8] border border-[#E9DFCC] rounded-2xl shadow-xl p-2 z-50">
                   <div className="px-3 py-2 border-b border-[#E9DFCC]/60 mb-1">
-                    <p className="text-xs font-bold text-[#1F1A17] truncate">{currentUser.name}</p>
-                    <p className="text-[10px] text-[#7A6E65] truncate">{currentUser.email}</p>
-                    <span className="inline-block mt-1 text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#E8A33D]/20 text-[#C8452C] font-bold">
-                      {currentUser.role}
-                    </span>
+                    <p className="text-xs font-bold text-[#1F1A17] truncate">
+                      {currentUser.name}
+                    </p>
+                    <p className="text-[10px] text-[#7A6E65] truncate">
+                      {currentUser.email}
+                    </p>
                   </div>
 
                   <div className="space-y-1">
                     <Link
-                      to="/mis-reservas"
+                      to="/mis-pedidos"
                       onClick={() => setShowUserDropdown(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[#1F1A17] hover:bg-[#FBF6EC] transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[#1F1A17] hover:bg-[#FBF6EC]"
                     >
-                      <CalendarCheck className="w-3.5 h-3.5 text-[#C8452C]" />
-                      <span>Mis Reservaciones</span>
+                      <ShoppingBag className="w-3.5 h-3.5 text-[#C8452C]" />
+                      <span>{t('nav_my_orders')}</span>
                     </Link>
 
-                    {isStaff && (
-                      <Link
-                        to="/app/dashboard"
-                        onClick={() => setShowUserDropdown(false)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[#1F1A17] hover:bg-[#FBF6EC] transition-colors"
-                      >
-                        <LayoutDashboard className="w-3.5 h-3.5 text-[#E8A33D]" />
-                        <span>Panel Staff</span>
-                      </Link>
-                    )}
+                    <Link
+                      to="/mis-reservas"
+                      onClick={() => setShowUserDropdown(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[#1F1A17] hover:bg-[#FBF6EC]"
+                    >
+                      <CalendarCheck className="w-3.5 h-3.5 text-[#E8A33D]" />
+                      <span>{t('my_reservations')}</span>
+                    </Link>
 
                     <Link
-                      to="/login"
+                      to="/mis-datos"
                       onClick={() => setShowUserDropdown(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[#1F1A17] hover:bg-[#FBF6EC] transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[#1F1A17] hover:bg-[#FBF6EC]"
                     >
-                      <UserIcon className="w-3.5 h-3.5 text-[#7A6E65]" />
-                      <span>Cambiar de Rol / Cuenta</span>
+                      <Shield className="w-3.5 h-3.5 text-[#7A6E65]" />
+                      <span>{t('nav_privacy_data')}</span>
                     </Link>
 
                     <button
@@ -318,10 +412,10 @@ export const PublicNavbar: React.FC = () => {
                         logoutUser();
                         setShowUserDropdown(false);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-rose-600 hover:bg-rose-50 text-left"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      <span>Cerrar Sesión</span>
+                      <span>{t('nav_logout')}</span>
                     </button>
                   </div>
                 </div>
@@ -333,19 +427,17 @@ export const PublicNavbar: React.FC = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E9DFCC] hover:bg-[#E9DFCC]/50 text-xs font-semibold text-[#1F1A17] transition-colors"
             >
               <LogIn className="w-3.5 h-3.5 text-[#C8452C]" />
-              <span>Iniciar Sesión</span>
+              <span className="hidden sm:inline">{t('nav_login')}</span>
             </Link>
           )}
 
-          {/* Quick Book CTA button */}
           <Link
             to="/reservar"
-            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-md shadow-[#C8452C]/20 transition-all hover:scale-102"
+            className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C8452C] to-[#E8A33D] hover:opacity-95 text-white text-xs font-bold shadow-md shadow-[#C8452C]/20"
           >
-            <span>Reservar</span>
+            <span>{t('nav_reserve')}</span>
           </Link>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-xl bg-[#FBF6EC] text-[#1F1A17]"
@@ -356,7 +448,6 @@ export const PublicNavbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-[#E9DFCC] bg-[#FFFDF8] px-4 py-4 space-y-3 font-sans">
           <Link
@@ -364,59 +455,78 @@ export const PublicNavbar: React.FC = () => {
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2 text-sm font-semibold text-[#1F1A17]"
           >
-            Directorio de Restaurantes
+            {t('nav_restaurants')}
           </Link>
           <Link
             to="/resenas"
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2 text-sm font-semibold text-[#1F1A17]"
           >
-            Reseñas de Comensales
+            {t('nav_reviews')}
           </Link>
           <Link
             to="/reservar"
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2 text-sm font-semibold text-[#C8452C]"
           >
-            Reservar Mesa en Línea
+            {t('nav_reserve')}
           </Link>
           <Link
-            to={`/mesa/${activeBranchId}/tbl-co-bogota-3`}
+            to={qrHref}
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2 text-sm font-semibold text-[#1F1A17]"
           >
-            Menú Digital QR en Mesa
+            {t('qr_code_menu')}
+          </Link>
+          <Link
+            to="/carrito"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2 text-sm font-semibold text-[#1F1A17]"
+          >
+            {t('cart')} ({cartCount})
           </Link>
 
-          {isAuthenticated && (
+          {isAuthenticated ? (
+            <>
+              <Link
+                to="/mis-pedidos"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-sm text-[#7A6E65]"
+              >
+                {t('nav_my_orders')}
+              </Link>
+              <Link
+                to="/mis-reservas"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-sm text-[#7A6E65]"
+              >
+                {t('my_reservations')}
+              </Link>
+              <Link
+                to="/mis-datos"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-sm text-[#7A6E65]"
+              >
+                {t('nav_privacy_data')}
+              </Link>
+              <button
+                onClick={() => {
+                  logoutUser();
+                  setMobileMenuOpen(false);
+                }}
+                className="block w-full text-left py-2 text-sm text-rose-600 font-semibold"
+              >
+                {t('nav_logout')}
+              </button>
+            </>
+          ) : (
             <Link
-              to="/mis-reservas"
+              to="/login"
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 text-sm text-[#7A6E65]"
             >
-              Mis Reservaciones
+              {t('nav_login')}
             </Link>
-          )}
-
-          <Link
-            to="/login"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-sm text-[#7A6E65]"
-          >
-            Acceso de Usuarios y Roles
-          </Link>
-
-          {isStaff && (
-            <div className="pt-2 border-t border-[#E9DFCC]">
-              <Link
-                to="/app/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#1F1A17] text-white text-xs font-bold"
-              >
-                <LayoutDashboard className="w-4 h-4 text-[#E8A33D]" />
-                <span>Abrir Panel Staff</span>
-              </Link>
-            </div>
           )}
         </div>
       )}

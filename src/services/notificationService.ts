@@ -1,4 +1,15 @@
-import { Notification, DistributedEvent } from '../types';
+import { AppNotification, DistributedEvent, UserRole } from '../types';
+
+export interface KeyedNotificationParams {
+  type: AppNotification['type'];
+  titleKey: string;
+  messageKey: string;
+  messageParams?: Record<string, string | number>;
+  targetRole?: UserRole;
+  targetBranchId?: string;
+  targetUserId?: string;
+  metadata?: Record<string, unknown>;
+}
 
 export class NotificationService {
   private static instance: NotificationService;
@@ -12,99 +23,168 @@ export class NotificationService {
     return NotificationService.instance;
   }
 
-  public createFromEvent(event: DistributedEvent): Notification | null {
+  public createKeyedNotification(params: KeyedNotificationParams): AppNotification {
     const id = `notif-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
-    const timestamp = new Date().toISOString();
+    const nowUtc = new Date().toISOString();
 
-    const eventType = event.eventType || event.type;
-    switch (eventType as any) {
+    return {
+      id,
+      type: params.type,
+      titleKey: params.titleKey,
+      messageKey: params.messageKey,
+      messageParams: params.messageParams || {},
+      timestamp: nowUtc,
+      instantUtc: nowUtc,
+      read: false,
+      targetRole: params.targetRole,
+      targetBranchId: params.targetBranchId,
+      targetUserId: params.targetUserId,
+      metadata: params.metadata,
+    };
+  }
+
+  public createFromEvent(event: DistributedEvent): AppNotification | null {
+    const eventType = (event.eventType || event.type) as string;
+    const payload = event.payload || {};
+
+    switch (eventType) {
       case 'RESERVATION_CREATED':
-        return {
-          id,
+        return this.createKeyedNotification({
           type: 'reservation',
-          title: 'Nueva Reservación Recibida',
-          message: `Cliente ${event.payload.customerName || 'Invitado'} agendó Mesa #${event.payload.tableNumber} para ${event.payload.guestsCount || 2} personas.`,
-          timestamp,
-          read: false,
-          metadata: event.payload,
-        };
+          titleKey: 'notif_res_created_title',
+          messageKey: 'notif_res_created_msg',
+          messageParams: {
+            customer: String(payload.customerName || ''),
+            table: String(payload.tableNumber || ''),
+            guests: String(payload.guestsCount || 2),
+          },
+          targetBranchId: payload.branchId,
+          targetRole: 'waiter',
+          metadata: payload,
+        });
 
       case 'RESERVATION_CONFIRMED':
-        return {
-          id,
+        return this.createKeyedNotification({
           type: 'reservation',
-          title: 'Reservación Confirmada',
-          message: `La reserva #${event.payload.reservationId} fue confirmada por el restaurante.`,
-          timestamp,
-          read: false,
-          metadata: event.payload,
-        };
+          titleKey: 'notif_res_confirmed_title',
+          messageKey: 'notif_res_confirmed_msg',
+          messageParams: {
+            code: String(payload.code || payload.reservationId || ''),
+          },
+          targetUserId: payload.userId,
+          targetBranchId: payload.branchId,
+          metadata: payload,
+        });
+
+      case 'RESERVATION_CANCELLED':
+        return this.createKeyedNotification({
+          type: 'reservation',
+          titleKey: 'notif_res_cancelled_title',
+          messageKey: 'notif_res_cancelled_msg',
+          messageParams: {
+            code: String(payload.code || payload.reservationId || ''),
+          },
+          targetUserId: payload.userId,
+          targetBranchId: payload.branchId,
+          metadata: payload,
+        });
 
       case 'ORDER_PLACED':
-        return {
-          id,
+      case 'ORDER_CREATED':
+        return this.createKeyedNotification({
           type: 'order',
-          title: `Nueva Comanda #${event.payload.orderNumber || ''}`,
-          message: `Mesa #${event.payload.tableNumber} ha enviado un pedido con ${event.payload.itemsCount || 1} producto(s).`,
-          timestamp,
-          read: false,
-          metadata: event.payload,
-        };
+          titleKey: 'notif_order_created_title',
+          messageKey: 'notif_order_created_msg',
+          messageParams: {
+            order: String(payload.orderNumber || payload.orderId || ''),
+            items: String(payload.itemsCount || 1),
+          },
+          targetBranchId: payload.branchId,
+          targetRole: 'kitchen',
+          metadata: payload,
+        });
 
       case 'ORDER_PREPARATION_STARTED':
-        return {
-          id,
+      case 'ORDER_PREPARING':
+        return this.createKeyedNotification({
           type: 'kitchen',
-          title: 'Cocina en Marcha',
-          message: `Comanda de Mesa #${event.payload.tableNumber} entró en preparación.`,
-          timestamp,
-          read: false,
-          metadata: event.payload,
-        };
+          titleKey: 'notif_order_kitchen_title',
+          messageKey: 'notif_order_kitchen_msg',
+          messageParams: {
+            order: String(payload.orderNumber || payload.orderId || ''),
+          },
+          targetUserId: payload.userId,
+          targetBranchId: payload.branchId,
+          metadata: payload,
+        });
 
       case 'ORDER_READY_FOR_PICKUP':
-        return {
-          id,
+      case 'ORDER_READY':
+        return this.createKeyedNotification({
           type: 'kitchen',
-          title: '¡Platos Listos en Cocina!',
-          message: `Comanda de Mesa #${event.payload.tableNumber} lista para ser servida por el mesero.`,
-          timestamp,
-          read: false,
-          metadata: event.payload,
-        };
+          titleKey: 'notif_order_ready_title',
+          messageKey: 'notif_order_ready_msg',
+          messageParams: {
+            order: String(payload.orderNumber || payload.orderId || ''),
+          },
+          targetUserId: payload.userId,
+          targetBranchId: payload.branchId,
+          targetRole: 'waiter',
+          metadata: payload,
+        });
+
+      case 'ORDER_COURIER_ASSIGNED':
+      case 'COURIER_ASSIGNED':
+        return this.createKeyedNotification({
+          type: 'order',
+          titleKey: 'notif_courier_assigned_title',
+          messageKey: 'notif_courier_assigned_msg',
+          messageParams: {
+            order: String(payload.orderNumber || payload.orderId || ''),
+            courier: String(payload.courierName || ''),
+          },
+          targetUserId: payload.userId,
+          targetBranchId: payload.branchId,
+          metadata: payload,
+        });
 
       case 'ORDER_DELIVERED':
-        return {
-          id,
+        return this.createKeyedNotification({
           type: 'order',
-          title: 'Pedido Entregado',
-          message: `Comanda de Mesa #${event.payload.tableNumber} fue entregada en mesa.`,
-          timestamp,
-          read: false,
-          metadata: event.payload,
-        };
+          titleKey: 'notif_order_delivered_title',
+          messageKey: 'notif_order_delivered_msg',
+          messageParams: {
+            order: String(payload.orderNumber || payload.orderId || ''),
+          },
+          targetUserId: payload.userId,
+          targetBranchId: payload.branchId,
+          metadata: payload,
+        });
 
       case 'PRODUCT_AVAILABILITY_CHANGED':
-        return {
-          id,
+        return this.createKeyedNotification({
           type: 'system',
-          title: 'Disponibilidad de Carta Actualizada',
-          message: `El producto "${event.payload.productName}" ahora está ${event.payload.available ? 'Disponible' : 'Agotado'}.`,
-          timestamp,
-          read: false,
-          metadata: event.payload,
-        };
+          titleKey: 'notif_product_availability_title',
+          messageKey: payload.available
+            ? 'notif_product_available_msg'
+            : 'notif_product_unavailable_msg',
+          messageParams: {
+            product: String(payload.productName || ''),
+          },
+          targetBranchId: payload.branchId,
+          metadata: payload,
+        });
 
       default:
         return null;
     }
   }
 
-  public markAllAsRead(notifications: Notification[]): Notification[] {
+  public markAllAsRead(notifications: AppNotification[]): AppNotification[] {
     return notifications.map((n) => ({ ...n, read: true }));
   }
 
-  public getUnreadCount(notifications: Notification[]): number {
+  public getUnreadCount(notifications: AppNotification[]): number {
     return notifications.filter((n) => !n.read).length;
   }
 }

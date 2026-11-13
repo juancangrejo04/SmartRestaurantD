@@ -25,13 +25,13 @@ export const BranchesView: React.FC = () => {
     activeBranchId,
     setActiveBranchId,
     tables,
+    getBranchDisplayName,
+    language,
+    loc,
   } = useApp();
 
   const handleSelectBranch = (branch: Branch) => {
     setActiveBranchId(branch.id);
-    if (branch.country !== country) {
-      setCountry(branch.country);
-    }
   };
 
   return (
@@ -43,7 +43,7 @@ export const BranchesView: React.FC = () => {
             {t('nav_branches')} & Restaurantes Multinacionales
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Red distribuida de sucursales en Colombia, México, Estados Unidos, Brasil y Japón
+            Red distribuida de sucursales en Colombia, Brasil, Estados Unidos, Francia y Japón
           </p>
         </div>
       </div>
@@ -52,7 +52,8 @@ export const BranchesView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {restaurants.map((rest: Restaurant) => {
           const restBranches = branches.filter((b: Branch) => b.restaurantId === rest.id);
-          const cConfig = COUNTRIES[rest.country || 'CO'];
+          const firstCountry = (rest.operatingCountries?.[0] || 'CO') as CountryCode;
+          const cConfig = COUNTRIES[firstCountry] || COUNTRIES.CO;
 
           return (
             <div
@@ -66,7 +67,7 @@ export const BranchesView: React.FC = () => {
                     <div>
                       <h3 className="font-bold text-sm text-slate-900">{rest.name}</h3>
                       <p className="text-[11px] text-amber-600 font-medium">
-                        {typeof rest.cuisine === 'string' ? rest.cuisine : (rest.cuisine[cConfig.language] || rest.cuisine.es)}
+                        {loc(rest.cuisine)}
                       </p>
                     </div>
                   </div>
@@ -77,13 +78,13 @@ export const BranchesView: React.FC = () => {
                 </div>
 
                 <p className="text-xs text-slate-500 leading-relaxed mb-4">
-                  {typeof rest.description === 'string' ? rest.description : (rest.description[cConfig.language] || rest.description.es)}
+                  {loc(rest.description)}
                 </p>
 
                 {/* Branches for this restaurant */}
                 <div className="space-y-2 mb-4">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Sucursales ({restBranches.length})
+                    {t('nav_branches')} ({restBranches.length})
                   </span>
 
                   {restBranches.map((br: Branch) => {
@@ -101,10 +102,10 @@ export const BranchesView: React.FC = () => {
                       >
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="font-bold">{br.name}</span>
+                            <span className="font-bold">{getBranchDisplayName(br)}</span>
                             {isActive && (
                               <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-500 text-slate-950 font-mono font-bold">
-                                ACTIVA
+                                {t('badge_active')}
                               </span>
                             )}
                           </div>
@@ -115,7 +116,7 @@ export const BranchesView: React.FC = () => {
                           onClick={() => handleSelectBranch(br)}
                           className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-900 hover:bg-slate-800 text-white transition-colors shrink-0"
                         >
-                          Operar
+                          {t('select_branch')}
                         </button>
                       </div>
                     );

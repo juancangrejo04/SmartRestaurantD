@@ -27,6 +27,7 @@ export const MenuView: React.FC = () => {
     deleteMenuItem,
     toggleMenuItemAvailability,
     formatPrice,
+    loc,
   } = useApp();
 
   const [search, setSearch] = useState('');
@@ -57,10 +58,10 @@ export const MenuView: React.FC = () => {
   ];
 
   const filteredItems = menuItems.filter((item: MenuItem) => {
-    const localizedName = item.name[currentLang] || item.name.es;
+    const localizedName = loc(item.name);
     const matchesSearch =
       localizedName.toLowerCase().includes(search.toLowerCase()) ||
-      item.name.es.toLowerCase().includes(search.toLowerCase());
+      (item.name.es || '').toLowerCase().includes(search.toLowerCase());
     const matchesCat = categoryFilter === 'all' || item.category === categoryFilter;
     return matchesSearch && matchesCat;
   });
@@ -86,7 +87,8 @@ export const MenuView: React.FC = () => {
     setDescEs(item.description.es);
     setDescEn(item.description.en);
     setCategory(item.category);
-    setBasePriceUSD(item.basePriceUSD || (item.price > 500 ? Math.round(item.price / 4000) : item.price) || 15);
+    const rawPrice = item.price ?? item.priceMinorUnits ?? 0;
+    setBasePriceUSD(item.basePriceUSD || (rawPrice > 500 ? Math.round(rawPrice / 4000) : rawPrice) || 15);
     setPrepTime(item.prepTimeMinutes);
     setImageUrl(item.image);
     setDietaryTag(item.dietary?.join(', ') || '');
@@ -120,20 +122,24 @@ export const MenuView: React.FC = () => {
       });
     } else {
       addMenuItem({
-        restaurantId: 'rest-co-01',
+        restaurantId: 'brand-aura',
+        countryCode: 'CO',
         name: {
           es: nameEs,
           en: nameEn || nameEs,
           pt: nameEs,
+          fr: nameEs,
           ja: nameEs,
         },
         description: {
           es: descEs,
           en: descEn || descEs,
           pt: descEs,
+          fr: descEs,
           ja: descEs,
         },
         category,
+        priceMinorUnits: basePriceUSD * 100,
         price: basePriceUSD * 4000,
         basePriceUSD,
         prepTimeMinutes: prepTime,
@@ -202,8 +208,8 @@ export const MenuView: React.FC = () => {
       {/* Menu Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredItems.map((item: MenuItem) => {
-          const displayName = item.name[currentLang] || item.name.es;
-          const displayDesc = item.description[currentLang] || item.description.es;
+          const displayName = loc(item.name);
+          const displayDesc = loc(item.description);
 
           return (
             <div
@@ -241,7 +247,7 @@ export const MenuView: React.FC = () => {
                       {displayName}
                     </h3>
                     <span className="font-mono font-bold text-slate-900 text-sm whitespace-nowrap">
-                      {formatPrice(item.basePriceUSD || (item.price > 500 ? item.price / 4000 : item.price) || 15)}
+                      {formatPrice(item)}
                     </span>
                   </div>
 

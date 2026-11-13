@@ -1,0 +1,700 @@
+[
+  {
+    "id": "rev-1",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-co-chapinero",
+    "userName": "Carolina Ramírez",
+    "userAvatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Una experiencia gastronómica inolvidable. El servicio por QR fue inmediato y los platos llegaron en su punto perfecto.",
+      "en": "An unforgettable culinary experience. The table QR order was swift and dishes arrived at absolute perfection.",
+      "pt": "Uma experiência gastronômica inesquecível. O pedido pelo QR foi rápido e os pratos chegaram perfeitos.",
+      "fr": "Une expérience gastronomique inoubliable. La commande par QR fut instantanée et les assiettes parfaites.",
+      "ja": "忘れられない美食体験でした。テーブルQRでの注文はとてもスムーズで、料理も最高の焼き加減でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "¡Muchas gracias por su visita! Nos alegra saber que disfrutó de nuestra propuesta culinaria.",
+        "en": "Thank you very much for your visit! We are thrilled you enjoyed our culinary craft.",
+        "pt": "Muito obrigado pela visita! Ficamos felizes que tenha apreciado nossa gastronomia.",
+        "fr": "Merci infiniment pour votre visite! Nous sommes ravis que notre cuisine vous ait comblé.",
+        "ja": "ご来店誠にありがとうございました！おもてなしとお料理をお楽しみいただけて光栄です。"
+      },
+      "repliedAt": "2026-11-10T14:30:00Z",
+      "repliedBy": "Equipo de Sala"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-11T01:37:31.923Z"
+  },
+  {
+    "id": "rev-2",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-co-usaquen",
+    "userName": "Gabriel Barbosa",
+    "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "El almuerzo del día superó todas mis expectativas: ingredientes fresquísimos y una cocción a las brasas impecable.",
+      "en": "The daily lunch special exceeded all expectations: remarkably fresh produce and flawless charcoal grilling.",
+      "pt": "O almoço do dia superou as expectativas: ingredientes fresquíssimos e ponto da brasa impecável.",
+      "fr": "Le plat du jour a dépassé toutes mes attentes: produits d’une fraîcheur remarquable et cuisson au feu de bois impeccable.",
+      "ja": "本日のおすすめランチは期待以上でした。食材の鮮度が際立ち、炭火の香ばしさが格別でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "Es un placer atenderle. Cada mañana preparamos el almuerzo del día con productos locales de proximidad.",
+        "en": "A pleasure serving you. We craft our daily lunch every morning using fresh regional harvest.",
+        "pt": "Foi um prazer atendê-lo. Preparamos o almoço do dia diariamente com ingredientes locais selecionados.",
+        "fr": "Tout le plaisir est pour nous. Nous élaborons le menu du jour chaque matin avec les arrivages frais.",
+        "ja": "温かいお言葉をいただき感謝申し上げます。毎朝仕入れる旬の素材で心を込めてお作りしております。"
+      },
+      "repliedAt": "2026-11-09T18:00:00Z",
+      "repliedBy": "Chef Ejecutivo"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-10T01:37:31.924Z"
+  },
+  {
+    "id": "rev-3",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-co-chico",
+    "userName": "Emily Clark",
+    "userAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Ambiente sofisticado y cálido. La reserva en línea funcionó sin demoras ni filas.",
+      "en": "Sophisticated yet warm ambiance. The online table reservation worked seamlessly with zero wait time.",
+      "pt": "Ambiente sofisticado e acolhedor. A reserva online funcionou sem filas nem atrasos.",
+      "fr": "Ambiance feutrée et chaleureuse. La réservation en ligne a fonctionné sans la moindre attente.",
+      "ja": "洗練されつつも温かみのある空間。事前のオンライン予約で待ち時間なく案内されました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-09T01:37:31.924Z"
+  },
+  {
+    "id": "rev-4",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-co-zonag",
+    "userName": "Pierre Laurent",
+    "userAvatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Una experiencia gastronómica inolvidable. El servicio por QR fue inmediato y los platos llegaron en su punto perfecto.",
+      "en": "An unforgettable culinary experience. The table QR order was swift and dishes arrived at absolute perfection.",
+      "pt": "Uma experiência gastronômica inesquecível. O pedido pelo QR foi rápido e os pratos chegaram perfeitos.",
+      "fr": "Une expérience gastronomique inoubliable. La commande par QR fut instantanée et les assiettes parfaites.",
+      "ja": "忘れられない美食体験でした。テーブルQRでの注文はとてもスムーズで、料理も最高の焼き加減でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "¡Muchas gracias por su visita! Nos alegra saber que disfrutó de nuestra propuesta culinaria.",
+        "en": "Thank you very much for your visit! We are thrilled you enjoyed our culinary craft.",
+        "pt": "Muito obrigado pela visita! Ficamos felizes que tenha apreciado nossa gastronomia.",
+        "fr": "Merci infiniment pour votre visite! Nous sommes ravis que notre cuisine vous ait comblé.",
+        "ja": "ご来店誠にありがとうございました！おもてなしとお料理をお楽しみいただけて光栄です。"
+      },
+      "repliedAt": "2026-11-10T14:30:00Z",
+      "repliedBy": "Equipo de Sala"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-08T01:37:31.924Z"
+  },
+  {
+    "id": "rev-5",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-br-pinheiros",
+    "userName": "Kenji Tanaka",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 4,
+    "comment": {
+      "es": "El almuerzo del día superó todas mis expectativas: ingredientes fresquísimos y una cocción a las brasas impecable.",
+      "en": "The daily lunch special exceeded all expectations: remarkably fresh produce and flawless charcoal grilling.",
+      "pt": "O almoço do dia superou as expectativas: ingredientes fresquíssimos e ponto da brasa impecável.",
+      "fr": "Le plat du jour a dépassé toutes mes attentes: produits d’une fraîcheur remarquable et cuisson au feu de bois impeccable.",
+      "ja": "本日のおすすめランチは期待以上でした。食材の鮮度が際立ち、炭火の香ばしさが格別でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "Es un placer atenderle. Cada mañana preparamos el almuerzo del día con productos locales de proximidad.",
+        "en": "A pleasure serving you. We craft our daily lunch every morning using fresh regional harvest.",
+        "pt": "Foi um prazer atendê-lo. Preparamos o almoço do dia diariamente com ingredientes locais selecionados.",
+        "fr": "Tout le plaisir est pour nous. Nous élaborons le menu du jour chaque matin avec les arrivages frais.",
+        "ja": "温かいお言葉をいただき感謝申し上げます。毎朝仕入れる旬の素材で心を込めてお作りしております。"
+      },
+      "repliedAt": "2026-11-09T18:00:00Z",
+      "repliedBy": "Chef Ejecutivo"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-07T01:37:31.924Z"
+  },
+  {
+    "id": "rev-6",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-br-jardins",
+    "userName": "Mariana Duarte",
+    "userAvatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Ambiente sofisticado y cálido. La reserva en línea funcionó sin demoras ni filas.",
+      "en": "Sophisticated yet warm ambiance. The online table reservation worked seamlessly with zero wait time.",
+      "pt": "Ambiente sofisticado e acolhedor. A reserva online funcionou sem filas nem atrasos.",
+      "fr": "Ambiance feutrée et chaleureuse. La réservation en ligne a fonctionné sans la moindre attente.",
+      "ja": "洗練されつつも温かみのある空間。事前のオンライン予約で待ち時間なく案内されました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-06T01:37:31.924Z"
+  },
+  {
+    "id": "rev-7",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-br-liberdade",
+    "userName": "Carolina Ramírez",
+    "userAvatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Una experiencia gastronómica inolvidable. El servicio por QR fue inmediato y los platos llegaron en su punto perfecto.",
+      "en": "An unforgettable culinary experience. The table QR order was swift and dishes arrived at absolute perfection.",
+      "pt": "Uma experiência gastronômica inesquecível. O pedido pelo QR foi rápido e os pratos chegaram perfeitos.",
+      "fr": "Une expérience gastronomique inoubliable. La commande par QR fut instantanée et les assiettes parfaites.",
+      "ja": "忘れられない美食体験でした。テーブルQRでの注文はとてもスムーズで、料理も最高の焼き加減でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "¡Muchas gracias por su visita! Nos alegra saber que disfrutó de nuestra propuesta culinaria.",
+        "en": "Thank you very much for your visit! We are thrilled you enjoyed our culinary craft.",
+        "pt": "Muito obrigado pela visita! Ficamos felizes que tenha apreciado nossa gastronomia.",
+        "fr": "Merci infiniment pour votre visite! Nous sommes ravis que notre cuisine vous ait comblé.",
+        "ja": "ご来店誠にありがとうございました！おもてなしとお料理をお楽しみいただけて光栄です。"
+      },
+      "repliedAt": "2026-11-10T14:30:00Z",
+      "repliedBy": "Equipo de Sala"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-05T01:37:31.924Z"
+  },
+  {
+    "id": "rev-8",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-br-itaim",
+    "userName": "Gabriel Barbosa",
+    "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "El almuerzo del día superó todas mis expectativas: ingredientes fresquísimos y una cocción a las brasas impecable.",
+      "en": "The daily lunch special exceeded all expectations: remarkably fresh produce and flawless charcoal grilling.",
+      "pt": "O almoço do dia superou as expectativas: ingredientes fresquíssimos e ponto da brasa impecável.",
+      "fr": "Le plat du jour a dépassé toutes mes attentes: produits d’une fraîcheur remarquable et cuisson au feu de bois impeccable.",
+      "ja": "本日のおすすめランチは期待以上でした。食材の鮮度が際立ち、炭火の香ばしさが格別でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "Es un placer atenderle. Cada mañana preparamos el almuerzo del día con productos locales de proximidad.",
+        "en": "A pleasure serving you. We craft our daily lunch every morning using fresh regional harvest.",
+        "pt": "Foi um prazer atendê-lo. Preparamos o almoço do dia diariamente com ingredientes locais selecionados.",
+        "fr": "Tout le plaisir est pour nous. Nous élaborons le menu du jour chaque matin avec les arrivages frais.",
+        "ja": "温かいお言葉をいただき感謝申し上げます。毎朝仕入れる旬の素材で心を込めてお作りしております。"
+      },
+      "repliedAt": "2026-11-09T18:00:00Z",
+      "repliedBy": "Chef Ejecutivo"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-04T01:37:31.924Z"
+  },
+  {
+    "id": "rev-9",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-us-manhattan",
+    "userName": "Emily Clark",
+    "userAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Ambiente sofisticado y cálido. La reserva en línea funcionó sin demoras ni filas.",
+      "en": "Sophisticated yet warm ambiance. The online table reservation worked seamlessly with zero wait time.",
+      "pt": "Ambiente sofisticado e acolhedor. A reserva online funcionou sem filas nem atrasos.",
+      "fr": "Ambiance feutrée et chaleureuse. La réservation en ligne a fonctionné sans la moindre attente.",
+      "ja": "洗練されつつも温かみのある空間。事前のオンライン予約で待ち時間なく案内されました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-03T01:37:31.924Z"
+  },
+  {
+    "id": "rev-10",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-us-brooklyn",
+    "userName": "Pierre Laurent",
+    "userAvatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
+    "rating": 4,
+    "comment": {
+      "es": "Una experiencia gastronómica inolvidable. El servicio por QR fue inmediato y los platos llegaron en su punto perfecto.",
+      "en": "An unforgettable culinary experience. The table QR order was swift and dishes arrived at absolute perfection.",
+      "pt": "Uma experiência gastronômica inesquecível. O pedido pelo QR foi rápido e os pratos chegaram perfeitos.",
+      "fr": "Une expérience gastronomique inoubliable. La commande par QR fut instantanée et les assiettes parfaites.",
+      "ja": "忘れられない美食体験でした。テーブルQRでの注文はとてもスムーズで、料理も最高の焼き加減でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "¡Muchas gracias por su visita! Nos alegra saber que disfrutó de nuestra propuesta culinaria.",
+        "en": "Thank you very much for your visit! We are thrilled you enjoyed our culinary craft.",
+        "pt": "Muito obrigado pela visita! Ficamos felizes que tenha apreciado nossa gastronomia.",
+        "fr": "Merci infiniment pour votre visite! Nous sommes ravis que notre cuisine vous ait comblé.",
+        "ja": "ご来店誠にありがとうございました！おもてなしとお料理をお楽しみいただけて光栄です。"
+      },
+      "repliedAt": "2026-11-10T14:30:00Z",
+      "repliedBy": "Equipo de Sala"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-02T01:37:31.924Z"
+  },
+  {
+    "id": "rev-11",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-us-soho",
+    "userName": "Kenji Tanaka",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "El almuerzo del día superó todas mis expectativas: ingredientes fresquísimos y una cocción a las brasas impecable.",
+      "en": "The daily lunch special exceeded all expectations: remarkably fresh produce and flawless charcoal grilling.",
+      "pt": "O almoço do dia superou as expectativas: ingredientes fresquíssimos e ponto da brasa impecável.",
+      "fr": "Le plat du jour a dépassé toutes mes attentes: produits d’une fraîcheur remarquable et cuisson au feu de bois impeccable.",
+      "ja": "本日のおすすめランチは期待以上でした。食材の鮮度が際立ち、炭火の香ばしさが格別でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "Es un placer atenderle. Cada mañana preparamos el almuerzo del día con productos locales de proximidad.",
+        "en": "A pleasure serving you. We craft our daily lunch every morning using fresh regional harvest.",
+        "pt": "Foi um prazer atendê-lo. Preparamos o almoço do dia diariamente com ingredientes locais selecionados.",
+        "fr": "Tout le plaisir est pour nous. Nous élaborons le menu du jour chaque matin avec les arrivages frais.",
+        "ja": "温かいお言葉をいただき感謝申し上げます。毎朝仕入れる旬の素材で心を込めてお作りしております。"
+      },
+      "repliedAt": "2026-11-09T18:00:00Z",
+      "repliedBy": "Chef Ejecutivo"
+    },
+    "status": "approved",
+    "createdAt": "2026-11-01T01:37:31.924Z"
+  },
+  {
+    "id": "rev-12",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-us-williamsburg",
+    "userName": "Mariana Duarte",
+    "userAvatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Ambiente sofisticado y cálido. La reserva en línea funcionó sin demoras ni filas.",
+      "en": "Sophisticated yet warm ambiance. The online table reservation worked seamlessly with zero wait time.",
+      "pt": "Ambiente sofisticado e acolhedor. A reserva online funcionou sem filas nem atrasos.",
+      "fr": "Ambiance feutrée et chaleureuse. La réservation en ligne a fonctionné sans la moindre attente.",
+      "ja": "洗練されつつも温かみのある空間。事前のオンライン予約で待ち時間なく案内されました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-31T01:37:31.924Z"
+  },
+  {
+    "id": "rev-13",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-fr-marais",
+    "userName": "Carolina Ramírez",
+    "userAvatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Una experiencia gastronómica inolvidable. El servicio por QR fue inmediato y los platos llegaron en su punto perfecto.",
+      "en": "An unforgettable culinary experience. The table QR order was swift and dishes arrived at absolute perfection.",
+      "pt": "Uma experiência gastronômica inesquecível. O pedido pelo QR foi rápido e os pratos chegaram perfeitos.",
+      "fr": "Une expérience gastronomique inoubliable. La commande par QR fut instantanée et les assiettes parfaites.",
+      "ja": "忘れられない美食体験でした。テーブルQRでの注文はとてもスムーズで、料理も最高の焼き加減でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "¡Muchas gracias por su visita! Nos alegra saber que disfrutó de nuestra propuesta culinaria.",
+        "en": "Thank you very much for your visit! We are thrilled you enjoyed our culinary craft.",
+        "pt": "Muito obrigado pela visita! Ficamos felizes que tenha apreciado nossa gastronomia.",
+        "fr": "Merci infiniment pour votre visite! Nous sommes ravis que notre cuisine vous ait comblé.",
+        "ja": "ご来店誠にありがとうございました！おもてなしとお料理をお楽しみいただけて光栄です。"
+      },
+      "repliedAt": "2026-11-10T14:30:00Z",
+      "repliedBy": "Equipo de Sala"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-30T01:37:31.924Z"
+  },
+  {
+    "id": "rev-14",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-fr-saintgermain",
+    "userName": "Gabriel Barbosa",
+    "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "El almuerzo del día superó todas mis expectativas: ingredientes fresquísimos y una cocción a las brasas impecable.",
+      "en": "The daily lunch special exceeded all expectations: remarkably fresh produce and flawless charcoal grilling.",
+      "pt": "O almoço do dia superou as expectativas: ingredientes fresquíssimos e ponto da brasa impecável.",
+      "fr": "Le plat du jour a dépassé toutes mes attentes: produits d’une fraîcheur remarquable et cuisson au feu de bois impeccable.",
+      "ja": "本日のおすすめランチは期待以上でした。食材の鮮度が際立ち、炭火の香ばしさが格別でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "Es un placer atenderle. Cada mañana preparamos el almuerzo del día con productos locales de proximidad.",
+        "en": "A pleasure serving you. We craft our daily lunch every morning using fresh regional harvest.",
+        "pt": "Foi um prazer atendê-lo. Preparamos o almoço do dia diariamente com ingredientes locais selecionados.",
+        "fr": "Tout le plaisir est pour nous. Nous élaborons le menu du jour chaque matin avec les arrivages frais.",
+        "ja": "温かいお言葉をいただき感謝申し上げます。毎朝仕入れる旬の素材で心を込めてお作りしております。"
+      },
+      "repliedAt": "2026-11-09T18:00:00Z",
+      "repliedBy": "Chef Ejecutivo"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-29T01:37:31.924Z"
+  },
+  {
+    "id": "rev-15",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-fr-opera",
+    "userName": "Emily Clark",
+    "userAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
+    "rating": 4,
+    "comment": {
+      "es": "Ambiente sofisticado y cálido. La reserva en línea funcionó sin demoras ni filas.",
+      "en": "Sophisticated yet warm ambiance. The online table reservation worked seamlessly with zero wait time.",
+      "pt": "Ambiente sofisticado e acolhedor. A reserva online funcionou sem filas nem atrasos.",
+      "fr": "Ambiance feutrée et chaleureuse. La réservation en ligne a fonctionné sans la moindre attente.",
+      "ja": "洗練されつつも温かみのある空間。事前のオンライン予約で待ち時間なく案内されました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-28T01:37:31.924Z"
+  },
+  {
+    "id": "rev-16",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-fr-montparnasse",
+    "userName": "Pierre Laurent",
+    "userAvatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Una experiencia gastronómica inolvidable. El servicio por QR fue inmediato y los platos llegaron en su punto perfecto.",
+      "en": "An unforgettable culinary experience. The table QR order was swift and dishes arrived at absolute perfection.",
+      "pt": "Uma experiência gastronômica inesquecível. O pedido pelo QR foi rápido e os pratos chegaram perfeitos.",
+      "fr": "Une expérience gastronomique inoubliable. La commande par QR fut instantanée et les assiettes parfaites.",
+      "ja": "忘れられない美食体験でした。テーブルQRでの注文はとてもスムーズで、料理も最高の焼き加減でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "¡Muchas gracias por su visita! Nos alegra saber que disfrutó de nuestra propuesta culinaria.",
+        "en": "Thank you very much for your visit! We are thrilled you enjoyed our culinary craft.",
+        "pt": "Muito obrigado pela visita! Ficamos felizes que tenha apreciado nossa gastronomia.",
+        "fr": "Merci infiniment pour votre visite! Nous sommes ravis que notre cuisine vous ait comblé.",
+        "ja": "ご来店誠にありがとうございました！おもてなしとお料理をお楽しみいただけて光栄です。"
+      },
+      "repliedAt": "2026-11-10T14:30:00Z",
+      "repliedBy": "Equipo de Sala"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-27T01:37:31.924Z"
+  },
+  {
+    "id": "rev-17",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-jp-shibuya",
+    "userName": "Kenji Tanaka",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "El almuerzo del día superó todas mis expectativas: ingredientes fresquísimos y una cocción a las brasas impecable.",
+      "en": "The daily lunch special exceeded all expectations: remarkably fresh produce and flawless charcoal grilling.",
+      "pt": "O almoço do dia superou as expectativas: ingredientes fresquíssimos e ponto da brasa impecável.",
+      "fr": "Le plat du jour a dépassé toutes mes attentes: produits d’une fraîcheur remarquable et cuisson au feu de bois impeccable.",
+      "ja": "本日のおすすめランチは期待以上でした。食材の鮮度が際立ち、炭火の香ばしさが格別でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "Es un placer atenderle. Cada mañana preparamos el almuerzo del día con productos locales de proximidad.",
+        "en": "A pleasure serving you. We craft our daily lunch every morning using fresh regional harvest.",
+        "pt": "Foi um prazer atendê-lo. Preparamos o almoço do dia diariamente com ingredientes locais selecionados.",
+        "fr": "Tout le plaisir est pour nous. Nous élaborons le menu du jour chaque matin avec les arrivages frais.",
+        "ja": "温かいお言葉をいただき感謝申し上げます。毎朝仕入れる旬の素材で心を込めてお作りしております。"
+      },
+      "repliedAt": "2026-11-09T18:00:00Z",
+      "repliedBy": "Chef Ejecutivo"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-26T01:37:31.924Z"
+  },
+  {
+    "id": "rev-18",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-jp-roppongi",
+    "userName": "Mariana Duarte",
+    "userAvatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Ambiente sofisticado y cálido. La reserva en línea funcionó sin demoras ni filas.",
+      "en": "Sophisticated yet warm ambiance. The online table reservation worked seamlessly with zero wait time.",
+      "pt": "Ambiente sofisticado e acolhedor. A reserva online funcionou sem filas nem atrasos.",
+      "fr": "Ambiance feutrée et chaleureuse. La réservation en ligne a fonctionné sans la moindre attente.",
+      "ja": "洗練されつつも温かみのある空間。事前のオンライン予約で待ち時間なく案内されました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-25T01:37:31.924Z"
+  },
+  {
+    "id": "rev-19",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-jp-ginza",
+    "userName": "Carolina Ramírez",
+    "userAvatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Una experiencia gastronómica inolvidable. El servicio por QR fue inmediato y los platos llegaron en su punto perfecto.",
+      "en": "An unforgettable culinary experience. The table QR order was swift and dishes arrived at absolute perfection.",
+      "pt": "Uma experiência gastronômica inesquecível. O pedido pelo QR foi rápido e os pratos chegaram perfeitos.",
+      "fr": "Une expérience gastronomique inoubliable. La commande par QR fut instantanée et les assiettes parfaites.",
+      "ja": "忘れられない美食体験でした。テーブルQRでの注文はとてもスムーズで、料理も最高の焼き加減でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "¡Muchas gracias por su visita! Nos alegra saber que disfrutó de nuestra propuesta culinaria.",
+        "en": "Thank you very much for your visit! We are thrilled you enjoyed our culinary craft.",
+        "pt": "Muito obrigado pela visita! Ficamos felizes que tenha apreciado nossa gastronomia.",
+        "fr": "Merci infiniment pour votre visite! Nous sommes ravis que notre cuisine vous ait comblé.",
+        "ja": "ご来店誠にありがとうございました！おもてなしとお料理をお楽しみいただけて光栄です。"
+      },
+      "repliedAt": "2026-11-10T14:30:00Z",
+      "repliedBy": "Equipo de Sala"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-24T01:37:31.924Z"
+  },
+  {
+    "id": "rev-20",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-jp-shinjuku",
+    "userName": "Gabriel Barbosa",
+    "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+    "rating": 4,
+    "comment": {
+      "es": "El almuerzo del día superó todas mis expectativas: ingredientes fresquísimos y una cocción a las brasas impecable.",
+      "en": "The daily lunch special exceeded all expectations: remarkably fresh produce and flawless charcoal grilling.",
+      "pt": "O almoço do dia superou as expectativas: ingredientes fresquíssimos e ponto da brasa impecável.",
+      "fr": "Le plat du jour a dépassé toutes mes attentes: produits d’une fraîcheur remarquable et cuisson au feu de bois impeccable.",
+      "ja": "本日のおすすめランチは期待以上でした。食材の鮮度が際立ち、炭火の香ばしさが格別でした。"
+    },
+    "reply": {
+      "text": {
+        "es": "Es un placer atenderle. Cada mañana preparamos el almuerzo del día con productos locales de proximidad.",
+        "en": "A pleasure serving you. We craft our daily lunch every morning using fresh regional harvest.",
+        "pt": "Foi um prazer atendê-lo. Preparamos o almoço do dia diariamente com ingredientes locais selecionados.",
+        "fr": "Tout le plaisir est pour nous. Nous élaborons le menu du jour chaque matin avec les arrivages frais.",
+        "ja": "温かいお言葉をいただき感謝申し上げます。毎朝仕入れる旬の素材で心を込めてお作りしております。"
+      },
+      "repliedAt": "2026-11-09T18:00:00Z",
+      "repliedBy": "Chef Ejecutivo"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-23T01:37:31.924Z"
+  },
+  {
+    "id": "rev-21",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-co-usaquen",
+    "userName": "Comensal Gourmet 21",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-25T13:37:37.906Z"
+  },
+  {
+    "id": "rev-22",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-co-chico",
+    "userName": "Comensal Gourmet 22",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-24T17:37:37.906Z"
+  },
+  {
+    "id": "rev-23",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-co-zonag",
+    "userName": "Comensal Gourmet 23",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-23T21:37:37.906Z"
+  },
+  {
+    "id": "rev-24",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-br-pinheiros",
+    "userName": "Comensal Gourmet 24",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-23T01:37:37.907Z"
+  },
+  {
+    "id": "rev-25",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-br-jardins",
+    "userName": "Comensal Gourmet 25",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-22T05:37:37.907Z"
+  },
+  {
+    "id": "rev-26",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-br-liberdade",
+    "userName": "Comensal Gourmet 26",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-21T09:37:37.907Z"
+  },
+  {
+    "id": "rev-27",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-br-itaim",
+    "userName": "Comensal Gourmet 27",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-20T13:37:37.907Z"
+  },
+  {
+    "id": "rev-28",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-us-manhattan",
+    "userName": "Comensal Gourmet 28",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-19T17:37:37.907Z"
+  },
+  {
+    "id": "rev-29",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-us-brooklyn",
+    "userName": "Comensal Gourmet 29",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-18T21:37:37.907Z"
+  },
+  {
+    "id": "rev-30",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-us-soho",
+    "userName": "Comensal Gourmet 30",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-18T01:37:37.907Z"
+  },
+  {
+    "id": "rev-31",
+    "restaurantId": "brand-sora",
+    "branchId": "br-sora-us-williamsburg",
+    "userName": "Comensal Gourmet 31",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-17T05:37:37.907Z"
+  },
+  {
+    "id": "rev-32",
+    "restaurantId": "brand-aura",
+    "branchId": "br-aura-fr-marais",
+    "userName": "Comensal Gourmet 32",
+    "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "comment": {
+      "es": "Servicio excepcional y platos extraordinarios. Todo en perfecto orden.",
+      "en": "Exceptional service and extraordinary dishes. Everything was in perfect order.",
+      "pt": "Serviço excepcional e pratos extraordinários. Tudo em perfeita harmonia.",
+      "fr": "Service exceptionnel et plats extraordinaires. Tout était parfait.",
+      "ja": "素晴らしい接客とお料理でした。細やかな気配りに感動しました。"
+    },
+    "status": "approved",
+    "createdAt": "2026-10-16T09:37:37.907Z"
+  }
+]

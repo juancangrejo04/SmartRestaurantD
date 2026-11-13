@@ -1,0 +1,152 @@
+[
+  {
+    "id": "user-owner",
+    "name": "Carlos Mendoza",
+    "email": "carlos.owner@smartrestaurant.io",
+    "role": "owner",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    "country": "CO",
+    "language": "es"
+  },
+  {
+    "id": "user-admin-co",
+    "name": "Elena Rostova",
+    "email": "elena.admin@smartrestaurant.io",
+    "role": "branch_admin",
+    "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+    "assignedRestaurantId": "brand-aura",
+    "assignedBranchId": "br-aura-co-chapinero",
+    "country": "CO",
+    "language": "es"
+  },
+  {
+    "id": "user-admin-br",
+    "name": "Thiago Silva",
+    "email": "thiago.admin@smartrestaurant.io",
+    "role": "branch_admin",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    "assignedRestaurantId": "brand-aura",
+    "assignedBranchId": "br-aura-br-pinheiros",
+    "country": "BR",
+    "language": "pt"
+  },
+  {
+    "id": "user-admin-us",
+    "name": "Michael Vance",
+    "email": "michael.admin@smartrestaurant.io",
+    "role": "branch_admin",
+    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+    "assignedRestaurantId": "brand-aura",
+    "assignedBranchId": "br-aura-us-manhattan",
+    "country": "US",
+    "language": "en"
+  },
+  {
+    "id": "user-admin-fr",
+    "name": "Camille Dupont",
+    "email": "camille.admin@smartrestaurant.io",
+    "role": "branch_admin",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    "assignedRestaurantId": "brand-aura",
+    "assignedBranchId": "br-aura-fr-marais",
+    "country": "FR",
+    "language": "fr"
+  },
+  {
+    "id": "user-admin-jp",
+    "name": "Kenji Sato",
+    "email": "kenji.admin@smartrestaurant.io",
+    "role": "branch_admin",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    "assignedRestaurantId": "brand-aura",
+    "assignedBranchId": "br-aura-jp-shibuya",
+    "country": "JP",
+    "language": "ja"
+  },
+  {
+    "id": "user-waiter-1",
+    "name": "Mateo Gómez",
+    "email": "mateo.waiter@smartrestaurant.io",
+    "role": "waiter",
+    "avatar": "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&auto=format&fit=crop&q=80",
+    "assignedRestaurantId": "brand-aura",
+    "assignedBranchId": "br-aura-co-chapinero",
+    "country": "CO",
+    "language": "es"
+  },
+  {
+    "id": "user-kitchen-1",
+    "name": "Chef Andrés Salgado",
+    "email": "andres.kitchen@smartrestaurant.io",
+    "role": "kitchen",
+    "avatar": "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80",
+    "assignedRestaurantId": "brand-aura",
+    "assignedBranchId": "br-aura-co-chapinero",
+    "country": "CO",
+    "language": "es"
+  },
+  {
+    "id": "user-courier-1",
+    "name": "Felipe Moreno",
+    "email": "felipe.courier@smartrestaurant.io",
+    "role": "courier",
+    "avatar": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80",
+    "assignedBranchId": "br-aura-co-chapinero",
+    "country": "CO",
+    "language": "es"
+  },
+  {
+    "id": "user-platform-admin",
+    "name": "Directorio Central",
+    "email": "root@smartrestaurant.io",
+    "role": "platform_admin",
+    "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
+    "country": "CO",
+    "language": "es"
+  },
+  {
+    "id": "user-customer-co",
+    "name": "Valentina Morales",
+    "email": "valentina.morales@gmail.com",
+    "role": "customer",
+    "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+    "country": "CO",
+    "language": "es"
+  },
+  {
+    "id": "user-customer-br",
+    "name": "Camila Santos",
+    "email": "camila.santos@gmail.com",
+    "role": "customer",
+    "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+    "country": "BR",
+    "language": "pt"
+  },
+  {
+    "id": "user-customer-us",
+    "name": "Sarah Jenkins",
+    "email": "sarah.jenkins@gmail.com",
+    "role": "customer",
+    "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+    "country": "US",
+    "language": "en"
+  },
+  {
+    "id": "user-customer-fr",
+    "name": "Juliette Moreau",
+    "email": "juliette.moreau@gmail.com",
+    "role": "customer",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    "country": "FR",
+    "language": "fr"
+  },
+  {
+    "id": "user-customer-jp",
+    "name": "Yuki Takahashi",
+    "email": "yuki.takahashi@gmail.com",
+    "role": "customer",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    "country": "JP",
+    "language": "ja"
+  }
+]

@@ -21,6 +21,7 @@ export const KitchenView: React.FC = () => {
     branches,
     advanceKitchenOrder,
     formatPrice,
+    getBranchDisplayName,
   } = useApp();
 
   const [tick, setTick] = useState(0);
@@ -66,7 +67,7 @@ export const KitchenView: React.FC = () => {
                 {order.orderNumber}
               </span>
               <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-bold">
-                Mesa #{order.tableNumber}
+                {t('table_label')} #{order.tableNumber}
               </span>
             </div>
 
@@ -84,7 +85,7 @@ export const KitchenView: React.FC = () => {
 
           {/* Customer / Origin */}
           <div className="text-[11px] text-slate-400 mb-3 flex items-center justify-between">
-            <span>{order.customerName || `Mesa ${order.tableNumber}`}</span>
+            <span>{order.customerName || `${t('table_label')} ${order.tableNumber}`}</span>
             <span className="font-mono text-slate-500">
               {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
@@ -137,9 +138,9 @@ export const KitchenView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-            <span>{activeBranch?.name}</span>
+            <span>{activeBranch ? getBranchDisplayName(activeBranch) : ''}</span>
             <span>·</span>
-            <span className="text-amber-600 font-medium">Sincronización en vivo vía Event Bus</span>
+            <span className="text-amber-600 font-medium">{t('realtime_sync')}</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
             <ChefHat className="w-6 h-6 text-amber-500" />
@@ -150,7 +151,7 @@ export const KitchenView: React.FC = () => {
 
         <div className="flex items-center gap-2 text-xs text-slate-600 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-xs">
           <Clock className="w-3.5 h-3.5 text-amber-500" />
-          <span>Tiempo de actualización: tiempo real</span>
+          <span>{t('sync_active')}</span>
         </div>
       </div>
 
@@ -173,7 +174,7 @@ export const KitchenView: React.FC = () => {
           <div className="space-y-3 flex-1 overflow-y-auto">
             {kitchenTickets.received.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-400">
-                Sin comandas por iniciar
+                {t('no_results')}
               </div>
             ) : (
               kitchenTickets.received.map((order: Order) => renderOrderCard(order, 'received'))
@@ -198,7 +199,7 @@ export const KitchenView: React.FC = () => {
           <div className="space-y-3 flex-1 overflow-y-auto">
             {kitchenTickets.preparing.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-400">
-                No hay platos en fogón
+                {t('no_results')}
               </div>
             ) : (
               kitchenTickets.preparing.map((order: Order) => renderOrderCard(order, 'preparing'))
@@ -223,7 +224,7 @@ export const KitchenView: React.FC = () => {
           <div className="space-y-3 flex-1 overflow-y-auto">
             {kitchenTickets.ready.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-400">
-                Sin platos esperando mesero
+                {t('no_results')}
               </div>
             ) : (
               kitchenTickets.ready.map((order: Order) => renderOrderCard(order, 'ready'))
@@ -248,7 +249,7 @@ export const KitchenView: React.FC = () => {
           <div className="space-y-3 flex-1 overflow-y-auto">
             {kitchenTickets.delivered.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-400">
-                No hay comandas entregadas recientemente
+                {t('no_results')}
               </div>
             ) : (
               kitchenTickets.delivered.map((order: Order) => renderOrderCard(order, 'delivered'))

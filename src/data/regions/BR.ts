@@ -1,0 +1,100 @@
+import { RegionProfile } from '../../types';
+
+export const BR_PROFILE: RegionProfile = {
+  code: 'BR',
+  nameKey: 'country_br',
+  nativeName: 'Brasil',
+  pilotCity: 'São Paulo',
+  pilotCityKey: 'city_sao_paulo',
+  flagEmoji: '🇧🇷',
+  defaultLanguage: 'pt',
+  supportedLanguages: ['pt', 'es', 'en', 'fr', 'ja'],
+  currency: 'BRL',
+  currencySymbol: 'R$',
+  symbolPosition: 'before',
+  symbolSpacing: true, // "R$ 25,90"
+  fractionDigits: 2,
+  thousandSeparator: '.',
+  decimalSeparator: ',',
+  dateFormatPattern: 'dd/mm/aaaa',
+  clockFormat: '24h',
+  timeZone: 'America/Sao_Paulo',
+  hasDaylightSaving: false,
+  firstDayOfWeek: 0, // Sunday
+  measurementSystem: 'metric',
+  distanceUnit: 'km',
+  phonePrefix: '+55',
+  phoneFormatPlaceholder: '(11) 9XXXX-XXXX',
+  phoneRegex: '^\\(?\\d{2}\\)?\\s?9\\d{4}-?\\d{4}$',
+  postalCodeMask: 'NNNNN-NNN',
+  postalCodeRegex: '^\\d{5}-?\\d{3}$',
+  nameOrder: 'given_family',
+  addressFields: [
+    { key: 'streetLine', labelKey: 'field_address_street', required: true, placeholderKey: 'placeholder_address_br' },
+    { key: 'suiteOrApt', labelKey: 'field_address_complement', required: false, placeholderKey: 'placeholder_complement' },
+    { key: 'neighborhood', labelKey: 'field_address_neighborhood', required: true, placeholderKey: 'placeholder_neighborhood' },
+    { key: 'city', labelKey: 'field_address_city', required: true, placeholderKey: 'placeholder_city' },
+    { key: 'stateOrPrefecture', labelKey: 'field_address_state', required: true, placeholderKey: 'placeholder_state_br' },
+    { key: 'postalCode', labelKey: 'field_address_cep', required: true, placeholderKey: 'placeholder_cep' },
+  ],
+  taxRules: [
+    {
+      id: 'br-iss-sp',
+      appliesTo: 'prepared_food',
+      orderType: '*',
+      jurisdiction: 'Prefeitura de São Paulo / ICMS Estadual',
+      rateBps: 500, // 5% ISS / ICMS referencial
+      labelKey: 'tax_iss_icms_5',
+      source: 'https://www.prefeitura.sp.gov.br/cidade/secretarias/fazenda/tributos/iss/',
+      verifiedAt: '2026-01-20',
+    },
+  ],
+  tipPolicy: {
+    mode: 'optional',
+    suggestionsBps: [0, 500, 1000],
+    defaultBps: 0,
+    showWidget: true,
+  },
+  receipt: {
+    documentTypeKey: 'receipt_nfe_nfce',
+    officialAuthority: 'Secretaria da Fazenda e Planejamento do Estado de SP / Receita Federal',
+    fiscalNumberLabelKey: 'fiscal_id_cnpj',
+    requiresFiscalIdOnReceipt: true,
+    electronicInvoiceSystem: 'NFC-e (Nota Fiscal de Consumidor Eletrônica)',
+    footerLegalTextKey: 'receipt_legal_br',
+  },
+  paymentMethods: [
+    { id: 'pix', labelKey: 'payment_pix', iconName: 'QrCode', kind: 'wallet', isElectronic: true },
+    { id: 'card', labelKey: 'payment_card', iconName: 'CreditCard', kind: 'card', isElectronic: true },
+    { id: 'boleto', labelKey: 'payment_boleto', iconName: 'FileText', kind: 'bank_transfer', isElectronic: true },
+    { id: 'cash', labelKey: 'payment_cash', iconName: 'Banknote', kind: 'cash', isElectronic: false },
+  ],
+  holidays: [
+    { date: '2026-01-01', nameKey: 'holiday_new_year', isNational: true },
+    { date: '2026-02-17', nameKey: 'holiday_carnival', isNational: true },
+    { date: '2026-04-03', nameKey: 'holiday_good_friday', isNational: true },
+    { date: '2026-04-21', nameKey: 'holiday_tiradentes', isNational: true },
+    { date: '2026-05-01', nameKey: 'holiday_labor_day', isNational: true },
+    { date: '2026-06-04', nameKey: 'holiday_corpus_christi', isNational: true },
+    { date: '2026-09-07', nameKey: 'holiday_independence_br', isNational: true },
+    { date: '2026-10-12', nameKey: 'holiday_aparecida', isNational: true },
+    { date: '2026-11-15', nameKey: 'holiday_republic_br', isNational: true },
+    { date: '2026-12-25', nameKey: 'holiday_christmas', isNational: true },
+  ],
+  dataResidency: {
+    dataRegion: 'southamerica-east1 (São Paulo primary)',
+    applicableLaw: 'LGPD — Lei Geral de Proteção de Dados (Lei nº 13.709/2018)',
+    legalBasis: 'Execução de contrato e legítimo interesse operacional',
+    retentionMonths: 60,
+  },
+  domain: 'smartrestaurant.com.br',
+  revenueModel: {
+    platformCommissionBps: 1500, // 15%
+    baseDeliveryFeeMinorUnits: 790, // BRL 7,90
+  },
+  ui: {
+    showTipWidget: true,
+    serviceIncludedNotice: false,
+    addressInLocalOrder: true,
+  },
+};

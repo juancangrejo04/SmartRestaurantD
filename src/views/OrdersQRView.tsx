@@ -33,6 +33,8 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
     createOrder,
     orders,
     formatPrice,
+    getBranchDisplayName,
+    loc,
   } = useApp();
 
   const branchTables = tables.filter((t: Table) => t.branchId === activeBranchId);
@@ -52,7 +54,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
   const currentLang = countryConfig.language;
 
   // Cart Calculations
-  const subtotalUSD = cart.reduce((sum, item) => sum + item.subtotal, 0);
+  const subtotalUSD = cart.reduce((sum, item) => sum + (item.subtotal ?? item.subtotalMinorUnits ?? 0), 0);
   const taxUSD = subtotalUSD * countryConfig.taxRate;
   const tipUSD = subtotalUSD * (tipPercent / 100);
   const totalUSD = subtotalUSD + taxUSD + tipUSD;
@@ -61,7 +63,10 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
 
   // Cart item management
   const handleAddToCart = (item: MenuItem) => {
-    const itemName = item.name[currentLang] || item.name.es;
+    const itemName = loc(item.name);
+    const rawPrice = item.price ?? item.priceMinorUnits ?? 0;
+    const itemUnit = item.basePriceUSD || (rawPrice > 500 ? rawPrice / 4000 : rawPrice) || 15;
+
     setCart((prev) => {
       const existing = prev.find((ci) => ci.menuItemId === item.id);
       if (existing) {
@@ -70,7 +75,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
             ? {
                 ...ci,
                 quantity: ci.quantity + 1,
-                subtotal: Number(((ci.quantity + 1) * ci.unitPrice).toFixed(2)),
+                subtotal: Number(((ci.quantity + 1) * (ci.unitPrice || itemUnit)).toFixed(2)),
               }
             : ci
         );
@@ -81,8 +86,8 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
           menuItemId: item.id,
           name: itemName,
           quantity: 1,
-          unitPrice: item.basePriceUSD || (item.price > 500 ? item.price / 4000 : item.price) || 15,
-          subtotal: item.basePriceUSD || (item.price > 500 ? item.price / 4000 : item.price) || 15,
+          unitPrice: itemUnit,
+          subtotal: itemUnit,
         },
       ];
     });
@@ -97,7 +102,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
             return {
               ...ci,
               quantity: newQty,
-              subtotal: Number((newQty * ci.unitPrice).toFixed(2)),
+              subtotal: Number((newQty * (ci.unitPrice || 0)).toFixed(2)),
             };
           }
           return ci;
@@ -211,13 +216,13 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
 
           <div className="space-y-1 mb-4">
             <h3 className="font-bold text-base text-slate-900">
-              {activeBranch?.name}
+              {activeBranch ? getBranchDisplayName(activeBranch) : ''}
             </h3>
             <p className="text-sm font-black font-mono text-amber-600">
-              Mesa #{selectedTable?.number || 1} · Zona {selectedTable?.zone}
+              {t('table_label')} #{selectedTable?.number || 1} · {selectedTable?.zone}
             </p>
             <p className="text-xs text-slate-400">
-              Escanee con la cámara de su móvil o use el simulador interactivo
+              {t('qr_code_menu')}
             </p>
           </div>
 
@@ -234,17 +239,17 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
               <Smartphone className="w-5 h-5 text-amber-400" />
               <div>
                 <h3 className="font-bold text-sm text-white">
-                  Simulador de Navegación Móvil del Comensal
+                  {t('qr_code_menu')}
                 </h3>
                 <p className="text-xs text-slate-400">
-                  {activeBranch?.name} — Mesa #{selectedTable?.number}
+                  {activeBranch ? getBranchDisplayName(activeBranch) : ''} — {t('table_label')} #{selectedTable?.number}
                 </p>
               </div>
             </div>
 
             {confirmedOrder && (
               <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse">
-                PEDIDO ACTIVO #{confirmedOrder.orderNumber}
+                {confirmedOrder.orderNumber}
               </span>
             )}
           </div>
@@ -292,8 +297,8 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
               {menuItems
                 .filter((item: MenuItem) => item.available)
                 .map((item: MenuItem) => {
-                  const localizedName = item.name[currentLang] || item.name.es;
-                  const localizedDesc = item.description[currentLang] || item.description.es;
+                  const localizedName = loc(item.name);
+                  const localizedDesc = loc(item.description);
 
                   return (
                     <div
@@ -312,7 +317,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
                             {localizedName}
                           </h5>
                           <span className="font-mono text-xs font-bold text-amber-400 whitespace-nowrap">
-                            {formatPrice(item.basePriceUSD || (item.price > 500 ? item.price / 4000 : item.price) || 15)}
+                            {formatPrice(item)}
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
@@ -364,7 +369,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
                         <div className="flex-1 min-w-0 pr-2">
                           <p className="font-medium text-white truncate">{ci.name}</p>
                           <p className="text-[10px] text-slate-400 font-mono">
-                            {formatPrice(ci.unitPrice)} c/u
+                            {formatPrice(ci.unitPrice ?? 0)} c/u
                           </p>
                         </div>
 
@@ -383,7 +388,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
                             <Plus className="w-3 h-3" />
                           </button>
                           <span className="font-mono font-bold text-amber-400 w-16 text-right">
-                            {formatPrice(ci.subtotal)}
+                            {formatPrice(ci.subtotal ?? 0)}
                           </span>
                         </div>
                       </div>

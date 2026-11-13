@@ -1,0 +1,1874 @@
+[
+  {
+    "id": "tbl-br-aura-co-chapinero-1",
+    "branchId": "br-aura-co-chapinero",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-chapinero-2",
+    "branchId": "br-aura-co-chapinero",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-co-chapinero-3",
+    "branchId": "br-aura-co-chapinero",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-chapinero-4",
+    "branchId": "br-aura-co-chapinero",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-chapinero-5",
+    "branchId": "br-aura-co-chapinero",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-chapinero-6",
+    "branchId": "br-aura-co-chapinero",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-chapinero-7",
+    "branchId": "br-aura-co-chapinero",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-chapinero-8",
+    "branchId": "br-aura-co-chapinero",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-chapinero-9",
+    "branchId": "br-aura-co-chapinero",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-chapinero-10",
+    "branchId": "br-aura-co-chapinero",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-1",
+    "branchId": "br-aura-co-usaquen",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-2",
+    "branchId": "br-aura-co-usaquen",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-3",
+    "branchId": "br-aura-co-usaquen",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-4",
+    "branchId": "br-aura-co-usaquen",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-5",
+    "branchId": "br-aura-co-usaquen",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-6",
+    "branchId": "br-aura-co-usaquen",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-7",
+    "branchId": "br-aura-co-usaquen",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-8",
+    "branchId": "br-aura-co-usaquen",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-9",
+    "branchId": "br-aura-co-usaquen",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-10",
+    "branchId": "br-aura-co-usaquen",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-11",
+    "branchId": "br-aura-co-usaquen",
+    "number": 11,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-co-usaquen-12",
+    "branchId": "br-aura-co-usaquen",
+    "number": 12,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-chico-1",
+    "branchId": "br-sora-co-chico",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-chico-2",
+    "branchId": "br-sora-co-chico",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-co-chico-3",
+    "branchId": "br-sora-co-chico",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-chico-4",
+    "branchId": "br-sora-co-chico",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-chico-5",
+    "branchId": "br-sora-co-chico",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-chico-6",
+    "branchId": "br-sora-co-chico",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-chico-7",
+    "branchId": "br-sora-co-chico",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-chico-8",
+    "branchId": "br-sora-co-chico",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-chico-9",
+    "branchId": "br-sora-co-chico",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-chico-10",
+    "branchId": "br-sora-co-chico",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-zonag-1",
+    "branchId": "br-sora-co-zonag",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-zonag-2",
+    "branchId": "br-sora-co-zonag",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-co-zonag-3",
+    "branchId": "br-sora-co-zonag",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-zonag-4",
+    "branchId": "br-sora-co-zonag",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-zonag-5",
+    "branchId": "br-sora-co-zonag",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-zonag-6",
+    "branchId": "br-sora-co-zonag",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-zonag-7",
+    "branchId": "br-sora-co-zonag",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-co-zonag-8",
+    "branchId": "br-sora-co-zonag",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-1",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-2",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-3",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-4",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-5",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-6",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-7",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-8",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-9",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-pinheiros-10",
+    "branchId": "br-aura-br-pinheiros",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-1",
+    "branchId": "br-aura-br-jardins",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-2",
+    "branchId": "br-aura-br-jardins",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-3",
+    "branchId": "br-aura-br-jardins",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-4",
+    "branchId": "br-aura-br-jardins",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-5",
+    "branchId": "br-aura-br-jardins",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-6",
+    "branchId": "br-aura-br-jardins",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-7",
+    "branchId": "br-aura-br-jardins",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-8",
+    "branchId": "br-aura-br-jardins",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-9",
+    "branchId": "br-aura-br-jardins",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-10",
+    "branchId": "br-aura-br-jardins",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-11",
+    "branchId": "br-aura-br-jardins",
+    "number": 11,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-br-jardins-12",
+    "branchId": "br-aura-br-jardins",
+    "number": 12,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-1",
+    "branchId": "br-sora-br-liberdade",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-2",
+    "branchId": "br-sora-br-liberdade",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-3",
+    "branchId": "br-sora-br-liberdade",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-4",
+    "branchId": "br-sora-br-liberdade",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-5",
+    "branchId": "br-sora-br-liberdade",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-6",
+    "branchId": "br-sora-br-liberdade",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-7",
+    "branchId": "br-sora-br-liberdade",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-8",
+    "branchId": "br-sora-br-liberdade",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-9",
+    "branchId": "br-sora-br-liberdade",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-liberdade-10",
+    "branchId": "br-sora-br-liberdade",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-1",
+    "branchId": "br-sora-br-itaim",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-2",
+    "branchId": "br-sora-br-itaim",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-3",
+    "branchId": "br-sora-br-itaim",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-4",
+    "branchId": "br-sora-br-itaim",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-5",
+    "branchId": "br-sora-br-itaim",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-6",
+    "branchId": "br-sora-br-itaim",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-7",
+    "branchId": "br-sora-br-itaim",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-8",
+    "branchId": "br-sora-br-itaim",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-9",
+    "branchId": "br-sora-br-itaim",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-br-itaim-10",
+    "branchId": "br-sora-br-itaim",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-1",
+    "branchId": "br-aura-us-manhattan",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-2",
+    "branchId": "br-aura-us-manhattan",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-3",
+    "branchId": "br-aura-us-manhattan",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-4",
+    "branchId": "br-aura-us-manhattan",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-5",
+    "branchId": "br-aura-us-manhattan",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-6",
+    "branchId": "br-aura-us-manhattan",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-7",
+    "branchId": "br-aura-us-manhattan",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-8",
+    "branchId": "br-aura-us-manhattan",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-9",
+    "branchId": "br-aura-us-manhattan",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-10",
+    "branchId": "br-aura-us-manhattan",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-11",
+    "branchId": "br-aura-us-manhattan",
+    "number": 11,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-manhattan-12",
+    "branchId": "br-aura-us-manhattan",
+    "number": 12,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-1",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-2",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-3",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-4",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-5",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-6",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-7",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-8",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-9",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-us-brooklyn-10",
+    "branchId": "br-aura-us-brooklyn",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-soho-1",
+    "branchId": "br-sora-us-soho",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-soho-2",
+    "branchId": "br-sora-us-soho",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-us-soho-3",
+    "branchId": "br-sora-us-soho",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-soho-4",
+    "branchId": "br-sora-us-soho",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-soho-5",
+    "branchId": "br-sora-us-soho",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-soho-6",
+    "branchId": "br-sora-us-soho",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-soho-7",
+    "branchId": "br-sora-us-soho",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-soho-8",
+    "branchId": "br-sora-us-soho",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-soho-9",
+    "branchId": "br-sora-us-soho",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-soho-10",
+    "branchId": "br-sora-us-soho",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-1",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-2",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-3",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-4",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-5",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-6",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-7",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-8",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-9",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-us-williamsburg-10",
+    "branchId": "br-sora-us-williamsburg",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-1",
+    "branchId": "br-aura-fr-marais",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-2",
+    "branchId": "br-aura-fr-marais",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-3",
+    "branchId": "br-aura-fr-marais",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-4",
+    "branchId": "br-aura-fr-marais",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-5",
+    "branchId": "br-aura-fr-marais",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-6",
+    "branchId": "br-aura-fr-marais",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-7",
+    "branchId": "br-aura-fr-marais",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-8",
+    "branchId": "br-aura-fr-marais",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-9",
+    "branchId": "br-aura-fr-marais",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-marais-10",
+    "branchId": "br-aura-fr-marais",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-1",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-2",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-3",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-4",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-5",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-6",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-7",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-8",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-9",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-10",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-11",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 11,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-fr-saintgermain-12",
+    "branchId": "br-aura-fr-saintgermain",
+    "number": 12,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-1",
+    "branchId": "br-sora-fr-opera",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-2",
+    "branchId": "br-sora-fr-opera",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-3",
+    "branchId": "br-sora-fr-opera",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-4",
+    "branchId": "br-sora-fr-opera",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-5",
+    "branchId": "br-sora-fr-opera",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-6",
+    "branchId": "br-sora-fr-opera",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-7",
+    "branchId": "br-sora-fr-opera",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-8",
+    "branchId": "br-sora-fr-opera",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-9",
+    "branchId": "br-sora-fr-opera",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-opera-10",
+    "branchId": "br-sora-fr-opera",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-montparnasse-1",
+    "branchId": "br-sora-fr-montparnasse",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-montparnasse-2",
+    "branchId": "br-sora-fr-montparnasse",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-fr-montparnasse-3",
+    "branchId": "br-sora-fr-montparnasse",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-montparnasse-4",
+    "branchId": "br-sora-fr-montparnasse",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-montparnasse-5",
+    "branchId": "br-sora-fr-montparnasse",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-montparnasse-6",
+    "branchId": "br-sora-fr-montparnasse",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-montparnasse-7",
+    "branchId": "br-sora-fr-montparnasse",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-fr-montparnasse-8",
+    "branchId": "br-sora-fr-montparnasse",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-1",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-2",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-3",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-4",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-5",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-6",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-7",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-8",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-9",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-10",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-11",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 11,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-shibuya-12",
+    "branchId": "br-aura-jp-shibuya",
+    "number": 12,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-1",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-2",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-3",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-4",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-5",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-6",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-7",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-8",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-9",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-aura-jp-roppongi-10",
+    "branchId": "br-aura-jp-roppongi",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-1",
+    "branchId": "br-sora-jp-ginza",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-2",
+    "branchId": "br-sora-jp-ginza",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-3",
+    "branchId": "br-sora-jp-ginza",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-4",
+    "branchId": "br-sora-jp-ginza",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-5",
+    "branchId": "br-sora-jp-ginza",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-6",
+    "branchId": "br-sora-jp-ginza",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-7",
+    "branchId": "br-sora-jp-ginza",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-8",
+    "branchId": "br-sora-jp-ginza",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-9",
+    "branchId": "br-sora-jp-ginza",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-10",
+    "branchId": "br-sora-jp-ginza",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-11",
+    "branchId": "br-sora-jp-ginza",
+    "number": 11,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-ginza-12",
+    "branchId": "br-sora-jp-ginza",
+    "number": 12,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-1",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 1,
+    "capacity": 2,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-2",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 2,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "occupied",
+    "currentGuestsCount": 3
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-3",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 3,
+    "capacity": 6,
+    "zone": "indoor",
+    "status": "reserved",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-4",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 4,
+    "capacity": 4,
+    "zone": "indoor",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-5",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 5,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-6",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 6,
+    "capacity": 4,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-7",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 7,
+    "capacity": 2,
+    "zone": "terrace",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-8",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 8,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-9",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 9,
+    "capacity": 2,
+    "zone": "vip",
+    "status": "available",
+    "currentGuestsCount": 0
+  },
+  {
+    "id": "tbl-br-sora-jp-shinjuku-10",
+    "branchId": "br-sora-jp-shinjuku",
+    "number": 10,
+    "capacity": 2,
+    "zone": "bar",
+    "status": "available",
+    "currentGuestsCount": 0
+  }
+]

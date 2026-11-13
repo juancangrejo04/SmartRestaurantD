@@ -58,6 +58,7 @@ export class ReservationService {
   public createReservation(data: {
     branchId: string;
     restaurantId: string;
+    userId?: string;
     customerName: string;
     customerEmail: string;
     customerPhone: string;
@@ -73,6 +74,7 @@ export class ReservationService {
       code: randCode,
       branchId: data.branchId,
       restaurantId: data.restaurantId,
+      userId: data.userId,
       customerName: data.customerName,
       customerEmail: data.customerEmail,
       customerPhone: data.customerPhone,

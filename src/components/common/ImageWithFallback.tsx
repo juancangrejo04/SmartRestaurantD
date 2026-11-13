@@ -5,8 +5,11 @@ interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElemen
   src?: string;
   alt: string;
   emoji?: string;
+  fallbackEmoji?: string;
   gradient?: string;
+  fallbackGradient?: string;
   dishName?: string;
+  fallbackTitle?: string;
   className?: string;
 }
 
@@ -14,11 +17,17 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   src,
   alt,
   emoji = '🍽️',
+  fallbackEmoji,
   gradient = 'from-[#C8452C] to-[#E8A33D]',
+  fallbackGradient,
   dishName,
+  fallbackTitle,
   className = 'w-full h-full object-cover',
   ...rest
 }) => {
+  const displayEmoji = fallbackEmoji || emoji;
+  const displayGradient = fallbackGradient || gradient;
+  const displayTitle = fallbackTitle || dishName || alt;
   const [hasError, setHasError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,16 +60,16 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
     // Rich, warm, intentional illustrated SVG fallback
     return (
       <div
-        className={`relative overflow-hidden bg-gradient-to-br ${gradient} flex flex-col items-center justify-center p-4 text-white text-center select-none ${className}`}
-        aria-label={alt || dishName || 'Plato gastronómico'}
+        className={`relative overflow-hidden bg-gradient-to-br ${displayGradient} flex flex-col items-center justify-center p-4 text-white text-center select-none ${className}`}
+        aria-label={alt || displayTitle || 'Plato gastronómico'}
       >
         <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
         <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 animate-in fade-in">
           <span className="text-3xl sm:text-4xl filter drop-shadow-md transform hover:scale-110 transition-transform">
-            {emoji}
+            {displayEmoji}
           </span>
           <span className="font-serif font-bold text-xs sm:text-sm text-white/95 line-clamp-1 max-w-[90%] px-1 text-center drop-shadow-sm">
-            {dishName || alt}
+            {displayTitle}
           </span>
           <span className="text-[9px] uppercase tracking-wider font-mono px-2 py-0.5 rounded-full bg-white/20 text-white/90 border border-white/30">
             Cocina de Autor

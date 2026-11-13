@@ -1,0 +1,350 @@
+[
+  {
+    "id": "dish-co-aura-01",
+    "restaurantId": "brand-aura",
+    "countryCode": "CO",
+    "category": "starters",
+    "name": {
+      "es": "Empanadas Bogotanas con Ají Casero",
+      "en": "Bogota Empanadas with Fresh Aji",
+      "pt": "Empanadas de Bogotá com Ají",
+      "fr": "Empanadas de Bogota et aji doux",
+      "ja": "ボゴタ風牛肉のエンパナーダ 自家製アヒ添え"
+    },
+    "description": {
+      "es": "Crujientes empanadas de maíz rellenas de carne mechada sazonada y papa criolla.",
+      "en": "Crispy corn pastries stuffed with shredded beef and baby creole potatoes.",
+      "pt": "Massa crocante de milho recheada com carne desfiada e batata criolla.",
+      "fr": "Chaussons de maïs croustillants farcis au bœuf effiloché et pommes de terre créoles.",
+      "ja": "じっくり煮込んだ牛肉とアンデス小粒ポテトを詰めたサクサクのコーンパイ。"
+    },
+    "priceMinorUnits": 24000,
+    "price": 24000,
+    "basePriceUSD": 6,
+    "prepTimeMinutes": 12,
+    "available": true,
+    "popular": true,
+    "image": "https://images.unsplash.com/photo-1628294895950-9805252327bc?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Empanadas doradas sobre canasta artesanal",
+      "en": "Golden crispy empanadas in artisanal basket",
+      "pt": "Empanadas douradas na cesta artesanal",
+      "fr": "Empanadas dorées croustillantes",
+      "ja": "香ばしく揚がった黄金色のエンパナーダ"
+    },
+    "fallbackEmoji": "🥟"
+  },
+  {
+    "id": "dish-co-aura-02",
+    "restaurantId": "brand-aura",
+    "countryCode": "CO",
+    "category": "mains",
+    "name": {
+      "es": "Ajiaco Santafereño Tradicional",
+      "en": "Bogota Traditional Chicken Ajiaco",
+      "pt": "Ajiaco Tradicional de Bogotá",
+      "fr": "Ajiaco traditionnel santafereño",
+      "ja": "ボゴタ風伝統のアヒアコ（チキンとポテトの煮込み）"
+    },
+    "description": {
+      "es": "Sopa ancestral con tres tipos de papas andinas, pollo tierno desmenuzado, guascas, alcaparras y crema agria.",
+      "en": "Hearty ancestral soup with 3 Andean potato varieties, shredded chicken, guascas herb, capers and cream.",
+      "pt": "Sopa ancestral com três tipos de batatas andinas, frango desfiado, alcaparras e creme.",
+      "fr": "Soupe traditionnelle aux trois pommes de terre andines, poulet fermier, câpres et crème.",
+      "ja": "3種のアンデスポテト、ほぐし鶏肉、香草グアスカを煮込んだボゴタ名物の郷土スープ。"
+    },
+    "priceMinorUnits": 46000,
+    "price": 46000,
+    "basePriceUSD": 11.5,
+    "prepTimeMinutes": 20,
+    "available": true,
+    "popular": true,
+    "image": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Tazón de ajiaco humeante con aguacate y maíz",
+      "en": "Steaming bowl of ajiaco with avocado and corn",
+      "pt": "Tigela de ajiaco quente com abacate e milho",
+      "fr": "Bol fumant d’ajiaco avec avocat et maïs",
+      "ja": "アボカドとトウモロコシが添えられた温かいアヒアコ"
+    },
+    "fallbackEmoji": "🍲"
+  },
+  {
+    "id": "dish-co-aura-03",
+    "restaurantId": "brand-aura",
+    "countryCode": "CO",
+    "category": "mains",
+    "name": {
+      "es": "Bandeja Paisa de Hacienda",
+      "en": "Artisanal Paisa Platter",
+      "pt": "Bandeja Paisa Tradicional",
+      "fr": "Assiette traditionnelle Paisa",
+      "ja": "ハシエンダ風バンデハ・パイサ（郷土プレート）"
+    },
+    "description": {
+      "es": "Frijoles cargamanto en cazuela, arroz blanco, chicharrón crujiente, carne en polvo, huevo frito y plátano maduro.",
+      "en": "Cargamanto bean casserole, white rice, crispy pork belly, powdered beef, sunny-side egg and sweet plantain.",
+      "pt": "Feijão cargamanto, arroz branco, torresmo crocante, carne moída, ovo frito e banana frita.",
+      "fr": "Haricots mijotés, riz blanc, poitrine de porc croustillante, œuf au plat et banane plantain.",
+      "ja": "煮込み豆、白米、カリカリの豚バラ肉、挽肉、目玉焼き、揚げバナナの豪華ワンプレート。"
+    },
+    "priceMinorUnits": 52000,
+    "price": 52000,
+    "basePriceUSD": 13,
+    "prepTimeMinutes": 22,
+    "available": true,
+    "popular": true,
+    "image": "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Bandeja paisa servida con chicharrón y frijoles",
+      "en": "Full paisa platter with crispy pork and beans",
+      "pt": "Bandeja paisa completa com torresmo e feijão",
+      "fr": "Assiette paisa garnie de porc croustillant",
+      "ja": "豚バラと煮豆が乗った伝統のバンデハ・パイサ"
+    },
+    "fallbackEmoji": "🍛"
+  },
+  {
+    "id": "dish-co-aura-04",
+    "restaurantId": "brand-aura",
+    "countryCode": "CO",
+    "category": "desserts",
+    "name": {
+      "es": "Postre de Natas Cundinamarqués",
+      "en": "Bogota Milk Skin Custard with Raisins",
+      "pt": "Doce de Natas com Passas",
+      "fr": "Crème de lait confite aux raisins",
+      "ja": "クンディナマルカ風ミルクスキン・カスタード"
+    },
+    "description": {
+      "es": "Dulce tradicional a base de capas de nata de leche cocida a fuego lento con almíbar de caña y uvas pasas al ron.",
+      "en": "Traditional dessert of slow-cooked milk cream layers in spiced cane syrup with rum-soaked raisins.",
+      "pt": "Sobremesa tradicional de nata de leite em calda de cana com passas ao rum.",
+      "fr": "Dessert traditionnel à base de fines couches de crème de lait au sirop de canne et raisins au rhum.",
+      "ja": "じっくり煮詰めたミルクの膜にサトウキビ蜜とラム酒漬けレーズンを合わせた銘菓。"
+    },
+    "priceMinorUnits": 18000,
+    "price": 18000,
+    "basePriceUSD": 4.5,
+    "prepTimeMinutes": 8,
+    "available": true,
+    "image": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Copa de postre de natas artesanal",
+      "en": "Artisanal milk skin custard cup",
+      "pt": "Taça de doce de natas artesanal",
+      "fr": "Coupe de crème de lait artisanale",
+      "ja": "伝統的なミルクスキンカスタード"
+    },
+    "fallbackEmoji": "🍮"
+  },
+  {
+    "id": "dish-co-sora-01",
+    "restaurantId": "brand-sora",
+    "countryCode": "CO",
+    "category": "starters",
+    "name": {
+      "es": "Tiradito de Corvina y Maracuyá Andina",
+      "en": "Sea Bass Tiradito with Andean Passionfruit",
+      "pt": "Tiradito de Corvina com Maracujá Andino",
+      "fr": "Tiradito de bar au fruit de la passion andin",
+      "ja": "スズキのティラディート アンデスパッションフルーツ仕立て"
+    },
+    "description": {
+      "es": "Finas láminas de corvina fresca curadas en leche de tigre de maracuyá, ají amarillo y crocantes de plátano.",
+      "en": "Thin sashimi-cut sea bass in passionfruit leche de tigre with yellow chili and plantain crisps.",
+      "pt": "Fatias finas de corvina marinadas em leite de tigre de maracujá com crocante de banana.",
+      "fr": "Fines tranches de bar mariné au leche de tigre de fruit de la passion et piment jaune.",
+      "ja": "新鮮なスズキの薄造りにアンデス産パッションフルーツと黄唐辛子のソースを合わせた冷菜。"
+    },
+    "priceMinorUnits": 38000,
+    "price": 38000,
+    "basePriceUSD": 9.5,
+    "prepTimeMinutes": 10,
+    "available": true,
+    "popular": true,
+    "image": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Tiradito de pescado fresco con salsa dorada",
+      "en": "Fresh sea bass tiradito with golden citrus sauce",
+      "pt": "Tiradito de peixe fresco com molho cítrico",
+      "fr": "Tiradito de poisson frais aux agrumes",
+      "ja": "シトラスソースを纏ったスズキのカルパッチョ"
+    },
+    "fallbackEmoji": "🐟"
+  },
+  {
+    "id": "dish-co-sora-02",
+    "restaurantId": "brand-sora",
+    "countryCode": "CO",
+    "category": "mains",
+    "name": {
+      "es": "Nigiris Nikkei de Trucha y Uchuvia",
+      "en": "Trout & Cape Gooseberry Nikkei Nigiri",
+      "pt": "Nigiris Nikkei de Truta e Physalis",
+      "fr": "Nigiris Nikkei à la truite et physalis",
+      "ja": "アンデス鱒と食用ホオズキの日系握り寿司"
+    },
+    "description": {
+      "es": "Arroz sazonado con shari japonés, trucha arcoíris andina flambeada y reducción dulce de uchuvia.",
+      "en": "Seasoned shari sushi rice topped with seared Andean rainbow trout and sweet cape gooseberry glaze.",
+      "pt": "Arroz de sushi com truta arco-íris andina selada e redução doce de physalis.",
+      "fr": "Riz à sushi assaisonné, truite arc-en-ciel andine saisie et réduction de physalis.",
+      "ja": "アンデス清流で育った虹鱒を軽く炙り、ホオズキの甘酸っぱいジュレを添えた握り。"
+    },
+    "priceMinorUnits": 42000,
+    "price": 42000,
+    "basePriceUSD": 10.5,
+    "prepTimeMinutes": 14,
+    "available": true,
+    "popular": true,
+    "image": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Plato de nigiris artesanales flambeados",
+      "en": "Plate of artisanal seared nigiri sushi",
+      "pt": "Prato de nigiris maçaricados artesanais",
+      "fr": "Plateau de nigiris saisis au chalumeau",
+      "ja": "炙り寿司の上品な盛り合わせ"
+    },
+    "fallbackEmoji": "🍣"
+  },
+  {
+    "id": "dish-co-sora-03",
+    "restaurantId": "brand-sora",
+    "countryCode": "CO",
+    "category": "mains",
+    "name": {
+      "es": "Ramen Chashu Criollo al Miso",
+      "en": "Creole Pork Belly Miso Ramen",
+      "pt": "Ramen Criollo de Miso e Chashu",
+      "fr": "Ramen au miso et porc chashu créole",
+      "ja": "信州味噌と特製チャーシューの特製ラーメン"
+    },
+    "description": {
+      "es": "Caldo denso de cerdo y miso cocido por 16 horas, fideos artesanales, chashu braseado, huevo ajitama y maíz tostado.",
+      "en": "16-hour rich pork and miso broth, artisanal ramen noodles, braised chashu pork, ajitama egg and corn.",
+      "pt": "Caldo encorpado de porco e missô, macarrão artesanal, barriga de porco braseada e ovo.",
+      "fr": "Bouillon riche au porc et miso mijoté 16h, nouilles fraîches, porc chashu fondant et œuf mollet.",
+      "ja": "16時間炊き出した濃厚豚骨味噌スープ、自家製麺、特製炙りチャーシューと味玉。"
+    },
+    "priceMinorUnits": 45000,
+    "price": 45000,
+    "basePriceUSD": 11,
+    "prepTimeMinutes": 15,
+    "available": true,
+    "popular": true,
+    "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Tazón humeante de ramen con fideos y huevo",
+      "en": "Steaming bowl of ramen with pork and egg",
+      "pt": "Tigela fumegante de ramen com carne e ovo",
+      "fr": "Bol fumant de ramen avec porc et œuf ajitama",
+      "ja": "湯気立つ濃厚味噌ラーメンの器"
+    },
+    "fallbackEmoji": "🍜"
+  },
+  {
+    "id": "dish-co-sora-04",
+    "restaurantId": "brand-sora",
+    "countryCode": "CO",
+    "category": "desserts",
+    "name": {
+      "es": "Mochi Helado de Lulo y Té Matcha",
+      "en": "Lulo Fruit & Matcha Green Tea Mochi",
+      "pt": "Mochi de Lulo e Chá Verde Matcha",
+      "fr": "Mochi glacé au lulo et thé vert matcha",
+      "ja": "ルロ果実と宇治抹茶のアイス大福"
+    },
+    "description": {
+      "es": "Masa japonesa de arroz glutinoso rellena de helado cremoso de lulo colombiano y polvo de té verde matcha de Kioto.",
+      "en": "Soft Japanese mochi dough filled with tangy Colombian lulo gelato and dusted with Kyoto matcha powder.",
+      "pt": "Massa macia de mochi recheada com sorvete de lulo e pó de chá verde matcha de Kyoto.",
+      "fr": "Pâte de riz japonaise moelleuse garnie de glace au lulo et saupoudrée de matcha de Kyoto.",
+      "ja": "コロンビア名産のルロ果汁ジェラートを柔らかな求肥で包み、京都産宇治抹茶を振った甘味。"
+    },
+    "priceMinorUnits": 20000,
+    "price": 20000,
+    "basePriceUSD": 5,
+    "prepTimeMinutes": 6,
+    "available": true,
+    "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Dúo de mochis artesanales con polvo matcha",
+      "en": "Artisanal mochi pair dusted with matcha",
+      "pt": "Dupla de mochis polvilhados com matcha",
+      "fr": "Duo de mochis artisanaux au thé matcha",
+      "ja": "抹茶パウダーをまとった自家製アイス大福"
+    },
+    "fallbackEmoji": "🍡"
+  },
+  {
+    "id": "dish-co-lunch",
+    "restaurantId": "brand-aura",
+    "countryCode": "CO",
+    "category": "mains",
+    "isLunchOfTheDay": true,
+    "name": {
+      "es": "Almuerzo del Día: Pechuga a la Brasa con Arroz de Coco y Patacón",
+      "en": "Lunch of the Day: Grilled Chicken with Coconut Rice & Plantain",
+      "pt": "Almoço do Dia: Frango Grelhado com Arroz de Coco e Banana",
+      "fr": "Plat du jour midi: Poulet braisé, riz au coco et plantain",
+      "ja": "本日のおすすめランチ：若鶏の炭火焼き ココナッツライスと特製添え"
+    },
+    "description": {
+      "es": "Menú completo balanceado con sopa del día, pechuga de pollo marinada al limón y finas hierbas, arroz de coco artesanal, patacón y limonada fresca.",
+      "en": "Complete balanced lunch with soup of the day, herb-marinated grilled chicken breast, coconut rice, plantain crisp and fresh limeade.",
+      "pt": "Menu completo com sopa do dia, peito de frango grelhado, arroz de coco e limonada fresca.",
+      "fr": "Menu déjeuner équilibré avec potage du jour, suprême de poulet mariné, riz coco et boisson fraîche.",
+      "ja": "本日のスープ、ハーブ若鶏のグリル、香ばしいココナッツライス、特製ライムジュースが付いた日替わり定食。"
+    },
+    "priceMinorUnits": 25900,
+    "price": 25900,
+    "basePriceUSD": 6.32,
+    "prepTimeMinutes": 10,
+    "available": true,
+    "popular": true,
+    "image": "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Plato balanceado de pollo a la plancha con ensalada fresca",
+      "en": "Balanced grilled chicken platter with fresh salad",
+      "pt": "Prato equilibrado de frango grelhado com salada",
+      "fr": "Assiette équilibrée de poulet grillé et légumes",
+      "ja": "彩り野菜と若鶏グリルのヘルシーランチプレート"
+    },
+    "fallbackEmoji": "🍽️"
+  },
+  {
+    "id": "dish-co-drink-01",
+    "restaurantId": "brand-aura",
+    "countryCode": "CO",
+    "category": "drinks",
+    "name": {
+      "es": "Limonada de Coco Andina",
+      "en": "Fresh Andean Coconut Limeade",
+      "pt": "Limonada de Coco Fresca",
+      "fr": "Limonade fraîche à la noix de coco",
+      "ja": "フレッシュココナッツライムジュース"
+    },
+    "description": {
+      "es": "Bebida helada cremosa elaborada al momento con leche de coco natural y jugo de lima recién exprimido.",
+      "en": "Creamy iced beverage made to order with natural coconut cream and freshly squeezed limes.",
+      "pt": "Bebida cremosa gelada feita na hora com leite de coco natural e suco de limão fresco.",
+      "fr": "Boisson glacée onctueuse préparée minute au lait de coco et jus de citron vert frais.",
+      "ja": "絞りたてライム果汁と天然ココナッツミルクをブレンドした、クリーミーな特製フローズンドリンク。"
+    },
+    "priceMinorUnits": 14000,
+    "price": 14000,
+    "basePriceUSD": 3.5,
+    "prepTimeMinutes": 5,
+    "available": true,
+    "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800&auto=format&fit=crop&q=80",
+    "imageAlt": {
+      "es": "Vaso de limonada de coco decorado con lima",
+      "en": "Glass of frosted coconut limeade with lime garnish",
+      "pt": "Copo de limonada de coco gelada com limão",
+      "fr": "Verre de limonade coco glacée avec rondelle de citron",
+      "ja": "ライムを飾った冷たいココナッツライムジュース"
+    },
+    "fallbackEmoji": "🥥"
+  }
+]
