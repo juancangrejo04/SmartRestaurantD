@@ -13,7 +13,7 @@ export const LegalReceiptPage: React.FC = () => {
     branches,
     restaurants,
     country,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
     t,
   } = useApp();
@@ -100,10 +100,10 @@ export const LegalReceiptPage: React.FC = () => {
               {t(profile.receipt.documentTypeKey)}
             </div>
             <h1 className="font-serif font-bold text-2xl text-[#1F1A17]">
-              {restaurant.name}
+              {getBranchLabel(branch, restaurant.name)}
             </h1>
             <p className="text-xs font-medium text-[#7A6E65]">
-              {getBranchDisplayName(branch)} — {getBranchCityName(branch)},{' '}
+              {getBranchCityName(branch)},{' '}
               {COUNTRIES[branch.country]?.nativeName}
             </p>
             <p className="text-[11px] text-[#7A6E65]">

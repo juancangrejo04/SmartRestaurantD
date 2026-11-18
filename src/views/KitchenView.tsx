@@ -21,7 +21,7 @@ export const KitchenView: React.FC = () => {
     branches,
     advanceKitchenOrder,
     formatPrice,
-    getBranchDisplayName,
+    getBranchLabel,
   } = useApp();
 
   const [tick, setTick] = useState(0);
@@ -138,7 +138,7 @@ export const KitchenView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-            <span>{activeBranch ? getBranchDisplayName(activeBranch) : ''}</span>
+            <span>{activeBranch ? getBranchLabel(activeBranch) : ''}</span>
             <span>·</span>
             <span className="text-amber-600 font-medium">{t('realtime_sync')}</span>
           </div>

@@ -167,6 +167,46 @@ export function getBranchName(branch: Branch | undefined | null, lang: Language)
   return branch.name;
 }
 
+const BRAND_NAME_MAP: Record<string, { defaultName: string; aliases: string[] }> = {
+  'brand-aura': {
+    defaultName: 'Aura Mestiza',
+    aliases: ['aura mestiza', 'オーラ・メスティーサ'],
+  },
+  'brand-sora': {
+    defaultName: 'Sora',
+    aliases: ['sora', '宙'],
+  },
+};
+
+/**
+ * Returns the localized branch label and prepends the brand name ONLY if the branch name
+ * does not already contain the brand (avoiding "Brand — Brand — Branch").
+ */
+export function getBranchLabel(
+  branch: Branch | undefined | null,
+  lang: Language,
+  brandName?: string
+): string {
+  if (!branch) return brandName?.trim() || '';
+  const displayName = getBranchName(branch, lang).trim();
+  const brandEntry = BRAND_NAME_MAP[branch.restaurantId];
+  const resolvedBrand = (brandName || brandEntry?.defaultName || '').trim();
+
+  if (!displayName) return resolvedBrand;
+  if (!resolvedBrand) return displayName;
+
+  const lowerDisplay = displayName.toLowerCase();
+  const candidates = [
+    resolvedBrand.toLowerCase(),
+    ...(brandEntry?.aliases || []),
+  ];
+  if (candidates.some((token) => token && lowerDisplay.includes(token))) {
+    return displayName;
+  }
+
+  return `${resolvedBrand} — ${displayName}`;
+}
+
 /**
  * Helper to get a branch's localized city name
  */

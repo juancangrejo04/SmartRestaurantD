@@ -12,7 +12,7 @@ export const MyOrdersPage: React.FC = () => {
     isAuthenticated,
     branches,
     country,
-    getBranchDisplayName,
+    getBranchLabel,
     t,
   } = useApp();
 
@@ -116,7 +116,7 @@ export const MyOrdersPage: React.FC = () => {
                     </div>
 
                     <h3 className="font-serif font-bold text-base text-[#1F1A17]">
-                      {branch ? getBranchDisplayName(branch) : t('branch_label')}
+                      {branch ? getBranchLabel(branch) : t('branch_label')}
                     </h3>
 
                     <p className="text-xs text-[#7A6E65]">

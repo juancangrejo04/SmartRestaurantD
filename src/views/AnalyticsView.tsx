@@ -1,18 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
 import { analyticsService } from '../services/analyticsService';
 import { COUNTRIES } from '../i18n/countries';
 import { MenuItem } from '../types';
-import {
-  BarChart3,
-  Download,
-  DollarSign,
-  TrendingUp,
-  Clock,
-  Layers,
-  CheckCircle,
-  FileSpreadsheet,
-} from 'lucide-react';
+import { FileSpreadsheet } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -39,12 +30,10 @@ export const AnalyticsView: React.FC = () => {
     formatPrice,
   } = useApp();
 
-  const [period, setPeriod] = useState<'today' | 'week' | 'month'>('week');
   const summary = analyticsService.getSummaryMetrics(orders, reservations, tables);
   const branchPerf = analyticsService.getBranchPerformance(branches, orders);
   const countryConfig = COUNTRIES[country];
 
-  // Category distribution data
   const categoryCountMap: Record<string, number> = {
     starters: 0,
     mains: 0,
@@ -105,7 +94,7 @@ export const AnalyticsView: React.FC = () => {
             {formatPrice(summary.avgTicketUSD)}
           </span>
           <span className="text-[11px] text-slate-400 mt-1 block">
-            Por comensal / mesa servida
+            {t('analytics_per_guest')}
           </span>
         </div>
 
@@ -117,7 +106,7 @@ export const AnalyticsView: React.FC = () => {
             14.2 min
           </span>
           <span className="text-[11px] text-emerald-600 mt-1 block font-medium">
-            -2.4 min respecto al promedio histórico
+            {t('analytics_prep_delta')}
           </span>
         </div>
 
@@ -129,7 +118,7 @@ export const AnalyticsView: React.FC = () => {
             94.8%
           </span>
           <span className="text-[11px] text-slate-400 mt-1 block">
-            Asistencia puntual con confirmación previa
+            {t('analytics_reservation_note')}
           </span>
         </div>
       </div>
@@ -144,7 +133,7 @@ export const AnalyticsView: React.FC = () => {
                 {t('chart_revenue_by_branch')}
               </h2>
               <p className="text-xs text-slate-500">
-                Comparativa de ingresos por sucursal en {countryConfig.currency}
+                {t('analytics_revenue_by_branch_sub', { currency: countryConfig.currency })}
               </p>
             </div>
             <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
@@ -159,7 +148,7 @@ export const AnalyticsView: React.FC = () => {
                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} />
                 <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} />
                 <Tooltip
-                  formatter={(val: any) => [formatPrice(Number(val)), 'Ingresos']}
+                  formatter={(val: any) => [formatPrice(Number(val)), t('analytics_revenue_label')]}
                   contentStyle={{ backgroundColor: '#0f172a', borderRadius: '8px', border: 'none', color: '#fff', fontSize: '11px' }}
                 />
                 <Bar dataKey="revenueUSD" fill="#f59e0b" radius={[4, 4, 0, 0]} />
@@ -176,7 +165,7 @@ export const AnalyticsView: React.FC = () => {
                 {t('chart_category_split')}
               </h2>
               <p className="text-xs text-slate-500">
-                Proporción de platos ordenados por familia gastronómica
+                {t('analytics_category_split_sub')}
               </p>
             </div>
           </div>

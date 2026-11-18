@@ -330,7 +330,7 @@ export const PlatformSystemConsoleView: React.FC = () => {
                   onClick={() => setDraftProfile({ ...draftProfile, symbolSpacing: !draftProfile.symbolSpacing })}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 font-mono text-left"
                 >
-                  {draftProfile.symbolSpacing ? 'YES' : 'NO'} —{' '}
+                  {draftProfile.symbolSpacing ? t('yes') : t('no')} —{' '}
                   {MoneyUtils.format(
                     { amount: draftProfile.fractionDigits === 0 ? 25900 : 2590, currency: draftProfile.currency },
                     draftProfile
@@ -382,10 +382,10 @@ export const PlatformSystemConsoleView: React.FC = () => {
                       }
                       className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 font-mono"
                     >
-                      <option value="prepared_food">prepared_food</option>
-                      <option value="delivery_fee">delivery_fee</option>
-                      <option value="packaged_food">packaged_food</option>
-                      <option value="alcohol">alcohol</option>
+                      <option value="prepared_food">{t('prepared_food')}</option>
+                      <option value="delivery_fee">{t('delivery_fee')}</option>
+                      <option value="packaged_food">{t('packaged_food')}</option>
+                      <option value="alcohol">{t('alcohol')}</option>
                     </select>
                   </div>
                   <div className="md:col-span-2">
@@ -401,17 +401,17 @@ export const PlatformSystemConsoleView: React.FC = () => {
                       }
                       className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 font-mono"
                     >
-                      <option value="*">*</option>
-                      <option value="delivery">delivery</option>
-                      <option value="dine_in">dine_in</option>
-                      <option value="takeaway">takeaway</option>
+                      <option value="*">{t('all')}</option>
+                      <option value="delivery">{t('delivery')}</option>
+                      <option value="dine_in">{t('dine_in')}</option>
+                      <option value="takeaway">{t('takeaway')}</option>
                     </select>
                   </div>
                   <div className="md:col-span-2">
                     <input
                       type="text"
                       value={rule.jurisdiction || ''}
-                      placeholder="Jurisdiction"
+                      placeholder={t('sys_jurisdiction_placeholder')}
                       onChange={(e) =>
                         setDraftProfile((prev) => ({
                           ...prev,
@@ -465,11 +465,11 @@ export const PlatformSystemConsoleView: React.FC = () => {
                   }
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono"
                 >
-                  <option value="voluntary">voluntary</option>
-                  <option value="optional">optional</option>
-                  <option value="prompted">prompted</option>
-                  <option value="included">included</option>
-                  <option value="none">none</option>
+                  <option value="voluntary">{t('voluntary')}</option>
+                  <option value="optional">{t('optional')}</option>
+                  <option value="prompted">{t('prompted')}</option>
+                  <option value="included">{t('included')}</option>
+                  <option value="none">{t('none')}</option>
                 </select>
               </div>
               <div>
@@ -525,7 +525,7 @@ export const PlatformSystemConsoleView: React.FC = () => {
                   type="text"
                   value={newMethodId}
                   onChange={(e) => setNewMethodId(e.target.value)}
-                  placeholder="id (e.g. wallet)"
+                  placeholder={t('sys_method_id_placeholder')}
                   className="flex-1 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono"
                 />
                 <select
@@ -575,12 +575,62 @@ export const PlatformSystemConsoleView: React.FC = () => {
                   onChange={(e) => setNewHolidayDate(e.target.value)}
                   className="px-2 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono"
                 />
-                <input
-                  type="text"
+                <select
                   value={newHolidayKey}
                   onChange={(e) => setNewHolidayKey(e.target.value)}
-                  className="flex-1 px-2 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono"
-                />
+                  className="flex-1 px-2 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                >
+                  {[
+                    'holiday_new_year',
+                    'holiday_labor_day',
+                    'holiday_good_friday',
+                    'holiday_christmas',
+                    'holiday_epiphany',
+                    'holiday_st_joseph',
+                    'holiday_maundy_thursday',
+                    'holiday_ascension',
+                    'holiday_corpus_christi',
+                    'holiday_independence_co',
+                    'holiday_boyaca',
+                    'holiday_carnival',
+                    'holiday_tiradentes',
+                    'holiday_independence_br',
+                    'holiday_aparecida',
+                    'holiday_republic_br',
+                    'holiday_mlk_day',
+                    'holiday_presidents_day',
+                    'holiday_memorial_day',
+                    'holiday_juneteenth',
+                    'holiday_independence_us',
+                    'holiday_labor_day_us',
+                    'holiday_thanksgiving',
+                    'holiday_easter_monday',
+                    'holiday_victory_1945',
+                    'holiday_whit_monday',
+                    'holiday_bastille_day',
+                    'holiday_assumption',
+                    'holiday_all_saints',
+                    'holiday_armistice',
+                    'holiday_coming_of_age',
+                    'holiday_foundation_day_jp',
+                    'holiday_emperors_birthday',
+                    'holiday_vernal_equinox',
+                    'holiday_showa_day',
+                    'holiday_constitution_memorial',
+                    'holiday_greenery_day',
+                    'holiday_childrens_day',
+                    'holiday_marine_day',
+                    'holiday_mountain_day',
+                    'holiday_respect_for_the_aged',
+                    'holiday_autumnal_equinox',
+                    'holiday_culture_day',
+                    'holiday_labor_thanksgiving',
+                  ].map((hk) => (
+                    <option key={hk} value={hk}>
+                      {t(hk)}
+                    </option>
+                  ))}
+                </select>
                 <button
                   onClick={handleAddHoliday}
                   className="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-bold"

@@ -21,7 +21,7 @@ export const KitchenDashboardView: React.FC = () => {
     advanceDishStatus,
     showToast,
     t,
-    getBranchDisplayName,
+    getBranchLabel,
   } = useApp();
 
   const [stationFilter, setStationFilter] = useState<'all' | 'mains' | 'starters' | 'drinks'>(
@@ -206,7 +206,7 @@ export const KitchenDashboardView: React.FC = () => {
             {t('kds_title')}
           </span>
           <h1 className="text-2xl font-bold font-serif text-white mt-1">
-            {t('dashboard_kitchen_title')} — {getBranchDisplayName(activeBranch)}
+            {t('dashboard_kitchen_title')} — {getBranchLabel(activeBranch)}
           </h1>
           <p className="text-xs text-slate-400">{t('kds_subtitle')}</p>
         </div>

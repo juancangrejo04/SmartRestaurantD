@@ -16,7 +16,7 @@ export const ReviewsPage: React.FC = () => {
     branches,
     addReview,
     currentUser,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
     showToast,
     loc,
@@ -260,7 +260,7 @@ export const ReviewsPage: React.FC = () => {
                     </span>
                     {branch && (
                       <span className="text-[11px] text-[#7A6E65]">
-                        {getBranchDisplayName(branch)} ({getBranchCityName(branch)})
+                        {getBranchLabel(branch, rest?.name)} ({getBranchCityName(branch)})
                       </span>
                     )}
                   </div>
@@ -364,7 +364,7 @@ export const ReviewsPage: React.FC = () => {
                   >
                     {selectedBrandBranches.map((b) => (
                       <option key={b.id} value={b.id}>
-                        {getBranchDisplayName(b)} ({getBranchCityName(b)})
+                        {getBranchLabel(b)} ({getBranchCityName(b)})
                       </option>
                     ))}
                   </select>

@@ -5,10 +5,11 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 import { ToastContainer } from './components/common/ToastContainer';
 import { RequireAuth, RequireRole, RequirePermission } from './components/common/RouteGuards';
 import { StaffLayout } from './components/layout/StaffLayout';
+import { useDocumentMeta } from './components/common/useDocumentMeta';
 
 // Public Pages
 import { PublicNavbar } from './components/public/PublicNavbar';
@@ -54,6 +55,12 @@ import { BranchesView } from './views/BranchesView';
 import { ReviewsAdminView } from './views/ReviewsAdminView';
 import { DistributedMonitorView } from './views/DistributedMonitorView';
 
+const DocumentMeta: React.FC = () => {
+  const { language } = useApp();
+  useDocumentMeta(language);
+  return null;
+};
+
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-[#FBF6EC]">
@@ -68,6 +75,7 @@ export default function App() {
   return (
     <AppProvider>
       <HashRouter>
+        <DocumentMeta />
         <Routes>
           {/* =========================================
               PUBLIC CUSTOMER FACING ROUTES

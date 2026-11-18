@@ -31,7 +31,7 @@ export const TableQrMenuPage: React.FC = () => {
     formatPrice,
     showToast,
     currentUser,
-    getBranchDisplayName,
+    getBranchLabel,
     loc,
     t,
   } = useApp();
@@ -228,7 +228,7 @@ export const TableQrMenuPage: React.FC = () => {
                 </span>
               </div>
               <p className="text-[11px] text-[#7A6E65]">
-                {currentBranch ? getBranchDisplayName(currentBranch) : ''} ·{' '}
+                {currentBranch ? getBranchLabel(currentBranch, currentRestaurant?.name) : ''} ·{' '}
                 <strong className="text-[#1F1A17]">
                   {t('table_label')} #{currentTable?.number}
                 </strong>
@@ -441,8 +441,9 @@ export const TableQrMenuPage: React.FC = () => {
                   {t('qr_table_order_title', { table: currentTable?.number ?? 1 })}
                 </h3>
                 <p className="text-[11px] text-[#7A6E65]">
-                  {currentRestaurant?.name} ·{' '}
-                  {currentBranch ? getBranchDisplayName(currentBranch) : ''}
+                  {currentBranch
+                    ? getBranchLabel(currentBranch, currentRestaurant?.name)
+                    : currentRestaurant?.name || ''}
                 </p>
               </div>
               <button

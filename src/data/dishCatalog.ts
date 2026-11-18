@@ -36,7 +36,7 @@ export const DISH_CATALOG: CatalogDish[] = [
     "description": {
       "es": "Crujientes empanadas de maíz rellenas de carne mechada sazonada y papa criolla.",
       "en": "Crispy corn pastries stuffed with shredded beef and baby creole potatoes.",
-      "pt": "Massa crocante de milho recheada com carne desfiada e batata criolla.",
+      "pt": "Massa crocante de milho recheada com carne desfiada e batata andina.",
       "fr": "Chaussons de maïs croustillants farcis au bœuf effiloché et pommes de terre créoles.",
       "ja": "じっくり煮込んだ牛肉とアンデス小粒ポテトを詰めたサクサクのコーンパイ。"
     },
@@ -65,7 +65,7 @@ export const DISH_CATALOG: CatalogDish[] = [
       "es": "Ajiaco Santafereño Tradicional",
       "en": "Bogota Traditional Chicken Ajiaco",
       "pt": "Ajiaco Tradicional de Bogotá",
-      "fr": "Ajiaco traditionnel santafereño",
+      "fr": "Ajiaco traditionnel de Bogotá",
       "ja": "ボゴタ風伝統のアヒアコ（チキンとポテトの煮込み）"
     },
     "description": {
@@ -238,7 +238,7 @@ export const DISH_CATALOG: CatalogDish[] = [
     "name": {
       "es": "Ramen Chashu Criollo al Miso",
       "en": "Creole Pork Belly Miso Ramen",
-      "pt": "Ramen Criollo de Miso e Chashu",
+      "pt": "Ramen Crioulo de Missô e Chashu",
       "fr": "Ramen au miso et porc chashu créole",
       "ja": "信州味噌と特製チャーシューの特製ラーメン"
     },
@@ -899,7 +899,7 @@ export const DISH_CATALOG: CatalogDish[] = [
     "name": {
       "es": "Omakase Sora Sushi Seleccion (10 Piezas Nigiri)",
       "en": "Chef’s Omakase Nigiri Tasting (10 Pcs)",
-      "pt": "Omakase Sora Nigiri Tasting (10 Peças)",
+      "pt": "Degustação Omakase Sora Nigiri (10 Peças)",
       "fr": "Menu dégustation Omakase de 10 nigiris d’exception",
       "ja": "職人特選おまかせ握り（10貫厳選盛り）"
     },

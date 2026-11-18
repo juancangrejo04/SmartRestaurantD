@@ -36,7 +36,7 @@ export const BranchDetailPage: React.FC = () => {
     addToDeliveryCart,
     updateDeliveryCartQty,
     setActiveBranchId,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
     formatPrice,
     loc,
@@ -128,7 +128,7 @@ export const BranchDetailPage: React.FC = () => {
         <div className="absolute inset-0 z-0">
           <img
             src={branch.photo || branch.heroImage || restaurant.heroImage}
-            alt={getBranchDisplayName(branch)}
+            alt={getBranchLabel(branch, restaurant.name)}
             className="w-full h-full object-cover opacity-35"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#1F1A17] via-[#1F1A17]/75 to-transparent" />
@@ -168,7 +168,7 @@ export const BranchDetailPage: React.FC = () => {
               </div>
 
               <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white">
-                {restaurant.name} — {getBranchDisplayName(branch)}
+                {getBranchLabel(branch, restaurant.name)}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-xs text-[#E9DFCC]/85">
                 <span className="flex items-center gap-1">

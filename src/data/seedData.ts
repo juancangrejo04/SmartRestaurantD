@@ -825,7 +825,7 @@ export const SEED_USERS: User[] = [
   // 1. Platform Admin
   {
     id: "usr-plat-admin",
-    name: "Administrador de Plataforma",
+    name: "Sofía Navarro",
     email: "plataforma@smartrestaurant.app",
     role: "platform_admin",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
@@ -842,7 +842,7 @@ export const SEED_USERS: User[] = [
   // 2. Owner
   {
     id: "usr-owner-01",
-    name: "Carlos Mendoza (Dueño)",
+    name: "Carlos Mendoza",
     email: "dueno@smartrestaurant.app",
     role: "owner",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
@@ -859,7 +859,7 @@ export const SEED_USERS: User[] = [
   // 3. Branch Admins (5 cities)
   {
     id: "usr-admin-bogota",
-    name: "Elena Rostova (Admin Bogotá)",
+    name: "Elena Rostova",
     email: "admin.bogota@smartrestaurant.app",
     role: "branch_admin",
     avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
@@ -877,7 +877,7 @@ export const SEED_USERS: User[] = [
   },
   {
     id: "usr-admin-saopaulo",
-    name: "Thiago Silva (Admin São Paulo)",
+    name: "Thiago Silva",
     email: "admin.saopaulo@smartrestaurant.app",
     role: "branch_admin",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
@@ -895,7 +895,7 @@ export const SEED_USERS: User[] = [
   },
   {
     id: "usr-admin-nuevayork",
-    name: "Michael Vance (Admin New York)",
+    name: "Michael Vance",
     email: "admin.nuevayork@smartrestaurant.app",
     role: "branch_admin",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
@@ -913,7 +913,7 @@ export const SEED_USERS: User[] = [
   },
   {
     id: "usr-admin-paris",
-    name: "Camille Dupont (Admin Paris)",
+    name: "Camille Dupont",
     email: "admin.paris@smartrestaurant.app",
     role: "branch_admin",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
@@ -931,7 +931,7 @@ export const SEED_USERS: User[] = [
   },
   {
     id: "usr-admin-tokio",
-    name: "佐藤 健二 (Admin Tokyo)",
+    name: "佐藤 健二",
     email: "admin.tokio@smartrestaurant.app",
     role: "branch_admin",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
@@ -1041,7 +1041,7 @@ export const SEED_USERS: User[] = [
   // 5. Kitchen (1 per city)
   {
     id: "usr-kitchen-bogota",
-    name: "Chef Mateo Restrepo",
+    name: "Mateo Restrepo",
     email: "cocina.bogota@smartrestaurant.app",
     role: "kitchen",
     avatar: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80",
@@ -1059,7 +1059,7 @@ export const SEED_USERS: User[] = [
   },
   {
     id: "usr-kitchen-saopaulo",
-    name: "Chef Rodrigo Oliveira",
+    name: "Rodrigo Oliveira",
     email: "cocina.saopaulo@smartrestaurant.app",
     role: "kitchen",
     avatar: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80",
@@ -1077,7 +1077,7 @@ export const SEED_USERS: User[] = [
   },
   {
     id: "usr-kitchen-nuevayork",
-    name: "Chef Anthony Bell",
+    name: "Anthony Bell",
     email: "cocina.nuevayork@smartrestaurant.app",
     role: "kitchen",
     avatar: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80",
@@ -1095,7 +1095,7 @@ export const SEED_USERS: User[] = [
   },
   {
     id: "usr-kitchen-paris",
-    name: "Chef Émile Laurent",
+    name: "Émile Laurent",
     email: "cocina.paris@smartrestaurant.app",
     role: "kitchen",
     avatar: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80",
@@ -1113,7 +1113,7 @@ export const SEED_USERS: User[] = [
   },
   {
     id: "usr-kitchen-tokio",
-    name: "山本 宗一 (板長)",
+    name: "山本 宗一",
     email: "cocina.tokio@smartrestaurant.app",
     role: "kitchen",
     avatar: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80",
@@ -1483,7 +1483,7 @@ export const SEED_USERS: User[] = [
   // 7. Cashier (Custom Role Example in Bogotá)
   {
     id: "usr-cashier-bogota",
-    name: "Lucía Pineda (Cajera)",
+    name: "Lucía Pineda",
     email: "cajero.bogota@smartrestaurant.app",
     role: "cashier",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
@@ -1598,7 +1598,7 @@ export const SEED_USERS: User[] = [
   // 9. Pending approval commerce example
   {
     id: "usr-pend-comm",
-    name: "Bistró Mirador (Pendiente)",
+    name: "Bistró Mirador",
     email: "nuevo.comercio@smartrestaurant.app",
     phone: "+57 315 888 9900",
     role: "owner",
@@ -1616,7 +1616,7 @@ export const SEED_USERS: User[] = [
   // 10. Pending approval courier example
   {
     id: "usr-pend-cour",
-    name: "Mauricio Peñaloza (Pendiente)",
+    name: "Mauricio Peñaloza",
     email: "nuevo.repartidor@smartrestaurant.app",
     phone: "+57 312 444 3322",
     role: "courier",
@@ -3527,7 +3527,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     "description": {
       "es": "Crujientes empanadas de maíz rellenas de carne mechada sazonada y papa criolla.",
       "en": "Crispy corn pastries stuffed with shredded beef and baby creole potatoes.",
-      "pt": "Massa crocante de milho recheada com carne desfiada e batata criolla.",
+      "pt": "Massa crocante de milho recheada com carne desfiada e batata andina.",
       "fr": "Chaussons de maïs croustillants farcis au bœuf effiloché et pommes de terre créoles.",
       "ja": "じっくり煮込んだ牛肉とアンデス小粒ポテトを詰めたサクサクのコーンパイ。"
     },
@@ -3557,7 +3557,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
       "es": "Ajiaco Santafereño Tradicional",
       "en": "Bogota Traditional Chicken Ajiaco",
       "pt": "Ajiaco Tradicional de Bogotá",
-      "fr": "Ajiaco traditionnel santafereño",
+      "fr": "Ajiaco traditionnel de Bogotá",
       "ja": "ボゴタ風伝統のアヒアコ（チキンとポテトの煮込み）"
     },
     "description": {
@@ -3814,7 +3814,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     "description": {
       "es": "Crujientes empanadas de maíz rellenas de carne mechada sazonada y papa criolla.",
       "en": "Crispy corn pastries stuffed with shredded beef and baby creole potatoes.",
-      "pt": "Massa crocante de milho recheada com carne desfiada e batata criolla.",
+      "pt": "Massa crocante de milho recheada com carne desfiada e batata andina.",
       "fr": "Chaussons de maïs croustillants farcis au bœuf effiloché et pommes de terre créoles.",
       "ja": "じっくり煮込んだ牛肉とアンデス小粒ポテトを詰めたサクサクのコーンパイ。"
     },
@@ -3844,7 +3844,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
       "es": "Ajiaco Santafereño Tradicional",
       "en": "Bogota Traditional Chicken Ajiaco",
       "pt": "Ajiaco Tradicional de Bogotá",
-      "fr": "Ajiaco traditionnel santafereño",
+      "fr": "Ajiaco traditionnel de Bogotá",
       "ja": "ボゴタ風伝統のアヒアコ（チキンとポテトの煮込み）"
     },
     "description": {
@@ -4166,7 +4166,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     "name": {
       "es": "Ramen Chashu Criollo al Miso",
       "en": "Creole Pork Belly Miso Ramen",
-      "pt": "Ramen Criollo de Miso e Chashu",
+      "pt": "Ramen Crioulo de Missô e Chashu",
       "fr": "Ramen au miso et porc chashu créole",
       "ja": "信州味噌と特製チャーシューの特製ラーメン"
     },
@@ -4381,7 +4381,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     "name": {
       "es": "Ramen Chashu Criollo al Miso",
       "en": "Creole Pork Belly Miso Ramen",
-      "pt": "Ramen Criollo de Miso e Chashu",
+      "pt": "Ramen Crioulo de Missô e Chashu",
       "fr": "Ramen au miso et porc chashu créole",
       "ja": "信州味噌と特製チャーシューの特製ラーメン"
     },
@@ -6138,7 +6138,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     "name": {
       "es": "Omakase Sora Sushi Seleccion (10 Piezas Nigiri)",
       "en": "Chef’s Omakase Nigiri Tasting (10 Pcs)",
-      "pt": "Omakase Sora Nigiri Tasting (10 Peças)",
+      "pt": "Degustação Omakase Sora Nigiri (10 Peças)",
       "fr": "Menu dégustation Omakase de 10 nigiris d’exception",
       "ja": "職人特選おまかせ握り（10貫厳選盛り）"
     },
@@ -6353,7 +6353,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     "name": {
       "es": "Omakase Sora Sushi Seleccion (10 Piezas Nigiri)",
       "en": "Chef’s Omakase Nigiri Tasting (10 Pcs)",
-      "pt": "Omakase Sora Nigiri Tasting (10 Peças)",
+      "pt": "Degustação Omakase Sora Nigiri (10 Peças)",
       "fr": "Menu dégustation Omakase de 10 nigiris d’exception",
       "ja": "職人特選おまかせ握り（10貫厳選盛り）"
     },

@@ -18,7 +18,7 @@ export const OwnerDashboardView: React.FC = () => {
     orders,
     reviews,
     t,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
   } = useApp();
 
@@ -215,7 +215,7 @@ export const OwnerDashboardView: React.FC = () => {
                     <tr key={branch.id} className="hover:bg-slate-800/40 transition-colors">
                       <td className="py-3 px-3">
                         <div className="font-bold text-white">
-                          {getBranchDisplayName(branch)}
+                          {getBranchLabel(branch)}
                         </div>
                         <div className="text-[10px] text-slate-400">
                           {getBranchCityName(branch)} · {branch.address}

@@ -12,7 +12,7 @@ export const MyReservationsPage: React.FC = () => {
     currentUser,
     isAuthenticated,
     updateReservationStatus,
-    getBranchDisplayName,
+    getBranchLabel,
     showToast,
     t,
   } = useApp();
@@ -126,7 +126,7 @@ export const MyReservationsPage: React.FC = () => {
                     </div>
 
                     <h3 className="font-serif font-bold text-base text-[#1F1A17]">
-                      {rest?.name || 'SmartRestaurant'} — {br ? getBranchDisplayName(br) : t('branch_label')}
+                      {br ? getBranchLabel(br, rest?.name) : rest?.name || t('branch_label')}
                     </h3>
 
                     <div className="flex flex-wrap items-center gap-4 text-xs text-[#7A6E65]">

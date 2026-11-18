@@ -30,7 +30,7 @@ export const ReservationWizardPage: React.FC = () => {
     loginWithCredentials,
     showToast,
     language,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
     t,
   } = useApp();
@@ -260,7 +260,7 @@ export const ReservationWizardPage: React.FC = () => {
                         <span className="text-sm">{cConfig.flagEmoji}</span>
                       </div>
                       <p className="text-xs font-semibold text-[#C8452C]">
-                        {getBranchDisplayName(b)}
+                        {getBranchLabel(b, rest?.name)}
                       </p>
                       <p className="text-[11px] text-[#7A6E65] flex items-center gap-1">
                         <MapPin className="w-3 h-3 text-[#C8452C]" />
@@ -303,7 +303,7 @@ export const ReservationWizardPage: React.FC = () => {
                   {t('select_datetime_party')}
                 </h2>
                 <p className="text-xs text-[#7A6E65]">
-                  {selectedRestaurant?.name} — {getBranchDisplayName(selectedBranch)}
+                  {getBranchLabel(selectedBranch, selectedRestaurant?.name)}
                 </p>
               </div>
             </div>
@@ -387,7 +387,7 @@ export const ReservationWizardPage: React.FC = () => {
                   {t('select_table')}
                 </h2>
                 <p className="text-xs text-[#7A6E65]">
-                  {getBranchDisplayName(selectedBranch)} · {guestsCount}+ {t('guests')}
+                  {getBranchLabel(selectedBranch, selectedRestaurant?.name)} · {guestsCount}+ {t('guests')}
                 </p>
               </div>
             </div>
@@ -491,7 +491,7 @@ export const ReservationWizardPage: React.FC = () => {
                   {t('select_branch')}
                 </span>
                 <span className="font-semibold text-[#1F1A17]">
-                  {getBranchDisplayName(selectedBranch)}
+                  {getBranchLabel(selectedBranch, selectedRestaurant?.name)}
                 </span>
               </div>
               <div>
@@ -666,8 +666,9 @@ export const ReservationWizardPage: React.FC = () => {
 
               <div className="text-xs text-[#7A6E65] space-y-1">
                 <p>
-                  <strong className="text-[#1F1A17]">{selectedRestaurant?.name}</strong> —{' '}
-                  {getBranchDisplayName(selectedBranch)}
+                  <strong className="text-[#1F1A17]">
+                    {getBranchLabel(selectedBranch, selectedRestaurant?.name)}
+                  </strong>
                 </p>
                 <p>
                   {date} · {time}

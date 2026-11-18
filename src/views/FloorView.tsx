@@ -30,7 +30,7 @@ export const FloorView: React.FC<FloorViewProps> = ({ onOpenQR, onOpenOrderForTa
     clearTable,
     resolveWaiterCall,
     formatPrice,
-    getBranchDisplayName,
+    getBranchLabel,
     t,
   } = useApp();
 
@@ -127,7 +127,7 @@ export const FloorView: React.FC<FloorViewProps> = ({ onOpenQR, onOpenOrderForTa
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-            <span className="font-semibold text-slate-700">{getBranchDisplayName(activeBranch)}</span>
+            <span className="font-semibold text-slate-700">{getBranchLabel(activeBranch)}</span>
             <span>·</span>
             <span>{branchTables.length} {t('table_label')}</span>
           </div>

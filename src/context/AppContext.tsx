@@ -41,6 +41,7 @@ import {
   formatDishPrice,
   formatRegionalDateTime,
   getBranchName,
+  getBranchLabel as resolveBranchLabel,
   getBranchCity,
 } from '../i18n/countries';
 import { getTranslation, loc } from '../i18n/translations';
@@ -242,6 +243,7 @@ interface AppContextType {
   ) => string;
   formatDate: (iso: string | Date) => string;
   getBranchDisplayName: (branch?: Branch | null) => string;
+  getBranchLabel: (branch?: Branch | null, langOrBrand?: Language | string, brandName?: string) => string;
   getBranchCityName: (branch?: Branch | null) => string;
 }
 
@@ -419,13 +421,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}country`, country);
-  }, [country]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}language`, language);
-  }, [language]);
+  // Persisted explicitly via setCountry and setLanguage so initial default does not mask user choice.
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}isAuthenticated`, JSON.stringify(isAuthenticated));
@@ -614,9 +610,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsAuthenticated(true);
         setUsers(authService.getUsers());
 
-        const userLang = res.user.preferredLanguage || res.user.language || COUNTRIES[res.user.country]?.language || 'es';
-        setLanguageState(userLang);
-        setCountryState(res.user.country);
+        const savedLang = localStorage.getItem(`${STORAGE_PREFIX}language`) as Language | null;
+        if (!savedLang || !['es', 'en', 'pt', 'fr', 'ja'].includes(savedLang)) {
+          const initialLang =
+            res.user.preferredLanguage ||
+            res.user.language ||
+            COUNTRIES[res.user.country]?.language ||
+            'es';
+          setLanguageState(initialLang);
+        }
+
+        const savedCountry = localStorage.getItem(`${STORAGE_PREFIX}country`) as CountryCode | null;
+        if (!savedCountry || !COUNTRIES[savedCountry]) {
+          if (COUNTRIES[res.user.country]) {
+            setCountryState(res.user.country);
+          }
+        }
+
         if (res.user.assignedBranchId) {
           setActiveBranchIdState(res.user.assignedBranchId);
         }
@@ -1970,6 +1980,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     [language]
   );
 
+  const getBranchLabel = useCallback(
+    (branch?: Branch | null, langOrBrand?: Language | string, brandName?: string): string => {
+      const isLangArg =
+        langOrBrand === 'es' ||
+        langOrBrand === 'en' ||
+        langOrBrand === 'pt' ||
+        langOrBrand === 'fr' ||
+        langOrBrand === 'ja';
+      const targetLang = isLangArg ? langOrBrand : language;
+      const explicitBrand = isLangArg ? brandName : langOrBrand;
+      const matchedRest = branch ? restaurants.find((r) => r.id === branch.restaurantId) : undefined;
+      return resolveBranchLabel(branch, targetLang, explicitBrand || matchedRest?.name);
+    },
+    [language, restaurants]
+  );
+
   const getBranchCityName = useCallback(
     (branch?: Branch | null): string => {
       return getBranchCity(branch, language);
@@ -2057,6 +2083,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         formatPrice,
         formatDate,
         getBranchDisplayName,
+        getBranchLabel,
         getBranchCityName,
       }}
     >

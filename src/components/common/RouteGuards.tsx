@@ -43,7 +43,7 @@ export const RequireRole: React.FC<RequireRoleProps> = ({ allowedRoles, children
           <ShieldAlert className="w-12 h-12 text-rose-500 mx-auto mb-3" />
           <h2 className="text-lg font-bold text-white mb-2">{t('err_forbidden_title')}</h2>
           <p className="text-xs text-slate-300 mb-4">
-            {t('err_forbidden_role_msg', { role: currentUser.role })}
+            {t('err_forbidden_role_msg', { role: t(`role_${currentUser.role}`) })}
           </p>
           <Link
             to="/staff"

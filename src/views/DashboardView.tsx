@@ -54,7 +54,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
     currentUser,
     advanceKitchenOrder,
     resolveWaiterCall,
-    getBranchDisplayName,
+    getBranchLabel,
     language,
   } = useApp();
 
@@ -193,7 +193,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
             <span>{countryConfig.name}</span>
             <span>·</span>
             <span className="font-semibold text-slate-700">
-              {getBranchDisplayName(activeBranch) || t('all_branches')}
+              {getBranchLabel(activeBranch) || t('all_branches')}
             </span>
             <span>·</span>
             <span className="font-mono text-amber-600 font-medium">{countryConfig.currency}</span>

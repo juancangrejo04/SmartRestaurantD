@@ -32,7 +32,7 @@ export const TeamManagementView: React.FC = () => {
     profile,
     language,
     refreshUsers,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
     loc,
     showToast,
@@ -514,13 +514,16 @@ export const TeamManagementView: React.FC = () => {
                       </td>
                       <td className="py-3 px-3">
                         <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-800 text-amber-300 border border-slate-700">
-                          {u.role}
+                          {(() => {
+                            const customMatch = customRoles.find((cr) => cr.id === u.role);
+                            return customMatch ? loc(customMatch.name) : t(`role_${u.role}`);
+                          })()}
                         </span>
                       </td>
                       <td className="py-3 px-3">
                         <span className="text-slate-300">
                           {userBranch
-                            ? `${getBranchDisplayName(userBranch)} (${getBranchCityName(userBranch)})`
+                            ? `${getBranchLabel(userBranch)} (${getBranchCityName(userBranch)})`
                             : t('scope_global')}
                         </span>
                       </td>
@@ -534,7 +537,7 @@ export const TeamManagementView: React.FC = () => {
                               : 'bg-rose-950/80 text-rose-400 border border-rose-800'
                           }`}
                         >
-                          {u.status}
+                          {t(u.status || 'active')}
                         </span>
                       </td>
                       <td className="py-3 px-3 text-right space-x-1 whitespace-nowrap">
@@ -662,7 +665,10 @@ export const TeamManagementView: React.FC = () => {
                       <td className="py-3 px-3 font-bold text-white">{log.actorName}</td>
                       <td className="py-3 px-3">
                         <span className="font-mono text-[10px] text-amber-300 uppercase">
-                          {log.actorRole}
+                          {(() => {
+                            const customMatch = customRoles.find((cr) => cr.id === log.actorRole);
+                            return customMatch ? loc(customMatch.name) : t(`role_${log.actorRole}`);
+                          })()}
                         </span>
                       </td>
                       <td className="py-3 px-3 font-mono font-bold text-slate-200">{log.action}</td>
@@ -765,7 +771,7 @@ export const TeamManagementView: React.FC = () => {
                   >
                     {availableBranches.map((b) => (
                       <option key={b.id} value={b.id}>
-                        {getBranchDisplayName(b)} ({getBranchCityName(b)})
+                        {getBranchLabel(b)} ({getBranchCityName(b)})
                       </option>
                     ))}
                   </select>
@@ -904,7 +910,7 @@ export const TeamManagementView: React.FC = () => {
                   >
                     {availableBranches.map((b) => (
                       <option key={b.id} value={b.id}>
-                        {getBranchDisplayName(b)} ({getBranchCityName(b)})
+                        {getBranchLabel(b)} ({getBranchCityName(b)})
                       </option>
                     ))}
                   </select>

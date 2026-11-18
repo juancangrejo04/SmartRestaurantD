@@ -1,34 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Branch, CountryCode, Restaurant, Table } from '../types';
+import { Branch, CountryCode, Restaurant } from '../types';
 import { COUNTRIES } from '../i18n/countries';
-import {
-  Store,
-  Plus,
-  MapPin,
-  Phone,
-  Clock,
-  CheckCircle2,
-  Users,
-  X,
-  ExternalLink,
-  Sparkles,
-} from 'lucide-react';
 
 export const BranchesView: React.FC = () => {
   const {
     t,
-    country,
-    setCountry,
     branches,
     restaurants,
     activeBranchId,
     setActiveBranchId,
-    tables,
-    getBranchDisplayName,
+    getBranchLabel,
     language,
     loc,
   } = useApp();
+
+  const regionDisplay = new Intl.DisplayNames([language], { type: 'region' });
+  const listFormatter = new Intl.ListFormat(language, { style: 'long', type: 'conjunction' });
+  const operatingCountries: CountryCode[] = ['CO', 'BR', 'US', 'FR', 'JP'];
+  const localizedCountriesList = listFormatter.format(
+    operatingCountries.map((code) => regionDisplay.of(code) || code)
+  );
 
   const handleSelectBranch = (branch: Branch) => {
     setActiveBranchId(branch.id);
@@ -40,10 +32,10 @@ export const BranchesView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            {t('nav_branches')} & Restaurantes Multinacionales
+            {t('nav_branches')} · {t('branches_multinational_suffix')}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Red distribuida de sucursales en Colombia, Brasil, Estados Unidos, Francia y Japón
+            {t('branches_distributed_network', { countries: localizedCountriesList })}
           </p>
         </div>
       </div>
@@ -72,7 +64,7 @@ export const BranchesView: React.FC = () => {
                     </div>
                   </div>
 
-                  <span className="text-lg" title={cConfig.name}>
+                  <span className="text-lg" title={regionDisplay.of(firstCountry) || firstCountry}>
                     {cConfig.flagEmoji}
                   </span>
                 </div>
@@ -89,7 +81,6 @@ export const BranchesView: React.FC = () => {
 
                   {restBranches.map((br: Branch) => {
                     const isActive = br.id === activeBranchId;
-                    const brTables = tables.filter((t: Table) => t.branchId === br.id);
 
                     return (
                       <div
@@ -102,7 +93,7 @@ export const BranchesView: React.FC = () => {
                       >
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="font-bold">{getBranchDisplayName(br)}</span>
+                            <span className="font-bold">{getBranchLabel(br, rest.name)}</span>
                             {isActive && (
                               <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-500 text-slate-950 font-mono font-bold">
                                 {t('badge_active')}
@@ -125,8 +116,8 @@ export const BranchesView: React.FC = () => {
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-mono">
-                <span>Moneda: {cConfig.currency}</span>
-                <span>Zona: {cConfig.timeZone.split('/')[1]}</span>
+                <span>{t('branches_currency_label')}: {cConfig.currency}</span>
+                <span>{t('branches_timezone_label')}: {cConfig.timeZone}</span>
               </div>
             </div>
           );

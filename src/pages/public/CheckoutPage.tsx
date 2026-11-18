@@ -27,7 +27,7 @@ export const CheckoutPage: React.FC = () => {
     currentUser,
     language,
     placeDeliveryOrder,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
     loc,
     t,
@@ -291,7 +291,7 @@ export const CheckoutPage: React.FC = () => {
               {t('checkout_title')}
             </h1>
             <p className="text-xs text-[#7A6E65] mt-1">
-              {restaurant.name} — <strong className="text-[#1F1A17]">{getBranchDisplayName(checkoutBranch)}</strong> ({getBranchCityName(checkoutBranch)}, {checkoutProfile.nativeName})
+              <strong className="text-[#1F1A17]">{getBranchLabel(checkoutBranch, restaurant.name)}</strong> ({getBranchCityName(checkoutBranch)}, {checkoutProfile.nativeName})
             </p>
           </div>
         </div>

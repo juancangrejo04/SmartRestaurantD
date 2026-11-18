@@ -33,7 +33,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
     createOrder,
     orders,
     formatPrice,
-    getBranchDisplayName,
+    getBranchLabel,
     loc,
   } = useApp();
 
@@ -216,7 +216,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
 
           <div className="space-y-1 mb-4">
             <h3 className="font-bold text-base text-slate-900">
-              {activeBranch ? getBranchDisplayName(activeBranch) : ''}
+              {activeBranch ? getBranchLabel(activeBranch) : ''}
             </h3>
             <p className="text-sm font-black font-mono text-amber-600">
               {t('table_label')} #{selectedTable?.number || 1} · {selectedTable?.zone}
@@ -242,7 +242,7 @@ export const OrdersQRView: React.FC<OrdersQRViewProps> = ({ initialTable }) => {
                   {t('qr_code_menu')}
                 </h3>
                 <p className="text-xs text-slate-400">
-                  {activeBranch ? getBranchDisplayName(activeBranch) : ''} — {t('table_label')} #{selectedTable?.number}
+                  {activeBranch ? getBranchLabel(activeBranch) : ''} — {t('table_label')} #{selectedTable?.number}
                 </p>
               </div>
             </div>

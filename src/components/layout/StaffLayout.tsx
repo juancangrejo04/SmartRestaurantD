@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { can, Permission } from '../../core/permissions';
+import { authService } from '../../services/authService';
 import { Language } from '../../types';
 import {
   LayoutDashboard,
@@ -45,8 +46,9 @@ export const StaffLayout: React.FC<{ children: React.ReactNode }> = ({ children 
     profile,
     language,
     setLanguage,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
+    loc,
     t,
   } = useApp();
 
@@ -245,7 +247,7 @@ export const StaffLayout: React.FC<{ children: React.ReactNode }> = ({ children 
               >
                 {selectableBranches.map((b) => (
                   <option key={b.id} value={b.id} className="bg-slate-900 text-white">
-                    {getBranchDisplayName(b)} ({getBranchCityName(b)})
+                    {getBranchLabel(b)} ({getBranchCityName(b)})
                   </option>
                 ))}
               </select>
@@ -254,7 +256,7 @@ export const StaffLayout: React.FC<{ children: React.ReactNode }> = ({ children 
             <div className="flex items-center gap-1.5 bg-slate-800/80 border border-slate-700 px-2.5 py-1 rounded-xl text-xs text-slate-300">
               <Building2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
-                {getBranchDisplayName(activeBranch)}
+                {getBranchLabel(activeBranch)}
               </span>
             </div>
           )}
@@ -362,7 +364,10 @@ export const StaffLayout: React.FC<{ children: React.ReactNode }> = ({ children 
                   {currentUser.name}
                 </div>
                 <div className="text-[10px] font-mono text-amber-400 uppercase">
-                  {currentUser.role.replace('_', ' ')}
+                  {(() => {
+                    const customRole = authService.getCustomRoles().find((r) => r.id === currentUser.role);
+                    return customRole ? loc(customRole.name) : t(`role_${currentUser.role}`);
+                  })()}
                 </div>
               </div>
             </div>

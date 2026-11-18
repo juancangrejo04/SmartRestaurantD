@@ -28,7 +28,7 @@ export const LiveOrderTrackerPage: React.FC = () => {
     country,
     cancelOrderWithCompensation,
     submitOrderRatings,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
     showToast,
     t,
@@ -204,7 +204,7 @@ export const LiveOrderTrackerPage: React.FC = () => {
                 </span>
               </div>
               <h1 className="font-serif font-bold text-xl sm:text-2xl text-[#1F1A17] mt-1">
-                {restaurant.name} — {getBranchDisplayName(branch)}
+                {getBranchLabel(branch, restaurant.name)}
               </h1>
               <p className="text-xs text-[#7A6E65]">
                 {getBranchCityName(branch)}, {profile.nativeName} • {t('tracker_placed_at')}{' '}
@@ -399,7 +399,7 @@ export const LiveOrderTrackerPage: React.FC = () => {
 
               <div className="p-4 bg-[#FBF6EC] rounded-2xl border border-[#E9DFCC] space-y-2">
                 <span className="text-xs font-bold text-[#1F1A17] block">
-                  1. {restaurant.name} ({getBranchDisplayName(branch)})
+                  1. {getBranchLabel(branch, restaurant.name)}
                 </span>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (

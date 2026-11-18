@@ -22,7 +22,7 @@ export const CartPage: React.FC = () => {
     updateDeliveryCartQty,
     removeFromDeliveryCart,
     clearDeliveryCart,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
     loc,
     t,
@@ -71,7 +71,7 @@ export const CartPage: React.FC = () => {
             className="flex items-center gap-1.5 text-xs font-bold text-[#7A6E65] hover:text-[#1F1A17]"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>{getBranchDisplayName(branch)}</span>
+            <span>{getBranchLabel(branch, restaurant.name)}</span>
           </Link>
           <button
             onClick={clearDeliveryCart}
@@ -90,7 +90,7 @@ export const CartPage: React.FC = () => {
             <p className="text-xs text-[#7A6E65] flex items-center gap-1.5 mt-1">
               <MapPin className="w-3.5 h-3.5 text-[#C8452C]" />
               <span>
-                {restaurant.name} — {getBranchDisplayName(branch)} ({getBranchCityName(branch)})
+                {getBranchLabel(branch, restaurant.name)} ({getBranchCityName(branch)})
               </span>
             </p>
           </div>

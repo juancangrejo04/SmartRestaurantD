@@ -32,7 +32,7 @@ export const WaiterDashboardView: React.FC = () => {
     showToast,
     t,
     loc,
-    getBranchDisplayName,
+    getBranchLabel,
   } = useApp();
 
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
@@ -172,7 +172,7 @@ export const WaiterDashboardView: React.FC = () => {
             {t('waiter_badge')}
           </span>
           <h1 className="text-2xl font-bold font-serif text-white mt-1">
-            {t('dashboard_waiter_title')} — {getBranchDisplayName(activeBranch)}
+            {t('dashboard_waiter_title')} — {getBranchLabel(activeBranch)}
           </h1>
           <p className="text-xs text-slate-400">{t('dashboard_waiter_subtitle')}</p>
         </div>

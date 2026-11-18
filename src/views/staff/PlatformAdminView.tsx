@@ -31,7 +31,7 @@ export const PlatformAdminView: React.FC = () => {
     branches,
     currentUser,
     refreshUsers,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
     language,
     profile,
@@ -453,7 +453,7 @@ export const PlatformAdminView: React.FC = () => {
                   <tr key={ord.id} className="hover:bg-slate-800/40">
                     <td className="py-3 px-3 font-mono font-bold text-amber-400">#{ord.orderNumber}</td>
                     <td className="py-3 px-3 text-slate-200">
-                      {br ? `${getBranchDisplayName(br)} (${getBranchCityName(br)})` : ord.branchId}
+                      {br ? `${getBranchLabel(br)} (${getBranchCityName(br)})` : ord.branchId}
                     </td>
                     <td className="py-3 px-3">
                       <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
@@ -503,11 +503,11 @@ export const PlatformAdminView: React.FC = () => {
                       <div className="font-bold text-white">{u.name}</div>
                       <div className="text-[10px] font-mono text-slate-400">{u.email}</div>
                     </td>
-                    <td className="py-3 px-3 font-mono text-amber-300 uppercase">{u.role}</td>
+                    <td className="py-3 px-3 font-mono text-amber-300 uppercase">{t(`role_${u.role}`)}</td>
                     <td className="py-3 px-3 text-slate-300">
                       {c?.flagEmoji} {c ? t(c.profile.nameKey) : u.country}
                     </td>
-                    <td className="py-3 px-3 font-mono text-slate-300">{u.status}</td>
+                    <td className="py-3 px-3 font-mono text-slate-300">{t(u.status || 'active')}</td>
                   </tr>
                 );
               })}

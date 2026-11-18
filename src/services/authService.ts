@@ -79,7 +79,25 @@ export class AuthService {
     }
     try {
       const parsed: User[] = JSON.parse(raw);
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed : SEED_USERS;
+      if (!Array.isArray(parsed) || parsed.length === 0) return SEED_USERS;
+      let mutated = false;
+      const normalized = parsed.map((u) => {
+        const seedMatch = SEED_USERS.find((su) => su.id === u.id);
+        if (
+          seedMatch &&
+          (u.name === 'Administrador de Plataforma' ||
+            /\((Dueño|Pendiente|Admin [^)]+|Cajera|板長)\)/i.test(u.name) ||
+            /^Chef\s+/i.test(u.name))
+        ) {
+          mutated = true;
+          return { ...u, name: seedMatch.name };
+        }
+        return u;
+      });
+      if (mutated) {
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(normalized));
+      }
+      return normalized;
     } catch {
       return SEED_USERS;
     }

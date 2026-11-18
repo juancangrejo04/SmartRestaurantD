@@ -29,7 +29,7 @@ export const BranchAdminDashboardView: React.FC = () => {
     updateReservationStatus,
     showToast,
     t,
-    getBranchDisplayName,
+    getBranchLabel,
     getBranchCityName,
   } = useApp();
 
@@ -118,7 +118,7 @@ export const BranchAdminDashboardView: React.FC = () => {
               {t('branch_admin_badge')}
             </span>
             <h1 className="text-2xl font-bold font-serif text-white mt-1">
-              {getBranchDisplayName(activeBranch)} ({getBranchCityName(activeBranch)})
+              {getBranchLabel(activeBranch)} ({getBranchCityName(activeBranch)})
             </h1>
             <p className="text-xs text-slate-400">
               {activeBranch.address} • {activeBranch.currency} • {activeBranch.phone}
