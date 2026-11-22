@@ -1,0 +1,16 @@
+# Cinco nodos regionales (misma imagen, distinto REGION), un intermediario y tres subsistemas más.
+x-base: &base
+  build: .
+  restart: unless-stopped
+  environment: &env
+    BROKER: http://broker:4000
+services:
+  broker:        { <<: *base, command: node services/broker.js, ports: ["4000:4000"], environment: { PORT: 4000 } }
+  payments:      { <<: *base, command: node services/payments.js, ports: ["4010:4010"], depends_on: [broker] }
+  logistics:     { <<: *base, command: node services/logistics.js, ports: ["4011:4011"], depends_on: [broker] }
+  notifications: { <<: *base, command: node services/notifications.js, ports: ["4012:4012"], depends_on: [broker] }
+  node-co: { <<: *base, command: node services/order-node.js, ports: ["4101:4101"], depends_on: [broker], environment: { <<: *env, REGION: co } }
+  node-br: { <<: *base, command: node services/order-node.js, ports: ["4102:4102"], depends_on: [broker], environment: { <<: *env, REGION: br } }
+  node-us: { <<: *base, command: node services/order-node.js, ports: ["4103:4103"], depends_on: [broker], environment: { <<: *env, REGION: us } }
+  node-fr: { <<: *base, command: node services/order-node.js, ports: ["4104:4104"], depends_on: [broker], environment: { <<: *env, REGION: fr } }
+  node-jp: { <<: *base, command: node services/order-node.js, ports: ["4105:4105"], depends_on: [broker], environment: { <<: *env, REGION: jp } }

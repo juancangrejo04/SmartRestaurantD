@@ -1,0 +1,14 @@
+PASS T0 co: pedido completado en su región | COP total=66955 estado=completed
+PASS T0 br: pedido completado en su región | BRL total=6388 estado=completed
+PASS T0 us: pedido completado en su región | USD total=7071 estado=completed
+PASS T0 fr: pedido completado en su región | EUR total=6166 estado=completed
+PASS T0 jp: pedido completado en su región | JPY total=5924 estado=completed
+PASS F1 caída de pagos y recuperación | durante la caída=pending; tras reiniciar=completed
+PASS F2 caída del nodo node-co; node-fr sigue y node-co vuelve | node-co caído=true; pedido FR=completed; node-co tras reinicio=up
+PASS F3 sin repartidor: compensación y reembolso | estado=cancelled; motivo=sin repartidor; reembolsado=true
+PASS F4 evento duplicado: un solo cobro | duplicados ignorados=1
+PASS F5 logística no responde: cancelación por tiempo de espera | estado=cancelled; motivo=tiempo de espera agotado
+PASS T6 sexto país (Alemania) por configuración | EUR total=6813 estado=completed
+broker: {"published":46,"dlq":0,"subs":{"logistics":{"connected":true,"pending":0},"order-br":{"connected":true,"pending":0},"order-jp":{"connected":true,"pending":0},"order-fr":{"connected":true,"pending":0},"payments":{"connected":true,"pending":0},"notifications":{"connected":true,"pending":1},"order-co":{"connected":true,"pending":0},"order-us":{"connected":true,"pending":0},"order-de":{"connected":true,"pending":0}}}
+
+RESULTADO: 11/11 aprobadas

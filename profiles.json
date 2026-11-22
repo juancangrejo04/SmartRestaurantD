@@ -1,0 +1,56 @@
+{
+ "co": {
+  "currency": "COP",
+  "decimals": 0,
+  "taxRate": 0.09797,
+  "tipRate": 0.1,
+  "deliveryFee": 4900,
+  "tz": "America/Bogota",
+  "port": 4101
+ },
+ "br": {
+  "currency": "BRL",
+  "decimals": 2,
+  "taxRate": 0.05,
+  "tipRate": 0.05,
+  "deliveryFee": 690,
+  "tz": "America/Sao_Paulo",
+  "port": 4102
+ },
+ "us": {
+  "currency": "USD",
+  "decimals": 2,
+  "taxRate": 0.08875,
+  "tipRate": 0.18,
+  "deliveryFee": 499,
+  "tz": "America/New_York",
+  "port": 4103
+ },
+ "fr": {
+  "currency": "EUR",
+  "decimals": 2,
+  "taxRate": 0.11506,
+  "tipRate": 0,
+  "deliveryFee": 390,
+  "tz": "Europe/Paris",
+  "port": 4104
+ },
+ "jp": {
+  "currency": "JPY",
+  "decimals": 0,
+  "taxRate": 0.0857,
+  "tipRate": 0,
+  "deliveryFee": 300,
+  "tz": "Asia/Tokyo",
+  "port": 4105
+ },
+ "de": {
+  "currency": "EUR",
+  "decimals": 2,
+  "taxRate": 0.19,
+  "tipRate": 0.05,
+  "deliveryFee": 390,
+  "tz": "Europe/Berlin",
+  "port": 4106
+ }
+}
