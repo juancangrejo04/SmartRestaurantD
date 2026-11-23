@@ -4,11 +4,14 @@ import {
   Clock,
   Play,
   Check,
+  CheckCircle2,
   Bike,
   Utensils,
   Filter,
 } from 'lucide-react';
 import { Order } from '../../types';
+import { formatRegionalTime } from '../../core/money';
+import { getRegionProfile } from '../../data/regions';
 
 export const KitchenDashboardView: React.FC = () => {
   const {
@@ -34,14 +37,16 @@ export const KitchenDashboardView: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const userBranchScope = currentUser?.branchId || currentUser?.assignedBranchId;
   const scopedBranchId =
     currentUser?.role !== 'owner' &&
     currentUser?.role !== 'platform_admin' &&
-    currentUser?.assignedBranchId
-      ? currentUser.assignedBranchId
+    userBranchScope
+      ? userBranchScope
       : activeBranchId;
 
   const activeBranch = branches.find((b) => b.id === scopedBranchId) || branches[0];
+  const branchProfile = getRegionProfile(activeBranch.country);
 
   const itemMatchesStation = (menuItemId: string): boolean => {
     if (stationFilter === 'all') return true;
@@ -67,13 +72,25 @@ export const KitchenDashboardView: React.FC = () => {
   const preparingOrders = branchOrders.filter((o) => o.status === 'preparing');
   const readyOrders = branchOrders.filter((o) => o.status === 'ready');
   const deliveringOrders = branchOrders.filter((o) => o.status === 'delivering');
+  const deliveredOrders = orders
+    .filter(
+      (o) =>
+        o.branchId === activeBranch.id &&
+        o.status === 'delivered' &&
+        o.items.some((item) => itemMatchesStation(item.menuItemId))
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.deliveredAt || b.updatedAt || b.createdAt).getTime() -
+        new Date(a.deliveredAt || a.updatedAt || a.createdAt).getTime()
+    )
+    .slice(0, 20);
 
   const getNextDishStatus = (
     cur: 'queued' | 'preparing' | 'ready' | 'served'
-  ): 'preparing' | 'ready' | 'served' | null => {
+  ): 'preparing' | 'ready' | null => {
     if (cur === 'queued') return 'preparing';
     if (cur === 'preparing') return 'ready';
-    if (cur === 'ready') return 'served';
     return null;
   };
 
@@ -189,8 +206,19 @@ export const KitchenDashboardView: React.FC = () => {
           )}
 
           {stage === 'ready' && (
-            <div className="w-full text-center py-1.5 rounded-xl bg-slate-800 text-slate-400 text-xs font-semibold">
-              {isDelivery ? t('kds_waiting_courier') : t('kds_waiting_waiter')}
+            <div className="w-full text-center py-1.5 px-2 rounded-xl bg-slate-800 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+              <span>
+                {isDelivery
+                  ? t('kds_waiting_courier')
+                  : `${t('kitchen_waiting_delivery')} · ${Math.max(
+                      0,
+                      Math.floor(
+                        (nowMs - new Date(order.readyAt || order.updatedAt || order.createdAt).getTime()) /
+                          60000
+                      )
+                    )} ${t('elapsed_min')}`}
+              </span>
             </div>
           )}
         </div>
@@ -317,6 +345,60 @@ export const KitchenDashboardView: React.FC = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Delivered section (latest 20 of this branch, updated in real time by waiter) */}
+      <div className="bg-slate-900/60 rounded-3xl border border-slate-800 p-4 space-y-3">
+        <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+              {t('kitchen_delivered_section')}
+            </span>
+          </div>
+          <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
+            {deliveredOrders.length}
+          </span>
+        </div>
+
+        {deliveredOrders.length === 0 ? (
+          <div className="text-center py-6 text-xs text-slate-600">
+            {t('kds_empty_col')}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {deliveredOrders.map((ord) => {
+              const isDelivery = ord.orderType === 'delivery' || !ord.tableNumber;
+              const deliveredTime = formatRegionalTime(
+                ord.deliveredAt || ord.updatedAt || ord.createdAt,
+                branchProfile
+              );
+              const actorName = ord.deliveredByName || ord.courierName || '—';
+
+              return (
+                <div
+                  key={ord.id}
+                  className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs space-y-1.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-amber-400">
+                      #{ord.orderNumber}
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800 text-[10px] font-bold">
+                      {isDelivery ? t('order_type_delivery') : `${t('table')} #${ord.tableNumber}`}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-300 font-medium">
+                    {t('kitchen_delivered_at_by', {
+                      time: deliveredTime,
+                      name: actorName,
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

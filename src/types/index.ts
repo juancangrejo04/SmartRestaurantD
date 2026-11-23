@@ -400,6 +400,10 @@ export interface Order {
   billRequested?: boolean;
   createdAt: string;
   updatedAt: string;
+  readyAt?: string;
+  deliveredAt?: string;
+  deliveredByUserId?: string;
+  deliveredByName?: string;
   estimatedReadyMinutes?: number;
   preparationTimeMinutes?: number;
   customerName?: string;
@@ -454,6 +458,7 @@ export type ServiceName =
   | 'reservation-service'
   | 'order-service'
   | 'kitchen-service'
+  | 'waiter-service'
   | 'dispatch-service'
   | 'payments-service'
   | 'billing-service'
@@ -659,6 +664,7 @@ export interface AuditLogEntry {
     | 'COURIER_APPROVED'
     | 'DATA_EXPORTED'
     | 'DATA_ERASURE_REQUESTED'
+    | 'ORDER_DELIVERED'
     | 'AUTH_LOGIN'
     | 'AUTH_LOGOUT'
     | 'AUTH_FAILED';

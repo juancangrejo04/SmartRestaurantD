@@ -231,18 +231,64 @@ export class OrderService {
   }
 
   public updateOrderStatus(orders: Order[], orderId: string, status: OrderStatus): Order[] {
+    const now = new Date().toISOString().replace('.000Z', 'Z');
     return orders.map((o) => {
       if (o.id === orderId) {
-        const updated = {
+        const updated: Order = {
           ...o,
           status,
-          updatedAt: new Date().toISOString(),
+          readyAt: status === 'ready' ? (o.readyAt || now) : o.readyAt,
+          deliveredAt: status === 'delivered' ? (o.deliveredAt || now) : o.deliveredAt,
+          updatedAt: now,
         };
 
         broker.publish('ORDER_STATUS_CHANGED', {
           orderId,
           status,
           branchId: o.branchId,
+        });
+
+        return updated;
+      }
+      return o;
+    });
+  }
+
+  public markOrderDeliveredToTable(
+    orders: Order[],
+    orderId: string,
+    actor: { userId: string; userName: string }
+  ): Order[] {
+    const now = new Date().toISOString().replace('.000Z', 'Z');
+    return orders.map((o) => {
+      if (o.id === orderId) {
+        const nextDishStatuses: Record<string, 'queued' | 'preparing' | 'ready' | 'served'> = {
+          ...(o.dishStatuses || {}),
+        };
+        Object.keys(nextDishStatuses).forEach((k) => {
+          nextDishStatuses[k] = 'served';
+        });
+        o.items.forEach((item, idx) => {
+          nextDishStatuses[`dish_${idx}_${item.menuItemId}`] = 'served';
+        });
+
+        const updated: Order = {
+          ...o,
+          status: 'delivered',
+          deliveredAt: now,
+          deliveredByUserId: actor.userId,
+          deliveredByName: actor.userName,
+          dishStatuses: nextDishStatuses,
+          updatedAt: now,
+        };
+
+        broker.publish('ORDER_STATUS_CHANGED', {
+          orderId,
+          status: 'delivered',
+          branchId: o.branchId,
+          tableNumber: o.tableNumber,
+          deliveredByUserId: actor.userId,
+          deliveredByName: actor.userName,
         });
 
         return updated;

@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   RotateCcw,
 } from 'lucide-react';
+import { formatRegionalTime } from '../core/money';
+import { getRegionProfile } from '../data/regions';
 
 export const KitchenView: React.FC = () => {
   const {
@@ -33,11 +35,20 @@ export const KitchenView: React.FC = () => {
   }, []);
 
   const activeBranch = branches.find((b: Branch) => b.id === activeBranchId);
+  const branchProfile = activeBranch ? getRegionProfile(activeBranch.country) : null;
   const kitchenTickets = kitchenService.getKitchenOrders(orders, activeBranchId);
 
   const renderOrderCard = (order: Order, currentColumn: OrderStatus) => {
     const elapsedMinutes = kitchenService.getElapsedMinutes(order.createdAt);
+    const readyElapsedMinutes = kitchenService.getElapsedMinutes(
+      order.readyAt || order.updatedAt || order.createdAt
+    );
     const isUrgent = elapsedMinutes > (order.estimatedReadyMinutes || 15);
+    const isTableOrder =
+      order.orderType === 'dine_in' ||
+      (order.orderType !== 'delivery' &&
+        order.orderType !== 'takeaway' &&
+        Boolean(order.tableId || order.tableNumber));
 
     let nextBtnLabel = t('start_prep');
     let nextBtnClass = 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold';
@@ -116,8 +127,8 @@ export const KitchenView: React.FC = () => {
           </div>
         </div>
 
-        {/* Action Button */}
-        {currentColumn !== 'delivered' && (
+        {/* Action Button or Waiting/Delivered Info */}
+        {currentColumn !== 'delivered' && !(currentColumn === 'ready' && isTableOrder) && (
           <div className="pt-2 border-t border-slate-800">
             <button
               onClick={() => advanceKitchenOrder(order.id)}
@@ -126,6 +137,29 @@ export const KitchenView: React.FC = () => {
               <span>{nextBtnLabel}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
+          </div>
+        )}
+
+        {currentColumn === 'ready' && isTableOrder && (
+          <div className="pt-2 border-t border-slate-800 text-center text-[11px] font-semibold text-emerald-300 bg-slate-800/70 rounded-lg py-1.5 px-2">
+            {t('kitchen_waiting_delivery')} · {readyElapsedMinutes} {t('elapsed_min')}
+          </div>
+        )}
+
+        {currentColumn === 'delivered' && (
+          <div className="pt-2 border-t border-slate-800 text-[11px] text-emerald-300 font-medium flex items-center gap-1.5">
+            <CheckCircle className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+            <span>
+              {t('kitchen_delivered_at_by', {
+                time: branchProfile
+                  ? formatRegionalTime(order.deliveredAt || order.updatedAt || order.createdAt, branchProfile)
+                  : new Date(order.deliveredAt || order.updatedAt || order.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }),
+                name: order.deliveredByName || order.courierName || '—',
+              })}
+            </span>
           </div>
         )}
       </div>
@@ -238,7 +272,7 @@ export const KitchenView: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
               <h3 className="font-bold text-xs uppercase tracking-wider text-slate-800">
-                {t('col_delivered')}
+                {t('kitchen_delivered_section')}
               </h3>
             </div>
             <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-full bg-white text-slate-700 shadow-xs">

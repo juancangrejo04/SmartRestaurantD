@@ -25,6 +25,7 @@ const DEFAULT_HEALTH_MAP: Record<ServiceName, ServiceStatus> = {
   'reservation-service': 'up',
   'order-service': 'up',
   'kitchen-service': 'up',
+  'waiter-service': 'up',
   'dispatch-service': 'up',
   'payments-service': 'up',
   'billing-service': 'up',

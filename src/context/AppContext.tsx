@@ -64,6 +64,9 @@ import { notificationService, KeyedNotificationParams } from '../services/notifi
 import { orderSagaService } from '../services/orderSagaService';
 import { paymentGatewayService } from '../services/paymentGatewayService';
 import { dispatchService } from '../services/dispatchService';
+import { auditService } from '../services/auditService';
+import { can } from '../core/permissions';
+import { formatRegionalTime } from '../core/money';
 import { StoredSession } from '../core/security';
 
 initAllSubsystems();
@@ -173,6 +176,7 @@ interface AppContextType {
   acceptDeliveryOrder: (orderId: string, prepMinutes: number) => void;
   rejectDeliveryOrder: (orderId: string, reason: string) => Promise<void>;
   advanceKitchenOrder: (orderId: string) => void;
+  deliverOrderToTable: (orderId: string) => Promise<boolean>;
   advanceDishStatus: (
     orderId: string,
     dishKey: string,
@@ -740,7 +744,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       const notif = notificationService.createFromEvent(processed);
       if (notif) {
-        setNotifications((prev) => [notif, ...prev]);
+        setNotifications((prev) => {
+          const next = [notif, ...prev];
+          broadcastStateChange({ notifications: next });
+          return next;
+        });
         if (currentUser && currentUser.role !== 'customer' && notif.titleKey) {
           showToast(getTranslation(language, notif.titleKey, notif.messageParams), 'info');
         }
@@ -748,7 +756,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       return processed;
     },
-    [activeBranchId, branches, country, currentUser, language, servicesHealth, showToast, updateSingleEvent]
+    [activeBranchId, branches, country, currentUser, language, servicesHealth, showToast, updateSingleEvent, broadcastStateChange]
   );
 
   // DELIVERY CART
@@ -1405,7 +1413,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const targetOrder = orders.find((o) => o.id === orderId);
       if (!targetOrder) return;
 
-      const nextStatus = kitchenService.getNextStatus(targetOrder.status);
+      const isTableOrder =
+        targetOrder.orderType === 'dine_in' ||
+        (targetOrder.orderType !== 'delivery' &&
+          targetOrder.orderType !== 'takeaway' &&
+          Boolean(targetOrder.tableId || targetOrder.tableNumber));
+
+      if (targetOrder.status === 'ready' && isTableOrder) {
+        return;
+      }
+
+      const nextStatus = kitchenService.getNextStatus(
+        targetOrder.status,
+        isTableOrder ? 'dine_in' : targetOrder.orderType
+      );
       if (!nextStatus) return;
 
       const nextOrders = orderService.updateOrderStatus(orders, orderId, nextStatus);
@@ -1445,6 +1466,99 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     },
     [orders, broadcastStateChange, recordAndDispatchEvent]
+  );
+
+  const deliverOrderToTable = useCallback(
+    async (orderId: string): Promise<boolean> => {
+      const targetOrder = orders.find((o) => o.id === orderId);
+      if (!targetOrder) {
+        showToast(getTranslation(language, 'error'), 'error');
+        return false;
+      }
+
+      const isTableOrder =
+        targetOrder.orderType === 'dine_in' ||
+        (targetOrder.orderType !== 'delivery' &&
+          targetOrder.orderType !== 'takeaway' &&
+          Boolean(targetOrder.tableId || targetOrder.tableNumber));
+
+      if (!isTableOrder || targetOrder.status !== 'ready') {
+        showToast(getTranslation(language, 'error_order_not_ready_table'), 'error');
+        return false;
+      }
+
+      const userBranchId = currentUser?.branchId || currentUser?.assignedBranchId;
+      const isElevatedRole =
+        currentUser?.role === 'owner' || currentUser?.role === 'platform_admin';
+
+      if (!isElevatedRole && userBranchId && userBranchId !== targetOrder.branchId) {
+        showToast(getTranslation(language, 'error_not_your_branch'), 'error');
+        return false;
+      }
+
+      if (!can(currentUser, 'orders.markDelivered', { branchId: targetOrder.branchId })) {
+        showToast(getTranslation(language, 'err_forbidden_action'), 'error');
+        return false;
+      }
+
+      const actorId = currentUser?.id || 'staff';
+      const actorName = currentUser?.name || getTranslation(language, 'waiter');
+
+      const nextOrders = orderService.markOrderDeliveredToTable(orders, orderId, {
+        userId: actorId,
+        userName: actorName,
+      });
+      const updatedOrder = nextOrders.find((o) => o.id === orderId);
+      const deliveredAt =
+        updatedOrder?.deliveredAt || new Date().toISOString().replace('.000Z', 'Z');
+
+      setOrders(nextOrders);
+      broadcastStateChange({ orders: nextOrders });
+
+      const targetBranch = branches.find((b) => b.id === targetOrder.branchId);
+      const branchDisplay = targetBranch
+        ? getBranchName(targetBranch, language)
+        : targetOrder.branchId;
+      const formattedTime = targetBranch
+        ? formatRegionalTime(deliveredAt, getRegionProfile(targetBranch.country))
+        : new Date(deliveredAt).toLocaleTimeString(language, {
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+
+      auditService.record({
+        actorId,
+        actorName,
+        actorRole: currentUser?.role || 'waiter',
+        action: 'ORDER_DELIVERED',
+        targetId: targetOrder.id,
+        targetName: targetOrder.orderNumber,
+        details: `Usuario: ${actorName} | Sucursal: ${branchDisplay} (${targetOrder.branchId}) | Mesa #${targetOrder.tableNumber ?? '-'} | Hora: ${formattedTime} (${deliveredAt})`,
+        region: targetBranch?.country,
+      });
+
+      await recordAndDispatchEvent('waiter-service', 'notification-service', 'ORDER_DELIVERED', {
+        orderId: targetOrder.id,
+        orderNumber: targetOrder.orderNumber,
+        branchId: targetOrder.branchId,
+        userId: targetOrder.userId,
+        tableNumber: targetOrder.tableNumber,
+        deliveredByUserId: actorId,
+        deliveredByName: actorName,
+        deliveredAt,
+      });
+
+      showToast(
+        getTranslation(language, 'toast_order_delivered_table', {
+          table: targetOrder.tableNumber ?? '',
+          order: targetOrder.orderNumber,
+        }),
+        'success'
+      );
+
+      return true;
+    },
+    [orders, currentUser, language, branches, broadcastStateChange, recordAndDispatchEvent, showToast]
   );
 
   const advanceDishStatus = useCallback(
@@ -2055,6 +2169,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         acceptDeliveryOrder,
         rejectDeliveryOrder,
         advanceKitchenOrder,
+        deliverOrderToTable,
         advanceDishStatus,
         assignCourierToOrder,
         updateDeliveryOrderStatus,

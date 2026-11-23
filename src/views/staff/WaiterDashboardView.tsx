@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Bell,
@@ -8,9 +8,11 @@ import {
   CheckCircle2,
   XCircle,
   CreditCard,
+  Clock,
+  Utensils,
 } from 'lucide-react';
 import { Table, TableStatus } from '../../types';
-import { MoneyUtils } from '../../core/money';
+import { MoneyUtils, formatRegionalTime } from '../../core/money';
 import { getRegionProfile } from '../../data/regions';
 import { can } from '../../core/permissions';
 
@@ -25,6 +27,7 @@ export const WaiterDashboardView: React.FC = () => {
     clearTable,
     resolveWaiterCall,
     createOrder,
+    deliverOrderToTable,
     markOrderBillPaid,
     acceptDeliveryOrder,
     rejectDeliveryOrder,
@@ -40,12 +43,19 @@ export const WaiterDashboardView: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [showBillModal, setShowBillModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('card');
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
+  useEffect(() => {
+    const timer = setInterval(() => setNowMs(Date.now()), 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const userBranchScope = currentUser?.branchId || currentUser?.assignedBranchId;
   const scopedBranchId =
     currentUser?.role !== 'owner' &&
     currentUser?.role !== 'platform_admin' &&
-    currentUser?.assignedBranchId
-      ? currentUser.assignedBranchId
+    userBranchScope
+      ? userBranchScope
       : activeBranchId;
 
   const activeBranch = branches.find((b) => b.id === scopedBranchId) || branches[0];
@@ -57,6 +67,15 @@ export const WaiterDashboardView: React.FC = () => {
   const branchMenuItems = menuItems.filter(
     (m) => m.countryCode === activeBranch.country && m.available
   );
+
+  const readyToDeliverOrders = orders.filter((o) => {
+    const isTableOrder =
+      o.orderType === 'dine_in' ||
+      (o.orderType !== 'delivery' &&
+        o.orderType !== 'takeaway' &&
+        Boolean(o.tableId || o.tableNumber));
+    return o.branchId === activeBranch.id && isTableOrder && o.status === 'ready';
+  });
 
   const incomingDeliveries = orders.filter(
     (o) =>
@@ -176,6 +195,84 @@ export const WaiterDashboardView: React.FC = () => {
           </h1>
           <p className="text-xs text-slate-400">{t('dashboard_waiter_subtitle')}</p>
         </div>
+      </div>
+
+      {/* Highlighted Ready-to-Deliver section for dine-in orders in waiter's branch */}
+      <div className="bg-slate-900 border border-emerald-500/40 rounded-3xl p-5 shadow-xl space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
+            <Utensils className="w-4 h-4" />
+            <span>
+              {t('waiter_ready_to_deliver', { count: readyToDeliverOrders.length })}
+            </span>
+          </h2>
+          <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            {readyToDeliverOrders.length}
+          </span>
+        </div>
+
+        {readyToDeliverOrders.length === 0 ? (
+          <div className="text-xs text-slate-400 py-2">
+            {t('kds_empty_col')}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {readyToDeliverOrders.map((ord) => {
+              const readySinceIso = ord.readyAt || ord.updatedAt || ord.createdAt;
+              const minsSinceReady = Math.max(
+                0,
+                Math.floor((nowMs - new Date(readySinceIso).getTime()) / 60000)
+              );
+              const canMarkOrderDelivered = can(currentUser, 'orders.markDelivered', {
+                branchId: ord.branchId,
+              });
+
+              return (
+                <div
+                  key={ord.id}
+                  className="p-4 rounded-2xl bg-slate-800/90 border border-emerald-500/30 flex flex-col justify-between gap-3"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs">
+                        {t('table')} #{ord.tableNumber}
+                      </span>
+                      <span className="font-mono font-bold text-amber-400 text-xs">
+                        #{ord.orderNumber}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono">
+                      <Clock className="w-3 h-3 text-emerald-400" />
+                      <span>{t('waiter_ready_since', { minutes: minsSinceReady })}</span>
+                    </div>
+
+                    <div className="space-y-1 pt-1 border-t border-slate-700/80 text-xs">
+                      {ord.items.map((item, idx) => (
+                        <div key={`${ord.id}_${idx}_${item.menuItemId}`} className="text-slate-200 truncate">
+                          <strong className="text-amber-400 font-mono mr-1.5">
+                            {item.quantity}×
+                          </strong>
+                          <span>{item.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {canMarkOrderDelivered && (
+                    <button
+                      onClick={() => void deliverOrderToTable(ord.id)}
+                      className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{t('waiter_mark_delivered')}</span>
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Incoming delivery queue if user has acceptDelivery permission */}
@@ -348,6 +445,34 @@ export const WaiterDashboardView: React.FC = () => {
                       );
                     })}
                   </div>
+
+                  {activeTableOrder.status === 'ready' &&
+                    can(currentUser, 'orders.markDelivered', {
+                      branchId: activeTableOrder.branchId,
+                    }) && (
+                      <button
+                        onClick={() => void deliverOrderToTable(activeTableOrder.id)}
+                        className="w-full mt-2 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{t('waiter_mark_delivered')}</span>
+                      </button>
+                    )}
+
+                  {activeTableOrder.status === 'delivered' && (
+                    <div className="mt-2 p-2 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-[11px] font-semibold flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                      <span>
+                        {t('waiter_delivered_by', {
+                          time: formatRegionalTime(
+                            activeTableOrder.deliveredAt || activeTableOrder.updatedAt,
+                            branchProfile
+                          ),
+                          name: activeTableOrder.deliveredByName || t('waiter'),
+                        })}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 

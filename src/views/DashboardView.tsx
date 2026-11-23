@@ -53,6 +53,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
     setActiveBranchId,
     currentUser,
     advanceKitchenOrder,
+    deliverOrderToTable,
     resolveWaiterCall,
     getBranchLabel,
     language,
@@ -70,7 +71,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
 
   // Role-specific widgets data
   const callingTables = tables.filter((t) => t.activeCallWaiter);
-  const readyOrders = orders.filter((o) => o.status === 'ready');
+  const readyOrders = orders.filter(
+    (o) =>
+      o.branchId === activeBranch.id &&
+      o.status === 'ready' &&
+      (o.orderType === 'dine_in' ||
+        (o.orderType !== 'delivery' && o.orderType !== 'takeaway' && Boolean(o.tableId || o.tableNumber)))
+  );
   const preparingOrders = orders.filter((o) => o.status === 'preparing' || o.status === 'received');
 
   // WAITER ROLE SPECIFIC DASHBOARD
@@ -168,10 +175,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                       <p className="text-xs text-emerald-800">{o.items.length} platos</p>
                     </div>
                     <button
-                      onClick={() => advanceKitchenOrder(o.id)}
+                      onClick={() => void deliverOrderToTable(o.id)}
                       className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold"
                     >
-                      {t('mark_delivered')}
+                      {t('waiter_mark_delivered')}
                     </button>
                   </div>
                 ))}
