@@ -255,7 +255,11 @@ export function can(user: User | null | undefined, permission: Permission, ctx?:
 
   // Check custom roles stored in localStorage
   const customRole = getStoredCustomRoles().find((r) => r.id === user.role);
-  if (customRole && customRole.permissions.includes(permission)) {
+  if (
+    customRole &&
+    (customRole.permissions.includes(permission) ||
+      (permission === 'orders.markDelivered' && customRole.permissions.includes('floor.operate')))
+  ) {
     return true;
   }
 

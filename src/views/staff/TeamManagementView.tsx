@@ -122,6 +122,7 @@ export const TeamManagementView: React.FC = () => {
         { key: 'menu.toggleAvailability', labelKey: 'perm_menu_toggle' },
         { key: 'kitchen.operate', labelKey: 'perm_kitchen_operate' },
         { key: 'floor.operate', labelKey: 'perm_floor_operate' },
+        { key: 'orders.markDelivered', labelKey: 'perm_orders_mark_delivered' },
         { key: 'reservations.manage', labelKey: 'perm_reservations_manage' },
       ],
     },

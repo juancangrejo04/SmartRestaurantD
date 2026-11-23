@@ -74,7 +74,7 @@ export const LiveOrderTrackerPage: React.FC = () => {
   const assignedCourier = users.find((u) => u.id === order.courierId);
   const displayCourierName = order.courierName || assignedCourier?.name || t('tracker_courier_pending');
 
-  const steps: { status: OrderStatus; label: string; desc: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  const deliverySteps: { status: OrderStatus; label: string; desc: string; icon: React.ComponentType<{ className?: string }> }[] = [
     {
       status: 'received',
       label: t('order_status_received'),
@@ -89,15 +89,15 @@ export const LiveOrderTrackerPage: React.FC = () => {
     },
     {
       status: 'ready',
-      label: isDelivery ? t('tracker_step_ready_delivery') : t('tracker_step_ready_table'),
-      desc: isDelivery ? t('tracker_step_ready_delivery_desc') : t('tracker_step_ready_table_desc'),
+      label: t('tracker_step_ready_delivery'),
+      desc: t('tracker_step_ready_delivery_desc'),
       icon: ChefHat,
     },
     {
       status: 'delivering',
-      label: isDelivery ? t('order_status_delivering') : t('tracker_step_served'),
-      desc: isDelivery ? t('tracker_step_delivering_desc') : t('tracker_step_served_desc'),
-      icon: isDelivery ? Bike : Utensils,
+      label: t('order_status_delivering'),
+      desc: t('tracker_step_delivering_desc'),
+      icon: Bike,
     },
     {
       status: 'delivered',
@@ -107,7 +107,52 @@ export const LiveOrderTrackerPage: React.FC = () => {
     },
   ];
 
+  const dineInSteps: { status: OrderStatus; label: string; desc: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    {
+      status: 'received',
+      label: t('order_status_received'),
+      desc: t('tracker_step_received_desc'),
+      icon: CheckCircle2,
+    },
+    {
+      status: 'preparing',
+      label: t('order_status_preparing'),
+      desc: t('tracker_step_preparing_desc'),
+      icon: Flame,
+    },
+    {
+      status: 'ready',
+      label: t('tracker_step_ready_table'),
+      desc: t('tracker_step_ready_table_desc'),
+      icon: ChefHat,
+    },
+    {
+      status: 'delivered',
+      label: t('tracker_step_served'),
+      desc: t('tracker_step_served_desc'),
+      icon: Utensils,
+    },
+  ];
+
+  const steps = isDelivery ? deliverySteps : dineInSteps;
+
   const getStepIndex = (status: OrderStatus) => {
+    if (!isDelivery) {
+      switch (status) {
+        case 'created':
+        case 'received':
+          return 0;
+        case 'preparing':
+          return 1;
+        case 'ready':
+          return 2;
+        case 'delivering':
+        case 'delivered':
+          return 3;
+        default:
+          return 0;
+      }
+    }
     switch (status) {
       case 'created':
       case 'received':
@@ -229,7 +274,11 @@ export const LiveOrderTrackerPage: React.FC = () => {
 
           {!isCancelled && (
             <div className="pt-2">
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 relative">
+              <div
+                className={`grid grid-cols-2 ${
+                  isDelivery ? 'sm:grid-cols-5' : 'sm:grid-cols-4'
+                } gap-2 relative`}
+              >
                 {steps.map((st, idx) => {
                   const isDone = idx <= currentStepIdx;
                   const isCurrent = idx === currentStepIdx;
@@ -342,6 +391,30 @@ export const LiveOrderTrackerPage: React.FC = () => {
             </div>
           )}
 
+          {!isDelivery && isDelivered && !isCancelled && (
+            <div className="rounded-2xl p-5 bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Utensils className="w-6 h-6" />
+              </div>
+              <div className="flex-1 space-y-1">
+                <h2 className="font-serif font-bold text-lg text-emerald-950">
+                  {t('tracker_enjoy_meal_title')}
+                </h2>
+                <p className="text-xs text-emerald-900">
+                  {t('tracker_enjoy_meal_desc', { table: order.tableNumber ?? '' })}
+                </p>
+                {order.deliveredByName && (
+                  <p className="text-[11px] font-mono font-semibold text-emerald-700 pt-0.5">
+                    {t('waiter_delivered_by', {
+                      time: formatRegionalTime(order.deliveredAt || order.updatedAt, profile),
+                      name: order.deliveredByName,
+                    })}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           {isDelivered && (
             <div className="pt-4 border-t border-[#E9DFCC] text-center space-y-3">
               {hasSubmittedRatings ? (
@@ -360,6 +433,15 @@ export const LiveOrderTrackerPage: React.FC = () => {
                       </span>
                     )}
                   </div>
+                  <div className="pt-1">
+                    <Link
+                      to="/resenas"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#C8452C] hover:underline"
+                    >
+                      <Star className="w-3.5 h-3.5 fill-[#E8A33D] text-[#E8A33D]" />
+                      <span>{t('tracker_view_all_reviews')}</span>
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <>
@@ -371,7 +453,9 @@ export const LiveOrderTrackerPage: React.FC = () => {
                   <h3 className="font-serif font-bold text-base text-[#1F1A17]">
                     {t('tracker_rate_prompt_title')}
                   </h3>
-                  <p className="text-xs text-[#7A6E65]">{t('tracker_rate_prompt_desc')}</p>
+                  <p className="text-xs text-[#7A6E65]">
+                    {isDelivery ? t('tracker_rate_prompt_desc') : t('tracker_rate_prompt_desc_table')}
+                  </p>
                   <button
                     onClick={() => setShowRatingModal(true)}
                     className="px-5 py-2.5 rounded-2xl bg-[#C8452C] hover:bg-[#a6341f] text-white text-xs font-bold shadow-md transition-all inline-flex items-center gap-2"
@@ -419,7 +503,11 @@ export const LiveOrderTrackerPage: React.FC = () => {
                   type="text"
                   value={commerceComment}
                   onChange={(e) => setCommerceComment(e.target.value)}
-                  placeholder={t('tracker_rate_commerce_placeholder')}
+                  placeholder={
+                    isDelivery
+                      ? t('tracker_rate_commerce_placeholder')
+                      : t('tracker_rate_table_placeholder')
+                  }
                   className="w-full px-3 py-2 rounded-xl bg-white border border-[#E9DFCC] text-xs text-[#1F1A17]"
                 />
               </div>

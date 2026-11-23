@@ -334,6 +334,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
 
   const [activeBranchId, setActiveBranchIdState] = useState<string>(() => {
+    const initialUser = authService.getInitialUser();
+    const userBranch = initialUser?.assignedBranchId || initialUser?.branchId;
+    if (
+      initialUser &&
+      initialUser.role !== 'owner' &&
+      initialUser.role !== 'platform_admin' &&
+      initialUser.role !== 'customer' &&
+      userBranch &&
+      INITIAL_BRANCHES.some((b) => b.id === userBranch)
+    ) {
+      return userBranch;
+    }
     const saved = localStorage.getItem(`${STORAGE_PREFIX}activeBranchId`);
     if (saved && INITIAL_BRANCHES.some((b) => b.id === saved)) {
       return saved;
@@ -505,6 +517,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.storageArea !== localStorage || !e.key || !e.newValue) return;
+      try {
+        if (e.key === `${STORAGE_PREFIX}orders`) {
+          setOrders(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_PREFIX}tables`) {
+          setTables(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_PREFIX}reviews`) {
+          setReviews(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_PREFIX}reservations`) {
+          setReservations(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_PREFIX}notifications`) {
+          setNotifications(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_PREFIX}users`) {
+          setUsers(authService.getUsers());
+        }
+      } catch {
+        // Ignore malformed external storage writes
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       const channel = new BroadcastChannel('smartrestaurant_v4_channel');
       broadcastChannelRef.current = channel;
@@ -532,9 +567,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       };
 
       return () => {
+        window.removeEventListener('storage', handleStorage);
         channel.close();
       };
     }
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
   }, [language, showToast]);
 
   const refreshUsers = useCallback(() => {
@@ -614,30 +654,40 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsAuthenticated(true);
         setUsers(authService.getUsers());
 
+        const userBranchId = res.user.assignedBranchId || res.user.branchId;
+        const matchedBranch = userBranchId
+          ? branches.find((b) => b.id === userBranchId)
+          : undefined;
+
+        if (userBranchId && res.user.role !== 'customer') {
+          setActiveBranchIdState(userBranchId);
+          localStorage.setItem(`${STORAGE_PREFIX}activeBranchId`, userBranchId);
+        }
+
+        const targetCountry = matchedBranch?.country || res.user.country;
+        if (res.user.role !== 'customer' && targetCountry && COUNTRIES[targetCountry]) {
+          setCountryState(targetCountry);
+          localStorage.setItem(`${STORAGE_PREFIX}country`, targetCountry);
+        } else {
+          const savedCountry = localStorage.getItem(`${STORAGE_PREFIX}country`) as CountryCode | null;
+          if ((!savedCountry || !COUNTRIES[savedCountry]) && COUNTRIES[res.user.country]) {
+            setCountryState(res.user.country);
+          }
+        }
+
         const savedLang = localStorage.getItem(`${STORAGE_PREFIX}language`) as Language | null;
         if (!savedLang || !['es', 'en', 'pt', 'fr', 'ja'].includes(savedLang)) {
           const initialLang =
             res.user.preferredLanguage ||
             res.user.language ||
-            COUNTRIES[res.user.country]?.language ||
+            COUNTRIES[targetCountry || res.user.country]?.language ||
             'es';
           setLanguageState(initialLang);
-        }
-
-        const savedCountry = localStorage.getItem(`${STORAGE_PREFIX}country`) as CountryCode | null;
-        if (!savedCountry || !COUNTRIES[savedCountry]) {
-          if (COUNTRIES[res.user.country]) {
-            setCountryState(res.user.country);
-          }
-        }
-
-        if (res.user.assignedBranchId) {
-          setActiveBranchIdState(res.user.assignedBranchId);
         }
       }
       return res;
     },
-    []
+    [branches]
   );
 
   const registerCustomerAccount = useCallback(
@@ -1716,13 +1766,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     ): boolean => {
       const target = orders.find((o) => o.id === orderId);
       if (!target) return false;
-      if (target.commerceRating && target.courierRating) return false;
+      if (target.commerceRating && (!params.courierRating || target.courierRating)) {
+        return false;
+      }
 
       const nextOrders = orderService.submitReview(orders, orderId, params);
       setOrders(nextOrders);
 
+      let nextReviews = reviews;
+      let createdReview: Review | null = null;
       if (params.commerceRating && !target.commerceRating) {
-        const newRev: Review = {
+        createdReview = {
           id: `rev-${Date.now().toString(36)}`,
           branchId: target.branchId,
           restaurantId: target.restaurantId,
@@ -1737,7 +1791,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           originalLanguage: language,
           createdAt: new Date().toISOString(),
         };
-        setReviews((prev) => [newRev, ...prev]);
+        nextReviews = [createdReview, ...reviews];
+        setReviews(nextReviews);
       }
 
       if (params.courierRating && target.courierId && !target.courierRating) {
@@ -1753,11 +1808,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       }
 
-      broadcastStateChange({ orders: nextOrders });
+      broadcastStateChange(
+        createdReview ? { orders: nextOrders, reviews: nextReviews } : { orders: nextOrders }
+      );
+
+      if (createdReview) {
+        void recordAndDispatchEvent('analytics-service', 'broadcast', 'REVIEW_CREATED', {
+          reviewId: createdReview.id,
+          restaurantId: createdReview.restaurantId,
+          branchId: createdReview.branchId,
+          rating: createdReview.rating,
+          customerName: createdReview.customerName,
+          orderId: target.id,
+        });
+      }
+
       showToast(getTranslation(language, 'review_submitted_toast'), 'success');
       return true;
     },
-    [orders, currentUser, users, language, broadcastStateChange, showToast]
+    [orders, reviews, currentUser, users, language, broadcastStateChange, recordAndDispatchEvent, showToast]
   );
 
   // REVIEWS ACTIONS

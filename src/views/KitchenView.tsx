@@ -21,22 +21,30 @@ export const KitchenView: React.FC = () => {
     orders,
     activeBranchId,
     branches,
+    currentUser,
     advanceKitchenOrder,
-    formatPrice,
     getBranchLabel,
   } = useApp();
 
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
 
   // Re-render every 30 seconds to update elapsed timers
   useEffect(() => {
-    const timer = setInterval(() => setTick((t) => t + 1), 30000);
+    const timer = setInterval(() => setTick((prev) => prev + 1), 30000);
     return () => clearInterval(timer);
   }, []);
 
-  const activeBranch = branches.find((b: Branch) => b.id === activeBranchId);
+  const userBranchScope = currentUser?.assignedBranchId || currentUser?.branchId;
+  const scopedBranchId =
+    currentUser?.role !== 'owner' &&
+    currentUser?.role !== 'platform_admin' &&
+    userBranchScope
+      ? userBranchScope
+      : activeBranchId;
+
+  const activeBranch = branches.find((b: Branch) => b.id === scopedBranchId);
   const branchProfile = activeBranch ? getRegionProfile(activeBranch.country) : null;
-  const kitchenTickets = kitchenService.getKitchenOrders(orders, activeBranchId);
+  const kitchenTickets = kitchenService.getKitchenOrders(orders, scopedBranchId);
 
   const renderOrderCard = (order: Order, currentColumn: OrderStatus) => {
     const elapsedMinutes = kitchenService.getElapsedMinutes(order.createdAt);

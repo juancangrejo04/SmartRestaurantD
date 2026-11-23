@@ -92,9 +92,28 @@ export const WaiterDashboardView: React.FC = () => {
     branchId: activeBranch.id,
   });
 
-  const activeTableOrder = selectedTable?.currentOrderId
-    ? orders.find((o) => o.id === selectedTable.currentOrderId)
-    : undefined;
+  const getTableOrder = (tbl: Table | null) => {
+    if (!tbl) return undefined;
+    const direct = tbl.currentOrderId
+      ? orders.find((o) => o.id === tbl.currentOrderId && o.status !== 'cancelled')
+      : undefined;
+    if (direct) return direct;
+    const matching = orders.filter(
+      (o) =>
+        o.branchId === activeBranch.id &&
+        o.status !== 'cancelled' &&
+        (o.orderType === 'dine_in' ||
+          (o.orderType !== 'delivery' && o.orderType !== 'takeaway')) &&
+        (o.tableId === tbl.id || (!o.tableId && o.tableNumber === tbl.number))
+    );
+    return (
+      matching.find((o) => o.status === 'ready') ||
+      matching.find((o) => o.status === 'preparing' || o.status === 'received') ||
+      matching[0]
+    );
+  };
+
+  const activeTableOrder = getTableOrder(selectedTable);
 
   const getStatusBadge = (tbl: Table) => {
     if (tbl.billRequested) {
@@ -335,6 +354,9 @@ export const WaiterDashboardView: React.FC = () => {
               const badge = getStatusBadge(tbl);
               const isSelected = selectedTable?.id === tbl.id;
               const hasAlert = tbl.activeCallWaiter || tbl.billRequested;
+              const tblReadyOrder = readyToDeliverOrders.find(
+                (o) => o.tableId === tbl.id || (!o.tableId && o.tableNumber === tbl.number)
+              );
 
               return (
                 <div
@@ -343,6 +365,8 @@ export const WaiterDashboardView: React.FC = () => {
                   className={`cursor-pointer p-4 rounded-2xl border transition-all flex flex-col justify-between ${
                     isSelected
                       ? 'border-amber-500 bg-amber-500/10 shadow-lg ring-2 ring-amber-500/30'
+                      : tblReadyOrder
+                      ? 'border-emerald-500/70 bg-emerald-950/20 hover:border-emerald-400'
                       : 'border-slate-800 bg-slate-800/80 hover:border-slate-700'
                   }`}
                 >
@@ -361,6 +385,15 @@ export const WaiterDashboardView: React.FC = () => {
                     <span className={`w-2 h-2 rounded-full ${badge.dot}`} />
                     <span className="truncate">{badge.text}</span>
                   </div>
+
+                  {tblReadyOrder && (
+                    <div className="mt-2 p-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                      <span className="truncate">
+                        {t('status_ready')} · #{tblReadyOrder.orderNumber}
+                      </span>
+                    </div>
+                  )}
 
                   {hasAlert && (
                     <div className="mt-2 p-1.5 rounded-lg bg-amber-500/20 text-amber-300 text-[10px] font-bold flex items-center gap-1">

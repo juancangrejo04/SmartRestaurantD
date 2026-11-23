@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Table, TableZone, Branch } from '../types';
-import { useCan } from '../core/permissions';
+import { useCan, can } from '../core/permissions';
 import {
+  CheckCircle2,
   Plus,
   QrCode,
   Utensils,
@@ -25,10 +26,12 @@ export const FloorView: React.FC<FloorViewProps> = ({ onOpenQR, onOpenOrderForTa
     activeBranchId,
     branches,
     orders,
+    currentUser,
     addTable,
     openTable,
     clearTable,
     resolveWaiterCall,
+    deliverOrderToTable,
     formatPrice,
     getBranchLabel,
     t,
@@ -44,8 +47,16 @@ export const FloorView: React.FC<FloorViewProps> = ({ onOpenQR, onOpenOrderForTa
   const [openGuestsCount, setOpenGuestsCount] = useState<number>(2);
   const [qrModalTable, setQrModalTable] = useState<Table | null>(null);
 
-  const activeBranch = branches.find((b: Branch) => b.id === activeBranchId);
-  const branchTables = tables.filter((tItem: Table) => tItem.branchId === activeBranchId);
+  const userBranchScope = currentUser?.assignedBranchId || currentUser?.branchId;
+  const scopedBranchId =
+    currentUser?.role !== 'owner' &&
+    currentUser?.role !== 'platform_admin' &&
+    userBranchScope
+      ? userBranchScope
+      : activeBranchId;
+
+  const activeBranch = branches.find((b: Branch) => b.id === scopedBranchId);
+  const branchTables = tables.filter((tItem: Table) => tItem.branchId === scopedBranchId);
 
   const filteredTables =
     selectedZone === 'all'
@@ -267,7 +278,7 @@ export const FloorView: React.FC<FloorViewProps> = ({ onOpenQR, onOpenOrderForTa
                 )}
 
                 {currentOrder && (
-                  <div className="mt-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1">
+                  <div className="mt-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="font-mono font-bold text-slate-800">{currentOrder.orderNumber}</span>
                       <span className="font-mono text-amber-600 font-bold">
@@ -277,6 +288,16 @@ export const FloorView: React.FC<FloorViewProps> = ({ onOpenQR, onOpenOrderForTa
                     <div className="text-[11px] text-slate-500 truncate">
                       {currentOrder.items.length} · <strong>{t(`status_${currentOrder.status}`)}</strong>
                     </div>
+                    {currentOrder.status === 'ready' &&
+                      can(currentUser, 'orders.markDelivered', { branchId: currentOrder.branchId }) && (
+                        <button
+                          onClick={() => void deliverOrderToTable(currentOrder.id)}
+                          className="w-full py-1.5 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center justify-center gap-1 transition-colors"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>{t('waiter_mark_delivered')}</span>
+                        </button>
+                      )}
                     {table.billRequested && (
                       <span className="inline-block mt-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800">
                         {t('bill_requested')}

@@ -14,6 +14,7 @@ import {
   X,
   BellRing,
   ArrowLeft,
+  CheckCircle2,
 } from 'lucide-react';
 
 export const TableQrMenuPage: React.FC = () => {
@@ -25,6 +26,7 @@ export const TableQrMenuPage: React.FC = () => {
     restaurants,
     branches,
     tables,
+    orders,
     menuItems,
     createOrder,
     callWaiter,
@@ -41,6 +43,17 @@ export const TableQrMenuPage: React.FC = () => {
     ? restaurants.find((r) => r.id === currentBranch.restaurantId)
     : restaurants[0];
   const currentTable = tables.find((tItem) => tItem.id === tableId) || tables[0];
+
+  const activeTableOrder =
+    (currentTable?.currentOrderId
+      ? orders.find((o) => o.id === currentTable.currentOrderId && o.status !== 'cancelled')
+      : undefined) ||
+    orders.find(
+      (o) =>
+        o.branchId === currentBranch?.id &&
+        o.tableId === currentTable?.id &&
+        o.status !== 'cancelled'
+    );
 
   const branchCountry = currentBranch?.country || country;
   const branchProfile = getRegionProfile(branchCountry);
@@ -302,6 +315,45 @@ export const TableQrMenuPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {activeTableOrder && (
+          <Link
+            to={`/pedido/${activeTableOrder.id}`}
+            className={`rounded-2xl p-4 border flex items-center justify-between gap-3 transition-all ${
+              activeTableOrder.status === 'delivered'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-950 hover:bg-emerald-100/70'
+                : 'bg-[#FFFDF8] border-[#E8A33D]/50 text-[#1F1A17] hover:border-[#C8452C]'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <CheckCircle2
+                className={`w-5 h-5 shrink-0 ${
+                  activeTableOrder.status === 'delivered' ? 'text-emerald-600' : 'text-[#C8452C]'
+                }`}
+              />
+              <div>
+                <div className="text-xs font-bold flex items-center gap-2">
+                  <span className="font-mono">#{activeTableOrder.orderNumber}</span>
+                  <span>
+                    {activeTableOrder.status === 'delivered'
+                      ? t('tracker_enjoy_meal_title')
+                      : t(`order_status_${activeTableOrder.status}`)}
+                  </span>
+                </div>
+                <p className="text-[11px] opacity-80">
+                  {activeTableOrder.status === 'delivered'
+                    ? t('tracker_enjoy_meal_desc', { table: currentTable?.number ?? 1 })
+                    : t('track_order_cta')}
+                </p>
+              </div>
+            </div>
+            <span className="px-3 py-1.5 rounded-xl bg-[#1F1A17] text-white text-[11px] font-bold shrink-0">
+              {activeTableOrder.status === 'delivered' && !activeTableOrder.commerceRating
+                ? t('tracker_rate_cta')
+                : t('tracker_short')}
+            </span>
+          </Link>
+        )}
 
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((cat) => (
