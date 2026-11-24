@@ -299,8 +299,7 @@ export class RemoteSyncService {
         }
 
         // Verify live reachability to Firestore server without altering user data
-        await getDocFromServer(doc(this.db, 'orders', '__healthcheck__'));
-
+        await getDocFromServer(doc(this.db, 'orders', 'healthcheck-probe'));
         this.clearRetryTimer();
         this.retryCount = 0;
         this.setStatus('online');
