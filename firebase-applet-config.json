@@ -1,12 +1,7 @@
 {
-  "projectId": "laughing-chord-mfx4d",
-  "appId": "1:1010992091508:web:24df7ac65febfadd78dc21",
-  "apiKey": "AIzaSyAWRlnOAh5gyc_MRxv6zeXIWqkf42epNjE",
-  "authDomain": "laughing-chord-mfx4d.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-smartrestaurant-7b96e03c-964d-4475-80f2-2df97f796b2a",
-  "storageBucket": "laughing-chord-mfx4d.firebasestorage.app",
-  "messagingSenderId": "1010992091508",
-  "measurementId": "",
-  "oAuthClientId": "1010992091508-s4njgq7hj598bi6hur8ahlk3i6th66o8.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
+  "apiKey": "AIzaSyARSYFwZoJiu-gicYQ5MjBXPf7yWHa2HRQ",
+  "authDomain": "smartrestaurant-b4c72.firebaseapp.com",
+  "projectId": "smartrestaurant-b4c72",
+  "appId": "1:464922956879:web:09658464259ffb8cdac63a",
+  "firestoreDatabaseId": "(default)"
 }
