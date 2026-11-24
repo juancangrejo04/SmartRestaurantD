@@ -170,7 +170,7 @@ export class OrderService {
 
     const randomSuffix = Math.floor(Math.random() * 900) + 100;
     const orderNumber = orderType === 'delivery' ? `DOM-${randomSuffix}` : `CMD-${randomSuffix}`;
-    const now = params.createdAtUtcOverride || new Date().toISOString().replace('.000Z', 'Z');
+    const now = params.createdAtUtcOverride || new Date().toISOString();
 
     // Initialize dishStatuses
     const dishStatuses: Record<string, 'queued' | 'preparing' | 'ready' | 'served'> = {};
@@ -231,7 +231,7 @@ export class OrderService {
   }
 
   public updateOrderStatus(orders: Order[], orderId: string, status: OrderStatus): Order[] {
-    const now = new Date().toISOString().replace('.000Z', 'Z');
+    const now = new Date().toISOString();
     return orders.map((o) => {
       if (o.id === orderId) {
         const updated: Order = {
@@ -259,7 +259,7 @@ export class OrderService {
     orderId: string,
     actor: { userId: string; userName: string }
   ): Order[] {
-    const now = new Date().toISOString().replace('.000Z', 'Z');
+    const now = new Date().toISOString();
     return orders.map((o) => {
       if (o.id === orderId) {
         const nextDishStatuses: Record<string, 'queued' | 'preparing' | 'ready' | 'served'> = {

@@ -23,6 +23,7 @@ import {
   RegionProfile,
   DeliveryCart,
   DeliveryAddress,
+  SyncStatus,
 } from '../types';
 import {
   INITIAL_RESTAURANTS,
@@ -68,6 +69,11 @@ import { auditService } from '../services/auditService';
 import { can } from '../core/permissions';
 import { formatRegionalTime } from '../core/money';
 import { StoredSession } from '../core/security';
+import {
+  remoteSyncService,
+  compareIsoTimestamps,
+  SyncScope,
+} from '../services/remoteSyncService';
 
 initAllSubsystems();
 
@@ -142,6 +148,9 @@ interface AppContextType {
   isDemoRunning: boolean;
   demoStep: number;
   demoStepMessage: string;
+  syncStatus: SyncStatus;
+  mergeRemoteOrder: (order: Order, options?: { notifyCustomer?: boolean }) => void;
+  mergeRemoteTable: (table: Table) => void;
   // Tables & Waiter
   addTable: (capacity: number, zone: TableZone) => void;
   updateTableStatus: (tableId: string, status: TableStatus) => void;
@@ -414,6 +423,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isDemoRunning, setIsDemoRunning] = useState(false);
   const [demoStep, setDemoStep] = useState(0);
   const [demoStepMessage, setDemoStepMessage] = useState('');
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => remoteSyncService.getStatus());
+
+  const sessionModifiedOrderIdsRef = useRef<Set<string>>(new Set());
+  const sessionModifiedTableIdsRef = useRef<Set<string>>(new Set());
+  const lastPushedOrderUpdatedAtRef = useRef<Record<string, string>>({});
+  const lastPushedTableUpdatedAtRef = useRef<Record<string, string>>({});
+  const inflightOrderPushRef = useRef<Record<string, string>>({});
+  const inflightTablePushRef = useRef<Record<string, string>>({});
+  const notifiedStatusKeysRef = useRef<Set<string>>(new Set());
+
+  const ordersRef = useRef<Order[]>(orders);
+  ordersRef.current = orders;
+  const currentUserRef = useRef<User | null>(currentUser);
+  currentUserRef.current = currentUser;
+  const languageRef = useRef<Language>(language);
+  languageRef.current = language;
 
   useEffect(() => {
     const unsubProfiles = subscribeRegionProfiles(() => {
@@ -430,10 +455,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         })
       );
     });
+    const unsubSync = remoteSyncService.subscribeStatus(setSyncStatus);
+    if (remoteSyncService.isEnabled()) {
+      void remoteSyncService.init();
+    }
     return () => {
       unsubProfiles();
       unsubEvents();
       unsubHealth();
+      unsubSync();
     };
   }, []);
 
@@ -461,7 +491,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}tables`, JSON.stringify(tables));
-  }, [tables]);
+    if (!remoteSyncService.isEnabled()) return;
+
+    for (const tbl of tables) {
+      if (!sessionModifiedTableIdsRef.current.has(tbl.id)) continue;
+      const stamp = tbl.updatedAt;
+      if (!stamp) continue;
+      const lastPushed = lastPushedTableUpdatedAtRef.current[tbl.id];
+      const inflight = inflightTablePushRef.current[tbl.id];
+      if (
+        (!lastPushed || compareIsoTimestamps(stamp, lastPushed) > 0) &&
+        (!inflight || compareIsoTimestamps(stamp, inflight) > 0)
+      ) {
+        inflightTablePushRef.current[tbl.id] = stamp;
+        void remoteSyncService.pushTable(tbl).then((ok) => {
+          if (inflightTablePushRef.current[tbl.id] === stamp) {
+            delete inflightTablePushRef.current[tbl.id];
+          }
+          if (ok) {
+            const existing = lastPushedTableUpdatedAtRef.current[tbl.id];
+            if (!existing || compareIsoTimestamps(stamp, existing) > 0) {
+              lastPushedTableUpdatedAtRef.current[tbl.id] = stamp;
+            }
+          }
+        });
+      }
+    }
+  }, [tables, syncStatus]);
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}menuItems`, JSON.stringify(menuItems));
@@ -473,7 +529,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}orders`, JSON.stringify(orders));
-  }, [orders]);
+    if (!remoteSyncService.isEnabled()) return;
+
+    for (const ord of orders) {
+      if (!sessionModifiedOrderIdsRef.current.has(ord.id)) continue;
+      const stamp = ord.updatedAt;
+      if (!stamp) continue;
+      const lastPushed = lastPushedOrderUpdatedAtRef.current[ord.id];
+      const inflight = inflightOrderPushRef.current[ord.id];
+      if (
+        (!lastPushed || compareIsoTimestamps(stamp, lastPushed) > 0) &&
+        (!inflight || compareIsoTimestamps(stamp, inflight) > 0)
+      ) {
+        inflightOrderPushRef.current[ord.id] = stamp;
+        void remoteSyncService.pushOrder(ord).then((ok) => {
+          if (inflightOrderPushRef.current[ord.id] === stamp) {
+            delete inflightOrderPushRef.current[ord.id];
+          }
+          if (ok) {
+            const existing = lastPushedOrderUpdatedAtRef.current[ord.id];
+            if (!existing || compareIsoTimestamps(stamp, existing) > 0) {
+              lastPushedOrderUpdatedAtRef.current[ord.id] = stamp;
+            }
+          }
+        });
+      }
+    }
+  }, [orders, syncStatus]);
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}reviews`, JSON.stringify(reviews));
@@ -744,6 +826,234 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   }, [broadcastStateChange]);
 
+  const markOrdersModifiedLocally = useCallback((ids: Array<string | undefined>) => {
+    ids.forEach((id) => {
+      if (id) sessionModifiedOrderIdsRef.current.add(id);
+    });
+  }, []);
+
+  const markTablesModifiedLocally = useCallback((ids: Array<string | undefined>) => {
+    ids.forEach((id) => {
+      if (id) sessionModifiedTableIdsRef.current.add(id);
+    });
+  }, []);
+
+  const mergeRemoteOrdersList = useCallback(
+    (incomingOrders: Order[], options?: { notifyCustomer?: boolean }) => {
+      if (!incomingOrders || incomingOrders.length === 0) return;
+
+      // Record cloud updatedAt BEFORE setOrders to avoid echoing remote writes back to Firestore
+      for (const remote of incomingOrders) {
+        const stamp = remote.updatedAt || remote.createdAt || '';
+        const prevPushed = lastPushedOrderUpdatedAtRef.current[remote.id];
+        if (stamp && (!prevPushed || compareIsoTimestamps(stamp, prevPushed) > 0)) {
+          lastPushedOrderUpdatedAtRef.current[remote.id] = stamp;
+        }
+      }
+
+      const prevOrdersSnapshot = ordersRef.current;
+      const user = currentUserRef.current;
+      const lang = languageRef.current;
+
+      for (const remote of incomingOrders) {
+        const local = prevOrdersSnapshot.find((o) => o.id === remote.id);
+        const isNewerStatus =
+          local &&
+          local.status !== remote.status &&
+          compareIsoTimestamps(remote.updatedAt, local.updatedAt) > 0;
+
+        if (!isNewerStatus) continue;
+
+        const isCustomersOrder =
+          Boolean(user && user.role === 'customer') &&
+          (remote.userId === user?.id ||
+            (Boolean(user?.email) &&
+              Boolean(remote.customerEmail) &&
+              remote.customerEmail!.toLowerCase() === user!.email.toLowerCase()));
+
+        if (!isCustomersOrder && !options?.notifyCustomer) continue;
+
+        const transitionKey = `${remote.id}:${remote.status}:${remote.updatedAt}`;
+        if (notifiedStatusKeysRef.current.has(transitionKey)) continue;
+        notifiedStatusKeysRef.current.add(transitionKey);
+
+        const statusLabel = getTranslation(lang, `order_status_${remote.status}`);
+        showToast(
+          getTranslation(lang, 'toast_order_status_updated', {
+            order: remote.orderNumber,
+            status: statusLabel,
+          }),
+          remote.status === 'cancelled' ? 'warning' : 'info'
+        );
+
+        const notifMap: Record<string, { titleKey: string; messageKey: string }> = {
+          preparing: { titleKey: 'notif_order_kitchen_title', messageKey: 'notif_order_kitchen_msg' },
+          ready: { titleKey: 'notif_order_ready_title', messageKey: 'notif_order_ready_msg' },
+          delivering: { titleKey: 'notif_order_delivering_title', messageKey: 'notif_order_delivering_msg' },
+          delivered: { titleKey: 'notif_order_delivered_title', messageKey: 'notif_order_delivered_msg' },
+          cancelled: { titleKey: 'notif_order_cancelled_title', messageKey: 'notif_order_cancelled_msg' },
+        };
+        const notifKeys = notifMap[remote.status] || {
+          titleKey: 'notif_order_created_title',
+          messageKey: 'notif_order_created_msg',
+        };
+        pushKeyedNotification({
+          type: 'order',
+          titleKey: notifKeys.titleKey,
+          messageKey: notifKeys.messageKey,
+          messageParams: {
+            order: remote.orderNumber,
+            items: remote.items?.length || 1,
+          },
+          targetUserId: remote.userId || user?.id,
+          targetBranchId: remote.branchId,
+        });
+      }
+
+      setOrders((prev) => {
+        let changed = false;
+        const incomingById = new Map<string, Order>();
+        incomingOrders.forEach((remote) => {
+          const existing = incomingById.get(remote.id);
+          if (!existing || compareIsoTimestamps(remote.updatedAt, existing.updatedAt) > 0) {
+            incomingById.set(remote.id, remote);
+          }
+        });
+
+        const nextExisting = prev.map((local) => {
+          const remote = incomingById.get(local.id);
+          if (!remote) return local;
+          incomingById.delete(local.id);
+          if (compareIsoTimestamps(remote.updatedAt, local.updatedAt) > 0) {
+            changed = true;
+            return remote;
+          }
+          return local;
+        });
+
+        const brandNew = Array.from(incomingById.values());
+        if (brandNew.length > 0) {
+          changed = true;
+        }
+        if (!changed) return prev;
+        return [...brandNew, ...nextExisting];
+      });
+    },
+    [pushKeyedNotification, showToast]
+  );
+
+  const mergeRemoteTablesList = useCallback((incomingTables: Table[]) => {
+    if (!incomingTables || incomingTables.length === 0) return;
+
+    for (const remote of incomingTables) {
+      const stamp = remote.updatedAt || '';
+      const prevPushed = lastPushedTableUpdatedAtRef.current[remote.id];
+      if (stamp && (!prevPushed || compareIsoTimestamps(stamp, prevPushed) > 0)) {
+        lastPushedTableUpdatedAtRef.current[remote.id] = stamp;
+      }
+    }
+
+    setTables((prev) => {
+      let changed = false;
+      const incomingById = new Map<string, Table>();
+      incomingTables.forEach((remote) => {
+        const existing = incomingById.get(remote.id);
+        if (!existing || compareIsoTimestamps(remote.updatedAt, existing.updatedAt) > 0) {
+          incomingById.set(remote.id, remote);
+        }
+      });
+
+      const nextExisting = prev.map((local) => {
+        const remote = incomingById.get(local.id);
+        if (!remote) return local;
+        incomingById.delete(local.id);
+        if (compareIsoTimestamps(remote.updatedAt, local.updatedAt) > 0) {
+          changed = true;
+          return remote;
+        }
+        return local;
+      });
+
+      const brandNew = Array.from(incomingById.values());
+      if (brandNew.length > 0) {
+        changed = true;
+      }
+      if (!changed) return prev;
+      return [...nextExisting, ...brandNew];
+    });
+  }, []);
+
+  const mergeRemoteOrder = useCallback(
+    (order: Order, options?: { notifyCustomer?: boolean }) => {
+      mergeRemoteOrdersList([order], options);
+    },
+    [mergeRemoteOrdersList]
+  );
+
+  const mergeRemoteTable = useCallback(
+    (table: Table) => {
+      mergeRemoteTablesList([table]);
+    },
+    [mergeRemoteTablesList]
+  );
+
+  // Cloud Firestore real-time subscriptions scoped by authenticated user's role
+  useEffect(() => {
+    if (!currentUser || !remoteSyncService.isEnabled()) return;
+
+    const userBranchId = currentUser.assignedBranchId || currentUser.branchId;
+    const branchIds =
+      currentUser.role === 'owner' || currentUser.role === 'platform_admin'
+        ? currentUser.assignedBranchIds && currentUser.assignedBranchIds.length > 0
+          ? currentUser.assignedBranchIds
+          : branches.map((b) => b.id)
+        : currentUser.role === 'courier'
+        ? branches.filter((b) => b.country === currentUser.country).map((b) => b.id)
+        : userBranchId
+        ? [userBranchId]
+        : [activeBranchId];
+
+    const scope: SyncScope = {
+      role: currentUser.role,
+      userId: currentUser.id,
+      branchId: userBranchId || branchIds[0],
+      branchIds,
+    };
+
+    const unsubOrders = remoteSyncService.subscribeOrders(scope, (changedOrders) => {
+      mergeRemoteOrdersList(changedOrders);
+    });
+
+    const unsubTables =
+      currentUser.role !== 'customer'
+        ? remoteSyncService.subscribeTables(
+            {
+              role: currentUser.role,
+              branchId: scope.branchId,
+              branchIds: scope.branchIds,
+            },
+            (changedTables) => {
+              mergeRemoteTablesList(changedTables);
+            }
+          )
+        : () => {};
+
+    return () => {
+      unsubOrders();
+      unsubTables();
+    };
+  }, [
+    currentUser?.id,
+    currentUser?.role,
+    currentUser?.branchId,
+    currentUser?.assignedBranchId,
+    currentUser?.country,
+    activeBranchId,
+    branches,
+    mergeRemoteOrdersList,
+    mergeRemoteTablesList,
+  ]);
+
   const updateSingleEvent = useCallback((updated: DistributedEvent) => {
     setEvents((prev) => {
       const idx = prev.findIndex((e) => e.id === updated.id);
@@ -899,6 +1209,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         zone,
       });
       const nextTables = [...tables, newTbl];
+      markTablesModifiedLocally([newTbl.id]);
       setTables(nextTables);
       broadcastStateChange({ tables: nextTables });
       showToast(
@@ -913,12 +1224,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         zone,
       });
     },
-    [activeBranchId, tables, language, showToast, broadcastStateChange, recordAndDispatchEvent]
+    [activeBranchId, tables, language, showToast, broadcastStateChange, recordAndDispatchEvent, markTablesModifiedLocally]
   );
 
   const updateTableStatus = useCallback(
     (tableId: string, status: TableStatus) => {
       const updated = restaurantService.updateTableStatus(tables, tableId, status);
+      markTablesModifiedLocally([tableId]);
       setTables(updated);
       broadcastStateChange({ tables: updated });
       const tbl = tables.find((item) => item.id === tableId);
@@ -933,16 +1245,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         newStatus: status,
       });
     },
-    [tables, broadcastStateChange, language, showToast, recordAndDispatchEvent]
+    [tables, broadcastStateChange, language, showToast, recordAndDispatchEvent, markTablesModifiedLocally]
   );
 
   const openTable = useCallback(
     (tableId: string, guestsCount: number = 2) => {
+      const nowIso = new Date().toISOString();
       const updated = tables.map((item) =>
         item.id === tableId
-          ? { ...item, status: 'occupied' as TableStatus, currentGuestsCount: guestsCount }
+          ? {
+              ...item,
+              status: 'occupied' as TableStatus,
+              currentGuestsCount: guestsCount,
+              updatedAt: nowIso,
+            }
           : item
       );
+      markTablesModifiedLocally([tableId]);
       setTables(updated);
       broadcastStateChange({ tables: updated });
       const tbl = tables.find((item) => item.id === tableId);
@@ -960,11 +1279,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         guestsCount,
       });
     },
-    [tables, broadcastStateChange, language, showToast, recordAndDispatchEvent]
+    [tables, broadcastStateChange, language, showToast, recordAndDispatchEvent, markTablesModifiedLocally]
   );
 
   const clearTable = useCallback(
     (tableId: string) => {
+      const nowIso = new Date().toISOString();
       const updated = tables.map((item) =>
         item.id === tableId
           ? {
@@ -976,9 +1296,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               waiterCallReason: undefined,
               waiterCallTimestamp: undefined,
               billRequested: false,
+              updatedAt: nowIso,
             }
           : item
       );
+      markTablesModifiedLocally([tableId]);
       setTables(updated);
       broadcastStateChange({ tables: updated });
       const tbl = tables.find((item) => item.id === tableId);
@@ -992,7 +1314,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         number: tbl?.number,
       });
     },
-    [tables, broadcastStateChange, language, showToast, recordAndDispatchEvent]
+    [tables, broadcastStateChange, language, showToast, recordAndDispatchEvent, markTablesModifiedLocally]
   );
 
   const callWaiter = useCallback(
@@ -1005,9 +1327,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               activeCallWaiter: true,
               waiterCallReason: reason || getTranslation(language, 'call_waiter'),
               waiterCallTimestamp: nowIso,
+              updatedAt: nowIso,
             }
           : item
       );
+      markTablesModifiedLocally([tableId]);
       setTables(updated);
       broadcastStateChange({ tables: updated });
       const tbl = tables.find((item) => item.id === tableId);
@@ -1033,11 +1357,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         'success'
       );
     },
-    [tables, broadcastStateChange, language, pushKeyedNotification, showToast]
+    [tables, broadcastStateChange, language, pushKeyedNotification, showToast, markTablesModifiedLocally]
   );
 
   const resolveWaiterCall = useCallback(
     (tableId: string) => {
+      const nowIso = new Date().toISOString();
       const updated = tables.map((item) =>
         item.id === tableId
           ? {
@@ -1045,9 +1370,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               activeCallWaiter: false,
               waiterCallReason: undefined,
               waiterCallTimestamp: undefined,
+              updatedAt: nowIso,
             }
           : item
       );
+      markTablesModifiedLocally([tableId]);
       setTables(updated);
       broadcastStateChange({ tables: updated });
       const tbl = tables.find((item) => item.id === tableId);
@@ -1062,20 +1389,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         'info'
       );
     },
-    [tables, broadcastStateChange, language, recordAndDispatchEvent, showToast]
+    [tables, broadcastStateChange, language, recordAndDispatchEvent, showToast, markTablesModifiedLocally]
   );
 
   const requestBill = useCallback(
     (tableId: string) => {
+      const nowIso = new Date().toISOString();
       const tbl = tables.find((item) => item.id === tableId);
       const updatedTables = tables.map((item) =>
-        item.id === tableId ? { ...item, billRequested: true } : item
+        item.id === tableId ? { ...item, billRequested: true, updatedAt: nowIso } : item
       );
+      markTablesModifiedLocally([tableId]);
       setTables(updatedTables);
 
       if (tbl?.currentOrderId) {
+        markOrdersModifiedLocally([tbl.currentOrderId]);
         setOrders((prev) =>
-          prev.map((o) => (o.id === tbl.currentOrderId ? { ...o, billRequested: true } : o))
+          prev.map((o) =>
+            o.id === tbl.currentOrderId ? { ...o, billRequested: true, updatedAt: nowIso } : o
+          )
         );
       }
 
@@ -1152,11 +1484,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       const today = new Date().toISOString().split('T')[0];
       if (data.date === today) {
+        const nowIso = new Date().toISOString();
         const nextTables = tables.map((item) =>
           item.id === table.id && item.status === 'available'
-            ? { ...item, status: 'reserved' as TableStatus }
+            ? { ...item, status: 'reserved' as TableStatus, updatedAt: nowIso }
             : item
         );
+        markTablesModifiedLocally([table.id]);
         setTables(nextTables);
         broadcastStateChange({ reservations: nextReservations, tables: nextTables });
       } else {
@@ -1236,11 +1570,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         kitchenNotes: specialInstructions,
       });
 
+      const nowIso = new Date().toISOString();
       const nextOrders = [newOrder, ...orders];
       const nextTables = tables.map((item) =>
-        item.id === tableId ? { ...item, status: 'occupied' as TableStatus, currentOrderId: newOrder.id } : item
+        item.id === tableId
+          ? {
+              ...item,
+              status: 'occupied' as TableStatus,
+              currentOrderId: newOrder.id,
+              updatedAt: nowIso,
+            }
+          : item
       );
 
+      markOrdersModifiedLocally([newOrder.id]);
+      markTablesModifiedLocally([tableId]);
       setOrders(nextOrders);
       setTables(nextTables);
       broadcastStateChange({ orders: nextOrders, tables: nextTables });
@@ -1258,7 +1602,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       return newOrder;
     },
-    [tables, branches, activeBranchId, country, currentUser, orders, broadcastStateChange, recordAndDispatchEvent]
+    [tables, branches, activeBranchId, country, currentUser, orders, broadcastStateChange, recordAndDispatchEvent, markOrdersModifiedLocally, markTablesModifiedLocally]
   );
 
   // DELIVERY ORDER WITH 5-STEP SAGA + REVERSE COMPENSATIONS
@@ -1306,6 +1650,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           updatedAt: new Date().toISOString(),
         };
         const nextOrders = [failedOrder, ...orders];
+        markOrdersModifiedLocally([failedOrder.id]);
         setOrders(nextOrders);
         broadcastStateChange({ orders: nextOrders });
         return { success: false, order: failedOrder, errorKey: 'checkout_err_payment_declined' };
@@ -1335,12 +1680,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           updatedAt: new Date().toISOString(),
         };
         const nextOrders = [compensatedOrder, ...orders];
+        markOrdersModifiedLocally([compensatedOrder.id]);
         setOrders(nextOrders);
         broadcastStateChange({ orders: nextOrders });
         return { success: false, order: compensatedOrder, errorKey: 'checkout_err_payment_declined' };
       }
 
       const nextOrders = [paidOrder, ...orders];
+      markOrdersModifiedLocally([paidOrder.id]);
       setOrders(nextOrders);
       setDeliveryCart(null);
       broadcastStateChange({ orders: nextOrders });
@@ -1375,7 +1722,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       return { success: true, order: paidOrder };
     },
-    [currentUser?.id, orders, users, broadcastStateChange, recordAndDispatchEvent]
+    [currentUser?.id, orders, users, broadcastStateChange, recordAndDispatchEvent, markOrdersModifiedLocally]
   );
 
   const acceptDeliveryOrder = useCallback(
@@ -1393,6 +1740,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
           : o
       );
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
       broadcastStateChange({ orders: nextOrders });
 
@@ -1443,6 +1791,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
           : o
       );
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
       broadcastStateChange({ orders: nextOrders });
 
@@ -1455,7 +1804,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         targetBranchId: target?.branchId,
       });
     },
-    [orders, broadcastStateChange, pushKeyedNotification]
+    [orders, broadcastStateChange, pushKeyedNotification, markOrdersModifiedLocally]
   );
 
   const advanceKitchenOrder = useCallback(
@@ -1480,6 +1829,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!nextStatus) return;
 
       const nextOrders = orderService.updateOrderStatus(orders, orderId, nextStatus);
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
       broadcastStateChange({ orders: nextOrders });
 
@@ -1560,8 +1910,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
       const updatedOrder = nextOrders.find((o) => o.id === orderId);
       const deliveredAt =
-        updatedOrder?.deliveredAt || new Date().toISOString().replace('.000Z', 'Z');
+        updatedOrder?.deliveredAt || new Date().toISOString();
 
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
       broadcastStateChange({ orders: nextOrders });
 
@@ -1608,16 +1959,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       return true;
     },
-    [orders, currentUser, language, branches, broadcastStateChange, recordAndDispatchEvent, showToast]
+    [orders, currentUser, language, branches, broadcastStateChange, recordAndDispatchEvent, showToast, markOrdersModifiedLocally]
   );
 
   const advanceDishStatus = useCallback(
     (orderId: string, dishKey: string, nextStatus: 'queued' | 'preparing' | 'ready' | 'served') => {
       const nextOrders = orderService.updateDishStatus(orders, orderId, dishKey, nextStatus);
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
       broadcastStateChange({ orders: nextOrders });
     },
-    [orders, broadcastStateChange]
+    [orders, broadcastStateChange, markOrdersModifiedLocally]
   );
 
   const assignCourierToOrder = useCallback(
@@ -1627,6 +1979,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       orderSagaService.advanceStep(orderId, 'capture_payment');
 
       const nextOrders = orderService.assignCourier(orders, orderId, courierId, courierName);
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
 
       const courier = users.find((u) => u.id === courierId);
@@ -1648,13 +2001,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         targetBranchId: target?.branchId,
       });
     },
-    [orders, users, broadcastStateChange, pushKeyedNotification]
+    [orders, users, broadcastStateChange, pushKeyedNotification, markOrdersModifiedLocally]
   );
 
   const updateDeliveryOrderStatus = useCallback(
     (orderId: string, status: OrderStatus) => {
       const target = orders.find((o) => o.id === orderId);
       const nextOrders = orderService.updateOrderStatus(orders, orderId, status);
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
       broadcastStateChange({ orders: nextOrders });
 
@@ -1669,7 +2023,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         });
       }
     },
-    [orders, broadcastStateChange, pushKeyedNotification]
+    [orders, broadcastStateChange, pushKeyedNotification, markOrdersModifiedLocally]
   );
 
   const completeDeliveryWithPin = useCallback(
@@ -1681,6 +2035,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
 
       const nextOrders = orderService.updateOrderStatus(orders, orderId, 'delivered');
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
 
       dispatchService.releaseLease(orderId, courierId);
@@ -1711,7 +2066,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       return { success: true };
     },
-    [orders, users, currentUser?.id, broadcastStateChange, pushKeyedNotification]
+    [orders, users, currentUser?.id, broadcastStateChange, pushKeyedNotification, markOrdersModifiedLocally]
   );
 
   const cancelOrderWithCompensation = useCallback(
@@ -1731,6 +2086,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
           : o
       );
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
       broadcastStateChange({ orders: nextOrders });
 
@@ -1743,17 +2099,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         targetBranchId: target?.branchId,
       });
     },
-    [orders, broadcastStateChange, pushKeyedNotification]
+    [orders, broadcastStateChange, pushKeyedNotification, markOrdersModifiedLocally]
   );
 
   const markOrderBillPaid = useCallback(
     (orderId: string, method: string) => {
       const nextOrders = orderService.processPayment(orders, orderId, method);
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
       broadcastStateChange({ orders: nextOrders });
       showToast(getTranslation(language, 'success'), 'success');
     },
-    [orders, broadcastStateChange, language, showToast]
+    [orders, broadcastStateChange, language, showToast, markOrdersModifiedLocally]
   );
 
   const submitOrderRatings = useCallback(
@@ -1771,6 +2128,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
 
       const nextOrders = orderService.submitReview(orders, orderId, params);
+      markOrdersModifiedLocally([orderId]);
       setOrders(nextOrders);
 
       let nextReviews = reviews;
@@ -2004,13 +2362,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const appendOrders = useCallback(
     (newOrders: Order[]) => {
+      markOrdersModifiedLocally(newOrders.map((o) => o.id));
       setOrders((prev) => {
         const merged = [...newOrders, ...prev];
         broadcastStateChange({ orders: merged });
         return merged;
       });
     },
-    [broadcastStateChange]
+    [broadcastStateChange, markOrdersModifiedLocally]
   );
 
   const runFullDistributedDemo = useCallback(async () => {
@@ -2062,6 +2421,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       tipPercentage: 10,
       customerName: 'Guest Demo',
     });
+    markOrdersModifiedLocally([demoOrder.id]);
     setOrders((prev) => [demoOrder, ...prev]);
 
     await recordAndDispatchEvent('order-service', 'kitchen-service', 'ORDER_CREATED', {
@@ -2078,11 +2438,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setDemoStep(0);
       setDemoStepMessage('');
     }, 1500);
-  }, [isDemoRunning, activeBranchId, tables, branches, country, language, recordAndDispatchEvent]);
+  }, [isDemoRunning, activeBranchId, tables, branches, country, language, recordAndDispatchEvent, markOrdersModifiedLocally]);
 
   const resetToFactoryDefaults = useCallback(() => {
     localStorage.clear();
     localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+    sessionModifiedOrderIdsRef.current.clear();
+    sessionModifiedTableIdsRef.current.clear();
+    lastPushedOrderUpdatedAtRef.current = {};
+    lastPushedTableUpdatedAtRef.current = {};
+    inflightOrderPushRef.current = {};
+    inflightTablePushRef.current = {};
+    notifiedStatusKeysRef.current.clear();
     resetStoredRegionProfiles();
     regionNodes.resetAllNodes();
     distributedClock.resetLamport(100);
@@ -2224,6 +2591,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         isDemoRunning,
         demoStep,
         demoStepMessage,
+        syncStatus,
+        mergeRemoteOrder,
+        mergeRemoteTable,
         addTable,
         updateTableStatus,
         openTable,

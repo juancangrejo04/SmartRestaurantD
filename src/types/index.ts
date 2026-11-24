@@ -234,7 +234,10 @@ export interface Table {
   waiterCallTimestamp?: string;
   currentGuestsCount?: number;
   billRequested?: boolean;
+  updatedAt?: string;
 }
+
+export type SyncStatus = 'disabled' | 'connecting' | 'online' | 'offline';
 
 export type MenuCategory = 'starters' | 'mains' | 'desserts' | 'drinks' | 'specials';
 

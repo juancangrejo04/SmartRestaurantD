@@ -1,0 +1,30 @@
+rules_version = '2';
+
+// NOTA DE SEGURIDAD (NIVEL DEMOSTRACIÓN):
+// La aplicación usa autenticación anónima de Firebase (`signInAnonymously`)
+// porque el inicio de sesión por rol/usuario de SmartRestaurant es simulado
+// en el cliente (`authService.ts`). Cualquier cliente con sesión anónima puede
+// leer y crear/actualizar documentos válidos en `orders` y `tables`.
+// En producción, las reglas deben validar Custom Claims o UID del usuario
+// contra `request.auth.uid` y restringir escrituras según el rol en backend.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /orders/{id} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.resource.data.keys().hasAll(['data','branchId','status','updatedAt'])
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 50000;
+      allow delete: if false;
+    }
+
+    match /tables/{id} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 5000;
+      allow delete: if false;
+    }
+  }
+}

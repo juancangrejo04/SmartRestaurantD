@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { getRegionProfile } from '../../data/regions';
@@ -6,6 +6,8 @@ import { MoneyUtils } from '../../core/money';
 import { orderService } from '../../services/orderService';
 import { MenuItem, OrderItem } from '../../types';
 import { ImageWithFallback } from '../../components/common/ImageWithFallback';
+import { SyncStatusBadge } from '../../components/common/SyncStatusBadge';
+import { remoteSyncService } from '../../services/remoteSyncService';
 import {
   ShoppingBag,
   Plus,
@@ -33,6 +35,8 @@ export const TableQrMenuPage: React.FC = () => {
     formatPrice,
     showToast,
     currentUser,
+    mergeRemoteOrder,
+    mergeRemoteTable,
     getBranchLabel,
     loc,
     t,
@@ -69,6 +73,30 @@ export const TableQrMenuPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCallingWaiter, setIsCallingWaiter] = useState(false);
+
+  useEffect(() => {
+    if (!currentBranch?.id || !remoteSyncService.isEnabled()) return;
+    const unsubTables = remoteSyncService.subscribeTables(
+      { branchId: currentBranch.id },
+      (changedTables) => {
+        changedTables.forEach(mergeRemoteTable);
+      }
+    );
+    return () => {
+      unsubTables();
+    };
+  }, [currentBranch?.id, mergeRemoteTable]);
+
+  useEffect(() => {
+    const orderId = activeTableOrder?.id;
+    if (!orderId || !remoteSyncService.isEnabled()) return;
+    const unsubOrder = remoteSyncService.subscribeOrderByIdOrNumber(orderId, (updated) => {
+      mergeRemoteOrder(updated, { notifyCustomer: true });
+    });
+    return () => {
+      unsubOrder();
+    };
+  }, [activeTableOrder?.id, mergeRemoteOrder]);
 
   const branchMenuItems = menuItems.filter((item) => {
     if (item.restaurantId && item.restaurantId !== currentRestaurant?.id) return false;
@@ -250,6 +278,7 @@ export const TableQrMenuPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <SyncStatusBadge variant="light" className="hidden md:inline-flex" />
             <button
               onClick={handleCallWaiter}
               disabled={isCallingWaiter || currentTable?.activeCallWaiter}

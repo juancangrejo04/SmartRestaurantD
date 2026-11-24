@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { ShoppingBag, ArrowRight, FileText, Bike, Utensils, LogIn, Star } from 'lucide-react';
 import { MoneyUtils, formatRegionalDate, formatRegionalTime } from '../../core/money';
 import { getRegionProfile } from '../../data/regions';
+import { SyncStatusBadge } from '../../components/common/SyncStatusBadge';
 
 export const MyOrdersPage: React.FC = () => {
   const {
@@ -51,14 +52,17 @@ export const MyOrdersPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FBF6EC] py-10 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-3xl mx-auto space-y-6">
-        <div>
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#C8452C] px-2 py-0.5 rounded bg-[#C8452C]/10 border border-[#C8452C]/20">
-            {t('my_orders_badge')}
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#1F1A17] mt-1">
-            {t('my_orders_title')}
-          </h1>
-          <p className="text-xs text-[#7A6E65]">{t('my_orders_subtitle')}</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#C8452C] px-2 py-0.5 rounded bg-[#C8452C]/10 border border-[#C8452C]/20">
+              {t('my_orders_badge')}
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#1F1A17] mt-1">
+              {t('my_orders_title')}
+            </h1>
+            <p className="text-xs text-[#7A6E65]">{t('my_orders_subtitle')}</p>
+          </div>
+          <SyncStatusBadge variant="light" />
         </div>
 
         {userOrders.length === 0 ? (

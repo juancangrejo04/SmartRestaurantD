@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { can, Permission } from '../../core/permissions';
 import { authService } from '../../services/authService';
 import { Language } from '../../types';
+import { SyncStatusBadge } from '../common/SyncStatusBadge';
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -267,6 +268,9 @@ export const StaffLayout: React.FC<{ children: React.ReactNode }> = ({ children 
             <span>{userTime}</span>
             <span className="text-[9px] text-slate-500">({userTimeZone.split('/')[1] || 'UTC'})</span>
           </div>
+
+          {/* Real-time Cloud Sync Indicator */}
+          <SyncStatusBadge variant="dark" className="hidden sm:inline-flex" />
 
           {/* Notifications Bell (Dynamically translated into recipient language & timezone) */}
           {can(currentUser, 'notifications.view') && (

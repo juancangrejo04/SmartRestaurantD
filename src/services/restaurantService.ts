@@ -117,12 +117,14 @@ export class RestaurantService {
     newStatus: TableStatus,
     currentOrderId?: string
   ): Table[] {
+    const now = new Date().toISOString();
     return tables.map((t) => {
       if (t.id === tableId) {
         return {
           ...t,
           status: newStatus,
           currentOrderId: newStatus === 'available' ? undefined : currentOrderId ?? t.currentOrderId,
+          updatedAt: now,
         };
       }
       return t;
@@ -144,6 +146,7 @@ export class RestaurantService {
       capacity: params.capacity,
       zone: params.zone,
       status: 'available',
+      updatedAt: new Date().toISOString(),
     };
   }
 

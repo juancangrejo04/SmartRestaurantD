@@ -17,6 +17,8 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { OrderStatus } from '../../types';
+import { remoteSyncService } from '../../services/remoteSyncService';
+import { SyncStatusBadge } from '../../components/common/SyncStatusBadge';
 
 export const LiveOrderTrackerPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -28,13 +30,17 @@ export const LiveOrderTrackerPage: React.FC = () => {
     country,
     cancelOrderWithCompensation,
     submitOrderRatings,
+    mergeRemoteOrder,
     getBranchLabel,
     getBranchCityName,
     showToast,
     t,
   } = useApp();
 
-  const order = orders.find((o) => o.id === orderId) || orders[0];
+  const order = orderId
+    ? orders.find((o) => o.id === orderId || o.orderNumber === orderId)
+    : orders[0];
+  const [isLookingUpRemote, setIsLookingUpRemote] = useState(Boolean(orderId && !order));
   const branch = branches.find((b) => b.id === order?.branchId) || branches[0];
   const restaurant = restaurants.find((r) => r.id === order?.restaurantId) || restaurants[0];
   const profile = getRegionProfile(branch?.country || country);
@@ -49,6 +55,41 @@ export const LiveOrderTrackerPage: React.FC = () => {
   const [courierComment, setCourierComment] = useState('');
 
   useEffect(() => {
+    if (!orderId || !remoteSyncService.isEnabled()) {
+      setIsLookingUpRemote(false);
+      return;
+    }
+
+    let cancelled = false;
+    if (!order) {
+      setIsLookingUpRemote(true);
+      void remoteSyncService
+        .fetchOrderByIdOrNumber(orderId)
+        .then((remoteOrder) => {
+          if (!cancelled && remoteOrder) {
+            mergeRemoteOrder(remoteOrder, { notifyCustomer: true });
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setIsLookingUpRemote(false);
+        });
+    } else {
+      setIsLookingUpRemote(false);
+    }
+
+    const unsub = remoteSyncService.subscribeOrderByIdOrNumber(orderId, (updated) => {
+      if (!cancelled) {
+        mergeRemoteOrder(updated, { notifyCustomer: true });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      unsub();
+    };
+  }, [orderId, mergeRemoteOrder]);
+
+  useEffect(() => {
     if (order?.status === 'delivering') {
       const interval = setInterval(() => {
         setCourierProgress((prev) => (prev >= 95 ? 95 : prev + 3));
@@ -59,9 +100,21 @@ export const LiveOrderTrackerPage: React.FC = () => {
     }
   }, [order?.status]);
 
+  if (!order && isLookingUpRemote) {
+    return (
+      <div className="min-h-screen bg-[#FBF6EC] p-8 text-center font-sans flex flex-col items-center justify-center gap-3">
+        <SyncStatusBadge variant="light" />
+        <p className="text-xs text-[#7A6E65]">{t('sync_connecting')}</p>
+      </div>
+    );
+  }
+
   if (!order) {
     return (
-      <div className="min-h-screen bg-[#FBF6EC] p-8 text-center font-sans">
+      <div className="min-h-screen bg-[#FBF6EC] p-8 text-center font-sans space-y-3">
+        <div>
+          <SyncStatusBadge variant="light" />
+        </div>
         <h2 className="text-lg font-bold text-[#1F1A17]">{t('tracker_not_found')}</h2>
         <Link to="/" className="text-[#C8452C] font-semibold mt-2 inline-block text-xs">
           {t('back_to_home')}
@@ -209,7 +262,7 @@ export const LiveOrderTrackerPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FBF6EC] py-10 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-3xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Link
             to="/restaurantes"
             className="flex items-center gap-2 text-xs font-bold text-[#7A6E65] hover:text-[#1F1A17] transition-colors"
@@ -218,13 +271,16 @@ export const LiveOrderTrackerPage: React.FC = () => {
             <span>{t('cta_explore')}</span>
           </Link>
 
-          <Link
-            to={`/comprobante/${order.id}`}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#E9DFCC] text-xs font-bold text-[#1F1A17] hover:bg-[#FBF6EC] transition-colors shadow-xs"
-          >
-            <FileText className="w-4 h-4 text-[#C8452C]" />
-            <span>{t('tracker_view_receipt')}</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <SyncStatusBadge variant="light" />
+            <Link
+              to={`/comprobante/${order.id}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#E9DFCC] text-xs font-bold text-[#1F1A17] hover:bg-[#FBF6EC] transition-colors shadow-xs"
+            >
+              <FileText className="w-4 h-4 text-[#C8452C]" />
+              <span>{t('tracker_view_receipt')}</span>
+            </Link>
+          </div>
         </div>
 
         <div className="bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#E9DFCC] shadow-xl space-y-6">

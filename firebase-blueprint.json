@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "OrderSyncDoc": {
+      "title": "OrderSyncDoc",
+      "description": "Serialized restaurant order document synchronized across devices via Firestore.",
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "JSON-serialized Order object (<50KB)" },
+        "branchId": { "type": "string" },
+        "userId": { "type": ["string", "null"] },
+        "courierId": { "type": ["string", "null"] },
+        "orderType": { "type": "string" },
+        "orderNumber": { "type": "string" },
+        "status": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["data", "branchId", "status", "updatedAt"]
+    },
+    "TableSyncDoc": {
+      "title": "TableSyncDoc",
+      "description": "Serialized restaurant table document synchronized across devices via Firestore.",
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "JSON-serialized Table object (<5KB)" },
+        "branchId": { "type": "string" },
+        "status": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["data", "branchId", "status", "updatedAt"]
+    }
+  },
+  "auth": {
+    "providers": ["anonymous"]
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": "OrderSyncDoc",
+      "description": "Real-time cross-device order state collection."
+    },
+    "/tables/{tableId}": {
+      "schema": "TableSyncDoc",
+      "description": "Real-time cross-device table state collection."
+    }
+  }
+}
